@@ -1,4 +1,4 @@
-package prototype;
+package test;
 
 import net.ssehub.kernel_haven.Run;
 
