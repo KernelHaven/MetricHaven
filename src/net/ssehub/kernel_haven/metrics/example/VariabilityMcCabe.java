@@ -42,6 +42,10 @@ public class VariabilityMcCabe extends CodeFileBlockMetric {
      */
     private int calc(Block block) {
         int result = 1;
+        if (block.getCondition() == null) {
+            // this is an else block
+            result = 0;
+        }
         
         for (Block child : block) {
             result += calc(child);
