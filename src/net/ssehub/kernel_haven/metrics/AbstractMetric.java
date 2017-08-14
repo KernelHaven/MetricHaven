@@ -7,6 +7,7 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.BlockingQueue;
+import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -52,6 +53,11 @@ public abstract class AbstractMetric extends AbstractAnalysis {
      */
     private void handleOutput(List<MetricResult> result) {
         LOGGER.logInfo(result.toString());
+        
+        ExtractorException error;
+        while ((error = cmProvider.getNextException()) != null) {
+            LOGGER.logException("Exception in code extractor", error);
+        }
     }
     
     /**

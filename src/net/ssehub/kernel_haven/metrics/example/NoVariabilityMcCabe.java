@@ -10,14 +10,14 @@ import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
  * 
  * @author Adam
  */
-public class McCabe extends CodeFunctionMetric {
+public class NoVariabilityMcCabe extends CodeFunctionMetric {
 
     /**
      * Creates a new McCabe metric.
      * 
      * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
      */
-    public McCabe(Configuration config) {
+    public NoVariabilityMcCabe(Configuration config) {
         super(config);
     }
 

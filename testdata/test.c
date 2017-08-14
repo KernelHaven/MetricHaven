@@ -17,12 +17,12 @@ int straight(int max) {
 }
 
 void wikiExample() {
-    if( c1() )
+    if (c1())
        f1();
     else
        f2();
     
-    if( c2() )
+    if (c2())
        f3();
     else
        f4();
@@ -31,15 +31,15 @@ void wikiExample() {
 
 void someInternetExample() {
     i = 0;
-    n=4; //N-Number of nodes present in the graph
-    while (i<n-1) {
+    n = 4;
+    while (i < n - 1) {
         j = i + 1;
-        while (j<n) {
-            if (A[i]<A[j]) {
+        while (j < n) {
+            if (A[i] < A[j]) {
                 swap(A[i], A[j]);
             }
             
         }
-        i=i+1;
+        i++;
     }
 }

@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/KernelHaven"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/TypeChefExtractor"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/UndertakerExtractor"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
