@@ -45,7 +45,6 @@ void someInternetExample() {
 }
 
 void elseifs() {
-
 	int a;
 	if (a < 2) {
 	
@@ -54,5 +53,16 @@ void elseifs() {
 	} else {
 	
 	}
+}
 
+void switchExample() {
+	int a;
+	switch (a) {
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	}
 }
