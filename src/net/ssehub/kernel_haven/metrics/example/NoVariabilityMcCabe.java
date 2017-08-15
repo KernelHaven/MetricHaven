@@ -37,11 +37,15 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
     private double calc(TypeChefBlock block) {
         double result = 0.0;
         
+        
         switch (block.getText()) {
         case "WhileStatement":
             result++;
             break;
         case "IfStatement":
+            result++;
+            break;
+        case "ElifStatement": // TypeChef produces separate nodes for "else if ()"
             result++;
             break;
         case "ForStatement":

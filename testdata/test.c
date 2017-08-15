@@ -43,3 +43,16 @@ void someInternetExample() {
         i++;
     }
 }
+
+void elseifs() {
+
+	int a;
+	if (a < 2) {
+	
+	} else if (a < 4) {
+	
+	} else {
+	
+	}
+
+}
