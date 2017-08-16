@@ -58,8 +58,11 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
         TypeChefBlock b = (TypeChefBlock) block;
         
         if (b.getText().equals("FunctionDef")) {
-            double r = run(b);
             String name = b.getChild("Declarator").getChild("ID").getChild("Name").getText();
+            
+            LOGGER.logInfo("Running metric for " + name);
+            
+            double r = run(b);
             result.add(new MetricResult(filename + ":" + b.getLineStart() + " " + name + "()", r));
             
         } else {

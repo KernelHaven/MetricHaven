@@ -43,6 +43,8 @@ public abstract class CodeFileBlockMetric extends AbstractMetric {
                 break;
             }
             
+            LOGGER.logInfo("Running metric for " + file.getPath().getPath());
+            
             double r = run(file);
             result.add(new MetricResult(file.getPath().getPath(), r));
         }
