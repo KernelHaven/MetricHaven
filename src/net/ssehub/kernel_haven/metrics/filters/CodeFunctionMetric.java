@@ -37,9 +37,8 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
 
         SourceFile file;
         while ((file = codeModel.get()) != null) {
-            String filename = file.getPath().getPath();
             for (Block b : file) {
-                visitCodeBlock(b, result, filename);
+                visitCodeBlock(b, result);
             }
         }
         
@@ -52,9 +51,8 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
      * 
      * @param block The AST node we are currently at.
      * @param result The list to add results of metric executions to.
-     * @param filename The name of the file that we are currently in.
      */
-    private void visitCodeBlock(Block block, List<MetricResult> result, String filename) {
+    private void visitCodeBlock(Block block, List<MetricResult> result) {
         TypeChefBlock b = (TypeChefBlock) block;
         
         if (b.getText().equals("FunctionDef")) {
@@ -63,11 +61,17 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
             LOGGER.logInfo("Running metric for " + name);
             
             double r = run(b);
-            result.add(new MetricResult(filename + ":" + b.getLineStart() + " " + name + "()", r));
+            
+            String position = "<unknown>";
+            if (b.getPosition() != null) {
+                position = b.getPosition().getFile().getPath() + ":" + b.getPosition().getLine();
+            }
+            
+            result.add(new MetricResult(position + " " + name + "()", r));
             
         } else {
             for (Block b1 : b) {
-                visitCodeBlock(b1, result, filename);
+                visitCodeBlock(b1, result);
             }
         }
         
