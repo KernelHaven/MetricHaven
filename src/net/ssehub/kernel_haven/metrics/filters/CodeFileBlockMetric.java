@@ -30,7 +30,7 @@ public abstract class CodeFileBlockMetric extends AbstractMetric {
     }
 
     @Override
-    protected List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
+    public List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
             VariabilityModel varModel) {
         
         List<MetricResult> result = new LinkedList<>();

@@ -66,3 +66,21 @@ void switchExample() {
 		break;
 	}
 }
+
+void paperExample() {
+	char c1;
+	int c2;
+	int c3;
+	switch (c1) {
+	case 'A': break;
+	case 'B': if (c2); break;
+	case 'C': if (c3); else; break;
+	}
+}
+
+void doWhileTest() {
+	do {
+	
+	} while (1);
+}
+

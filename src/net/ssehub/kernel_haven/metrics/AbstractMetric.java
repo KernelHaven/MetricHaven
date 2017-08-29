@@ -25,6 +25,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public abstract class AbstractMetric extends AbstractAnalysis {
 
+    private boolean onlyConsole;
+    
     /**
      * Creates a new abstract metric.
      * 
@@ -32,6 +34,7 @@ public abstract class AbstractMetric extends AbstractAnalysis {
      */
     public AbstractMetric(Configuration config) {
         super(config);
+        onlyConsole = Boolean.parseBoolean(config.getProperty("analysis.log.only_console"));
     }
     
     @Override
@@ -58,35 +61,45 @@ public abstract class AbstractMetric extends AbstractAnalysis {
     private void handleOutput(List<MetricResult> result) {
         LOGGER.logInfo("Writing output...");
         
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-        LocalDateTime now = LocalDateTime.now();
-        String timestamp = dtf.format(now);
-        
-        PrintStream out = createResultStream(this.getClass().getSimpleName() + ".result_" + timestamp + ".csv");
-        PrintStream err = createResultStream(this.getClass().getSimpleName() + ".errors_" + timestamp + ".csv");
-        
-        out.println("Context;Value");
+        String[] lines = new String[result.size() + 1];
+        int i = 0;
+        lines[i++] = "Metric result:";
         for (MetricResult r : result) {
-            out.println(r.getContext() + ";" + r.getValue());
+            lines[i++] = "\t" + r.getContext() + ": " + r.getValue();
         }
-        out.close();
+        LOGGER.logInfo(lines);
         
-        err.println("file;exception");
-        ExtractorException error;
-        while ((error = cmProvider.getNextException()) != null) {
-            if (error instanceof CodeExtractorException) {
-                CodeExtractorException exc = (CodeExtractorException) error;
-                err.print(exc.getCausingFile().getPath() + ";");
-                if (exc.getCause() != null) {
-                    err.println(exc.getCause().toString());
-                } else {
-                    err.println(exc.toString());
-                }
-            } else {
-                err.println(";" + error.toString());
+        if (!onlyConsole) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+            LocalDateTime now = LocalDateTime.now();
+            String timestamp = dtf.format(now);
+            
+            PrintStream out = createResultStream(this.getClass().getSimpleName() + ".result_" + timestamp + ".csv");
+            PrintStream err = createResultStream(this.getClass().getSimpleName() + ".errors_" + timestamp + ".csv");
+            
+            out.println("Context;Value");
+            for (MetricResult r : result) {
+                out.println(r.getContext() + ";" + r.getValue());
             }
+            out.close();
+            
+            err.println("file;exception");
+            ExtractorException error;
+            while ((error = cmProvider.getNextException()) != null) {
+                if (error instanceof CodeExtractorException) {
+                    CodeExtractorException exc = (CodeExtractorException) error;
+                    err.print(exc.getCausingFile().getPath() + ";");
+                    if (exc.getCause() != null) {
+                        err.println(exc.getCause().toString());
+                    } else {
+                        err.println(exc.toString());
+                    }
+                } else {
+                    err.println(";" + error.toString());
+                }
+            }
+            err.close();
         }
-        err.close();
     }
     
     /**
@@ -101,7 +114,7 @@ public abstract class AbstractMetric extends AbstractAnalysis {
      * 
      * @return The result of the metric execution. Must not be <code>null</code>.
      */
-    protected abstract List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
+    public abstract List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
             VariabilityModel varModel);
 
 }

@@ -30,7 +30,7 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
     }
 
     @Override
-    protected List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
+    public List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
             VariabilityModel varModel) {
         
         List<MetricResult> result = new LinkedList<>();
@@ -47,6 +47,39 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
     }
     
     /**
+     * Reads the name of a given function definition.
+     * 
+     * @return The name of the function
+     */
+    private String getFunctionName(TypeChefBlock functionDef) {
+        String name = "<error: can't find ID in function>";
+        
+        TypeChefBlock declarator = functionDef.getChild("Declarator");
+        if (declarator != null) {
+            
+            TypeChefBlock id = declarator.getChild("ID");
+            if (id != null) {
+                
+                TypeChefBlock value = id.getChild("Name");
+                if (value != null) {
+                    name = value.getText();
+                    
+                } else {
+                    LOGGER.logWarning("Can't find Name in ID:", declarator.toString());
+                }
+                
+            } else {
+                LOGGER.logWarning("Can't find ID in declarator:", declarator.toString());
+            }
+            
+        } else {
+            LOGGER.logWarning("Can't find declarator in functionDef:", functionDef.toString());
+        }
+        
+        return name;
+    }
+    
+    /**
      * Recursively walks through the AST to find functions. Calls the metric for each function found.
      * 
      * @param block The AST node we are currently at.
@@ -56,7 +89,7 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
         TypeChefBlock b = (TypeChefBlock) block;
         
         if (b.getText().equals("FunctionDef")) {
-            String name = b.getChild("Declarator").getChild("ID").getChild("Name").getText();
+            String name = getFunctionName(b);
             
             LOGGER.logInfo("Running metric for " + name);
             
