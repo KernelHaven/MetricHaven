@@ -49,6 +49,8 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
     /**
      * Reads the name of a given function definition.
      * 
+     * @param functionDef The function to read the name from.
+     * 
      * @return The name of the function
      */
     private String getFunctionName(TypeChefBlock functionDef) {
