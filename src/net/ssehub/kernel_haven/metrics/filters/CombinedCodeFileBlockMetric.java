@@ -7,6 +7,7 @@ import java.util.Map;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.metrics.CombinedMetric;
 import net.ssehub.kernel_haven.metrics.MetricResult;
 import net.ssehub.kernel_haven.undertaker.UndertakerBlock;
 import net.ssehub.kernel_haven.util.BlockingQueue;
@@ -30,7 +31,7 @@ public abstract class CombinedCodeFileBlockMetric extends CombinedMetric {
     }
     
     @Override
-    public List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
+    protected List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
             VariabilityModel varModel, Map<String, Double> otherMetricResult) {
         
         List<MetricResult> result = new LinkedList<>();

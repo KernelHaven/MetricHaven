@@ -114,7 +114,7 @@ public abstract class AbstractMetric extends AbstractAnalysis {
      * 
      * @return The result of the metric execution. Must not be <code>null</code>.
      */
-    public abstract List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
+    protected abstract List<MetricResult> run(BlockingQueue<SourceFile> codeModel, BuildModel buildModel,
             VariabilityModel varModel);
 
 }

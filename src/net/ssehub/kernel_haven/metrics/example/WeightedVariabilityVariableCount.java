@@ -5,7 +5,6 @@ import java.util.Map;
 import net.ssehub.kernel_haven.code_model.Block;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.metrics.AbstractMetric;
 import net.ssehub.kernel_haven.metrics.filters.CombinedCodeFileBlockMetric;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Disjunction;
@@ -31,12 +30,6 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
         super(config);
     }
     
-    @Override
-    protected AbstractMetric createOtherMetric(Configuration config) {
-        // TODO: make this configurable
-        return new VariableTypeMetric(config);
-    }
-
     @Override
     protected double run(SourceFile file, Map<String, Double> variableWeight) {
         this.variableWeight = variableWeight; 
