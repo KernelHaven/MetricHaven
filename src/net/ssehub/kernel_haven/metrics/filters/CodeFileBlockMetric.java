@@ -45,7 +45,7 @@ public abstract class CodeFileBlockMetric extends AbstractMetric {
             
             LOGGER.logInfo("Running metric for " + file.getPath().getPath());
             
-            double r = run(file);
+            double r = calc(file);
             result.add(new MetricResult(file.getPath().getPath(), r));
         }
         
@@ -59,6 +59,6 @@ public abstract class CodeFileBlockMetric extends AbstractMetric {
      * @param file The file to run on.
      * @return The result of the metric.
      */
-    protected abstract double run(SourceFile file);
+    protected abstract double calc(SourceFile file);
 
 }

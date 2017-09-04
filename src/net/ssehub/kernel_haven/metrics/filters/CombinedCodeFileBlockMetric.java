@@ -46,7 +46,7 @@ public abstract class CombinedCodeFileBlockMetric extends CombinedMetric {
             
             LOGGER.logInfo("Running metric for " + file.getPath().getPath());
             
-            double r = run(file, otherMetricResult);
+            double r = calc(file, otherMetricResult);
             result.add(new MetricResult(file.getPath().getPath(), r));
         }
         
@@ -61,6 +61,6 @@ public abstract class CombinedCodeFileBlockMetric extends CombinedMetric {
      * @param otherMetricResult The result of the other metric.
      * @return The result for this source code file.
      */
-    protected abstract double run(SourceFile file, Map<String, Double> otherMetricResult);
+    protected abstract double calc(SourceFile file, Map<String, Double> otherMetricResult);
     
 }

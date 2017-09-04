@@ -35,7 +35,7 @@ public abstract class VariabilityVariableMetric extends AbstractMetric {
         List<MetricResult> result = new LinkedList<>();
         
         for (VariabilityVariable variable : varModel.getVariables()) {
-            double r = run(variable, varModel);
+            double r = calc(variable, varModel);
             result.add(new MetricResult(variable.getName(), r));
         }
         
@@ -50,6 +50,6 @@ public abstract class VariabilityVariableMetric extends AbstractMetric {
      * @param model The variability model.
      * @return The result from the metric.
      */
-    protected abstract double run(VariabilityVariable variable, VariabilityModel model);
+    protected abstract double calc(VariabilityVariable variable, VariabilityModel model);
 
 }

@@ -31,7 +31,7 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
     }
     
     @Override
-    protected double run(SourceFile file, Map<String, Double> variableWeight) {
+    protected double calc(SourceFile file, Map<String, Double> variableWeight) {
         this.variableWeight = variableWeight; 
         
         double result = 0.0;

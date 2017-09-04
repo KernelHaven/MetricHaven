@@ -95,7 +95,7 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
             
             LOGGER.logInfo("Running metric for " + name);
             
-            double r = run(b);
+            double r = calc(b);
             
             String position = "<unknown>";
             if (b.getPosition() != null) {
@@ -119,6 +119,6 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
      * @param function The code function to calculate the metric for. Never <code>null</code>.
      * @return The result of the metric execution.
      */
-    protected abstract double run(TypeChefBlock function);
+    protected abstract double calc(TypeChefBlock function);
 
 }

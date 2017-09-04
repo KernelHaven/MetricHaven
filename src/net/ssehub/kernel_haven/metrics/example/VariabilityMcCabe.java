@@ -22,12 +22,12 @@ public class VariabilityMcCabe extends CodeFileBlockMetric {
     }
 
     @Override
-    protected double run(SourceFile file) {
+    protected double calc(SourceFile file) {
         
         int result = 1;
         
         for (Block child : file) {
-            result += calc(child);
+            result += count(child);
         }
         
         return result;
@@ -40,7 +40,7 @@ public class VariabilityMcCabe extends CodeFileBlockMetric {
      * 
      * @return The number of conditional compilation blocks. This is 1 (this block) + number of children blocks.
      */
-    private int calc(Block block) {
+    private int count(Block block) {
         int result = 1;
         if (block.getCondition() == null) {
             // this is an else block
@@ -48,7 +48,7 @@ public class VariabilityMcCabe extends CodeFileBlockMetric {
         }
         
         for (Block child : block) {
-            result += calc(child);
+            result += count(child);
         }
         
         return result;

@@ -22,7 +22,7 @@ public class VariableTypeMetric extends VariabilityVariableMetric {
     }
 
     @Override
-    protected double run(VariabilityVariable variable, VariabilityModel model) {
+    protected double calc(VariabilityVariable variable, VariabilityModel model) {
         
         int result = 1;
         

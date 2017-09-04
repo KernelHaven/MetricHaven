@@ -22,9 +22,9 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
     }
 
     @Override
-    protected double run(TypeChefBlock function) {
+    protected double calc(TypeChefBlock function) {
         TypeChefBlock body = function.getChild("Body");
-        return 1.0 + calc(body);
+        return 1.0 + count(body);
     }
     
     /**
@@ -34,7 +34,7 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
      * 
      * @return The number of while-, if-, for- and case-statements found.
      */
-    private double calc(TypeChefBlock block) {
+    private double count(TypeChefBlock block) {
         double result = 0.0;
         
         
@@ -52,7 +52,7 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
         }
         
         for (Block b : block) {
-            result += calc((TypeChefBlock) b);
+            result += count((TypeChefBlock) b);
         }
         
         return result;
