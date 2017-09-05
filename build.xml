@@ -78,7 +78,7 @@
     <mkdir dir="${reports.html.dir}" />
     <get src="${infrastructure.location}" dest="${dependencies.dir}/kernelhaven.jar" />
     <get src="${TypeChef.location}" dest="${dependencies.dir}/TypeChef.jar" />
-    <get src="${Untertaker.location}" dest="${dependencies.dir}/Untertaker.jar" />
+    <get src="${Undertaker.location}" dest="${dependencies.dir}/Undertaker.jar" />
   </target>
 
   <target name="compile" depends="init">
