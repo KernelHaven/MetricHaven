@@ -18,7 +18,7 @@
   <property name="workspace.snapshot.dir" value="${build.dir}/workspacesnapshot/" />
   <property name="jenkins.location" value="http://jenkins.sse.uni-hildesheim.de/job" />
   <property name="infrastructure.location" value="${jenkins.location}/KernelHaven_Infrastructure/lastSuccessfulBuild/artifact/build/jar/kernelhavenfortesting.jar" />
-  <property name="TypeChef.location" value="${jenkins.location}/KernelHaven_TypeChefExtractor/lastSuccessfulBuild/artifact/build/jar/TypeChefExtractor.jar.jar" />
+  <property name="TypeChef.location" value="${jenkins.location}/KernelHaven_TypeChefExtractor/lastSuccessfulBuild/artifact/build/jar/TypeChefExtractor.jar" />
   <property name="Undertaker.location" value="${jenkins.location}/KernelHaven_UndertakerExtractor/lastSuccessfulBuild/artifact/build/jar/undertakerextractor.jar" />
   
   <!-- Modules that build -->
