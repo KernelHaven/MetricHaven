@@ -37,6 +37,7 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
 
         SourceFile file;
         while ((file = codeModel.get()) != null) {
+            LOGGER.logInfo("Running metric for functions in " + file.getPath().getPath());
             for (Block b : file) {
                 visitCodeBlock(b, result);
             }
@@ -93,7 +94,7 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
         if (b.getText().equals("FunctionDef")) {
             String name = getFunctionName(b);
             
-            LOGGER.logInfo("Running metric for " + name);
+            //LOGGER.logDebug("Running metric for " + name);
             
             double r = calc(b);
             
