@@ -67,15 +67,15 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
                     name = value.getText();
                     
                 } else {
-                    LOGGER.logWarning("Can't find Name in ID:", declarator.toString());
+                    LOGGER.logWarning("Can't find Name in ID:\n" + declarator.toString());
                 }
                 
             } else {
-                LOGGER.logWarning("Can't find ID in declarator:", declarator.toString());
+                LOGGER.logWarning("Can't find ID in declarator:\n" + declarator.toString());
             }
             
         } else {
-            LOGGER.logWarning("Can't find declarator in functionDef:", functionDef.toString());
+            LOGGER.logWarning("Can't find declarator in functionDef:\n" + functionDef.toString());
         }
         
         return name;
