@@ -101,8 +101,8 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
             double r = calc(b);
             
             String position = "<unknown>";
-            if (b.getPosition() != null) {
-                position = b.getPosition().getFile().getPath() + ":" + b.getPosition().getLine();
+            if (b.getFile() != null) {
+                position = b.getFile() + ":" + b.getLine();
             }
             
             result.add(new MetricResult(position + " " + name + "()", r));
