@@ -8,6 +8,8 @@ import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.AbstractMetric;
 import net.ssehub.kernel_haven.metrics.MetricResult;
+import net.ssehub.kernel_haven.typechef.ast.LiteralSyntaxElement;
+import net.ssehub.kernel_haven.typechef.ast.SyntaxElements;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -65,7 +67,7 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
                 
                 TypeChefBlock value = id.getChild("Name");
                 if (value != null) {
-                    name = value.getText();
+                    name = ((LiteralSyntaxElement) value.getType()).getContent();
                     
                 } else {
                     LOGGER.logWarning("Can't find Name in ID:\n" + declarator.toString());
@@ -91,7 +93,7 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
     private void visitCodeBlock(Block block, List<MetricResult> result) {
         TypeChefBlock b = (TypeChefBlock) block;
         
-        if (b.getText().equals("FunctionDef")) {
+        if (b.getType().equals(SyntaxElements.FUNCTION_DEF)) {
             String name = getFunctionName(b);
             
             //LOGGER.logDebug("Running metric for " + name);

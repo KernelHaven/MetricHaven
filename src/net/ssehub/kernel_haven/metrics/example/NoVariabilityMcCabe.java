@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metrics.example;
 import net.ssehub.kernel_haven.code_model.Block;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.filters.CodeFunctionMetric;
+import net.ssehub.kernel_haven.typechef.ast.SyntaxElements;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 
 /**
@@ -38,17 +39,19 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
         double result = 0.0;
         
         
-        switch (block.getText()) {
-        case "IfStatement":
-        case "ElifStatement": // TypeChef produces separate nodes for "else if ()"
-        case "WhileStatement":
-        case "ForStatement":
-        case "DoStatement":
-        case "CaseStatement":
-            result++;
-            break;
-        default:
-            // ignore
+        if (block.getType() instanceof SyntaxElements) {
+            switch ((SyntaxElements) block.getType()) {
+            case IF_STATEMENT:
+            case ELIF_STATEMENT: // TypeChef produces separate nodes for "else if ()"
+            case WHILE_STATEMENT:
+            case FOR_STATEMENT:
+            case DO_STATEMENT:
+            case CASE_STATEMENT:
+                result++;
+                break;
+            default:
+                // ignore
+            }
         }
         
         for (Block b : block) {
