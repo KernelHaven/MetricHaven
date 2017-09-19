@@ -38,7 +38,7 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
      * <li><tt>All</tt></li>
      * </ul>
      */
-    public static final String VARIABLE_TYPE_PROPERTY = "VariablesPerFunctionMetric.measured_variables_type";
+    public static final String VARIABLE_TYPE_PROPERTY = "variables_per_function_metric.measured_variables_type";
     
     private VarType measuredVars;
     
