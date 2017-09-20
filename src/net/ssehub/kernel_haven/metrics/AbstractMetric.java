@@ -44,9 +44,29 @@ public abstract class AbstractMetric extends AbstractAnalysis {
             bmProvider.start();
             cmProvider.start();
             
-            List<MetricResult> result = run(cmProvider.getResultQueue(), bmProvider.getResult(),
-                    vmProvider.getResult());
-            handleOutput(result);
+            // vm and bm providers only return either one result or one exception
+            // so we first query the exception; if it is null, then everything is fine an we proceeed with normal
+            // execution. If the exception is not null, then simply stop here
+            
+            boolean noException = true;
+            
+            ExtractorException e = vmProvider.getException();
+            if (e != null) {
+                LOGGER.logException("VM extractor created an exception; not execution metric", e);
+                noException = false;
+            }
+            
+            e = bmProvider.getException();
+            if (e != null) {
+                LOGGER.logException("BM extractor created an exception; not execution metric", e);
+                noException = false;
+            }
+            
+            if (noException) {
+                List<MetricResult> result = run(cmProvider.getResultQueue(), bmProvider.getResult(),
+                        vmProvider.getResult());
+                handleOutput(result);
+            }
             
         } catch (SetUpException e) {
             LOGGER.logException("Exception while starting metric", e);
