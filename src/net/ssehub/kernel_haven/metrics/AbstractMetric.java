@@ -52,13 +52,13 @@ public abstract class AbstractMetric extends AbstractAnalysis {
             
             ExtractorException e = vmProvider.getException();
             if (e != null) {
-                LOGGER.logException("VM extractor created an exception; not execution metric", e);
+                LOGGER.logException("VM extractor created an exception; not executing metric", e);
                 noException = false;
             }
             
             e = bmProvider.getException();
             if (e != null) {
-                LOGGER.logException("BM extractor created an exception; not execution metric", e);
+                LOGGER.logException("BM extractor created an exception; not executing metric", e);
                 noException = false;
             }
             
