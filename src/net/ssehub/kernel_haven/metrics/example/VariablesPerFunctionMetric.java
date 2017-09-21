@@ -90,7 +90,7 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
         Iterator<Block> itr = astNode.iterator();
         while (itr.hasNext()) {
             TypeChefBlock nestedBlock = (TypeChefBlock) itr.next();
-            collectVars(nestedBlock, finder);
+            collectVars(nestedBlock, finder, formulaCache);
         }
     }
     
