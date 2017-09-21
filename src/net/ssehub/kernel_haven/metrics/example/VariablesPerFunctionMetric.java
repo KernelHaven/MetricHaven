@@ -97,7 +97,7 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
     @Override
     protected double calc(TypeChefBlock function) {
         VariableFinder finder = new VariableFinder();
-        function.getCondition().accept(finder);
+        function.getPresenceCondition().accept(finder);
         Set<String> externalVariables = new HashSet<>(finder.getVariableNames());
 
         int result;
