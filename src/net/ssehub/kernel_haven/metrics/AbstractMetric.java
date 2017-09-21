@@ -25,7 +25,9 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public abstract class AbstractMetric extends AbstractAnalysis {
 
-    private boolean onlyConsole;
+    private boolean logToFile;
+    
+    private boolean logToConsole;
     
     /**
      * Creates a new abstract metric.
@@ -34,7 +36,12 @@ public abstract class AbstractMetric extends AbstractAnalysis {
      */
     public AbstractMetric(Configuration config) {
         super(config);
-        onlyConsole = Boolean.parseBoolean(config.getProperty("analysis.log.only_console"));
+        logToFile = Boolean.parseBoolean(config.getProperty("analysis.log_result.file", "true"));
+        logToConsole = Boolean.parseBoolean(config.getProperty("analysis.log_result.console", "true"));
+        
+        if (!(logToConsole || logToFile)) {
+            LOGGER.logWarning("Neither analysis.log_result.file nor analysis.log_result.console are set to true");
+        }
     }
     
     @Override
@@ -81,15 +88,17 @@ public abstract class AbstractMetric extends AbstractAnalysis {
     private void handleOutput(List<MetricResult> result) {
         LOGGER.logInfo("Writing output...");
         
-        String[] lines = new String[result.size() + 1];
-        int i = 0;
-        lines[i++] = "Metric result:";
-        for (MetricResult r : result) {
-            lines[i++] = "\t" + r.getContext() + ": " + r.getValue();
+        if (logToConsole) {
+            String[] lines = new String[result.size() + 1];
+            int i = 0;
+            lines[i++] = "Metric result:";
+            for (MetricResult r : result) {
+                lines[i++] = "\t" + r.getContext() + ": " + r.getValue();
+            }
+            LOGGER.logInfo(lines);
         }
-        LOGGER.logInfo(lines);
         
-        if (!onlyConsole) {
+        if (logToFile) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
             LocalDateTime now = LocalDateTime.now();
             String timestamp = dtf.format(now);
