@@ -1,9 +1,8 @@
 package net.ssehub.kernel_haven.metrics.example;
-import net.ssehub.kernel_haven.code_model.Block;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.filters.CodeFunctionMetric;
-import net.ssehub.kernel_haven.typechef.ast.SyntaxElements;
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 
 /**
  * The McCabe cyclomatic complexity metric for code functions. This metric ignores variability; it thus calculates the
@@ -23,8 +22,8 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
     }
 
     @Override
-    protected double calc(TypeChefBlock function) {
-        TypeChefBlock body = function.getChild("Body");
+    protected double calc(SyntaxElement function) {
+        SyntaxElement body = function.getNestedElement("Body");
         return 1.0 + count(body);
     }
     
@@ -35,12 +34,12 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
      * 
      * @return The number of while-, if-, for- and case-statements found.
      */
-    private double count(TypeChefBlock block) {
+    private double count(SyntaxElement block) {
         double result = 0.0;
         
         
-        if (block.getType() instanceof SyntaxElements) {
-            switch ((SyntaxElements) block.getType()) {
+        if (block.getType() instanceof SyntaxElementTypes) {
+            switch ((SyntaxElementTypes) block.getType()) {
             case IF_STATEMENT:
             case ELIF_STATEMENT: // TypeChef produces separate nodes for "else if ()"
             case WHILE_STATEMENT:
@@ -54,8 +53,8 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
             }
         }
         
-        for (Block b : block) {
-            result += count((TypeChefBlock) b);
+        for (SyntaxElement b : block.iterateNestedSyntaxElements()) {
+            result += count(b);
         }
         
         return result;

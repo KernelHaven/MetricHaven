@@ -1,6 +1,6 @@
 package net.ssehub.kernel_haven.metrics.example;
 
-import net.ssehub.kernel_haven.code_model.Block;
+import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.filters.CodeFileBlockMetric;
@@ -26,7 +26,7 @@ public class VariabilityMcCabe extends CodeFileBlockMetric {
         
         int result = 1;
         
-        for (Block child : file) {
+        for (CodeElement child : file) {
             result += count(child);
         }
         
@@ -40,14 +40,14 @@ public class VariabilityMcCabe extends CodeFileBlockMetric {
      * 
      * @return The number of conditional compilation blocks. This is 1 (this block) + number of children blocks.
      */
-    private int count(Block block) {
+    private int count(CodeElement block) {
         int result = 1;
         if (block.getCondition() == null) {
             // this is an else block
             result = 0;
         }
         
-        for (Block child : block) {
+        for (CodeElement child : block.iterateNestedElements()) {
             result += count(child);
         }
         

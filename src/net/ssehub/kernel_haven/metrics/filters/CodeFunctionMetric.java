@@ -3,14 +3,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.code_model.Block;
+import net.ssehub.kernel_haven.code_model.CodeElement;
+import net.ssehub.kernel_haven.code_model.LiteralSyntaxElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.AbstractMetric;
 import net.ssehub.kernel_haven.metrics.MetricResult;
-import net.ssehub.kernel_haven.typechef.ast.LiteralSyntaxElement;
-import net.ssehub.kernel_haven.typechef.ast.SyntaxElements;
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -40,8 +40,11 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
         SourceFile file;
         while ((file = codeModel.get()) != null) {
             LOGGER.logInfo("Running metric for functions in " + file.getPath().getPath());
-            for (Block b : file) {
-                visitCodeBlock(b, result);
+            for (CodeElement b : file) {
+                if (!(b instanceof SyntaxElement)) {
+                    LOGGER.logError("This filter only works with SyntaxElements");
+                }
+                visitCodeBlock((SyntaxElement) b, result);
             }
         }
         
@@ -56,16 +59,16 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
      * 
      * @return The name of the function
      */
-    private String getFunctionName(TypeChefBlock functionDef) {
+    private String getFunctionName(SyntaxElement functionDef) {
         String name = "<error: can't find ID in function>";
         
-        TypeChefBlock declarator = functionDef.getChild("Declarator");
+        SyntaxElement declarator = functionDef.getNestedElement("Declarator");
         if (declarator != null) {
             
-            TypeChefBlock id = declarator.getChild("ID");
+            SyntaxElement id = declarator.getNestedElement("ID");
             if (id != null) {
                 
-                TypeChefBlock value = id.getChild("Name");
+                SyntaxElement value = id.getNestedElement("Name");
                 if (value != null) {
                     name = ((LiteralSyntaxElement) value.getType()).getContent();
                     
@@ -90,25 +93,21 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
      * @param block The AST node we are currently at.
      * @param result The list to add results of metric executions to.
      */
-    private void visitCodeBlock(Block block, List<MetricResult> result) {
-        TypeChefBlock b = (TypeChefBlock) block;
+    private void visitCodeBlock(SyntaxElement block, List<MetricResult> result) {
         
-        if (b.getType().equals(SyntaxElements.FUNCTION_DEF)) {
-            String name = getFunctionName(b);
+        if (block.getType().equals(SyntaxElementTypes.FUNCTION_DEF)) {
+            String name = getFunctionName(block);
             
             //LOGGER.logDebug("Running metric for " + name);
             
-            double r = calc(b);
+            double r = calc(block);
             
-            String position = "<unknown>";
-            if (b.getFile() != null) {
-                position = b.getFile() + ":" + b.getLine();
-            }
+            String position = block.getSourceFile() + ":" + block.getLineStart();
             
             result.add(new MetricResult(position + " " + name + "()", r));
             
         } else {
-            for (Block b1 : b) {
+            for (SyntaxElement b1 : block.iterateNestedSyntaxElements()) {
                 visitCodeBlock(b1, result);
             }
         }
@@ -122,6 +121,6 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
      * @param function The code function to calculate the metric for. Never <code>null</code>.
      * @return The result of the metric execution.
      */
-    protected abstract double calc(TypeChefBlock function);
+    protected abstract double calc(SyntaxElement function);
 
 }

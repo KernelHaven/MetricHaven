@@ -4,11 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.code_model.CodeBlock;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.AbstractMetric;
 import net.ssehub.kernel_haven.metrics.MetricResult;
-import net.ssehub.kernel_haven.undertaker.UndertakerBlock;
 import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -37,8 +37,8 @@ public abstract class CodeFileBlockMetric extends AbstractMetric {
         
         SourceFile file;
         while ((file = codeModel.get()) != null) {
-            if (file.iterator().hasNext() && !(file.iterator().next() instanceof UndertakerBlock)) {
-                LOGGER.logError("This filter only works with undertaker extractor");
+            if (file.iterator().hasNext() && !(file.iterator().next() instanceof CodeBlock)) {
+                LOGGER.logError("This filter only works with CodeBlocks");
                 // TODO: convert other extractor output (e.g. typechef) into conditional block hierarchy
                 break;
             }

@@ -5,10 +5,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
-import net.ssehub.kernel_haven.code_model.Block;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.filters.CodeFunctionMetric;
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 
@@ -59,14 +58,14 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
      * @param function The function to measure (top level element).
      * @param finder A visitor which is used to collect all used variables.
      */
-    private void collectVars(TypeChefBlock function, VariableFinder finder) {
+    private void collectVars(SyntaxElement function, VariableFinder finder) {
         // This formula was already visited in calc method
         Set<Formula> formulaCache = new HashSet<>();
         formulaCache.add(function.getCondition());
         
-        Iterator<Block> itr = function.iterator();
+        Iterator<SyntaxElement> itr = function.iterateNestedSyntaxElements().iterator();
         while (itr.hasNext()) {
-            TypeChefBlock nestedBlock = (TypeChefBlock) itr.next();
+            SyntaxElement nestedBlock = itr.next();
             collectVars(nestedBlock, finder, formulaCache);
         }
     }
@@ -77,7 +76,7 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
      * @param finder A visitor which is used to collect all used variables.
      * @param formulaCache For optimization: the list of already gathered formulas.
      */
-    private void collectVars(TypeChefBlock astNode, VariableFinder finder, Set<Formula> formulaCache) {
+    private void collectVars(SyntaxElement astNode, VariableFinder finder, Set<Formula> formulaCache) {
         Formula formula = astNode.getCondition();
         
         // Optimization: search only in formula if not visited before
@@ -87,15 +86,15 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
         }
         
         // Recursively search in nested elements
-        Iterator<Block> itr = astNode.iterator();
+        Iterator<SyntaxElement> itr = astNode.iterateNestedSyntaxElements().iterator();
         while (itr.hasNext()) {
-            TypeChefBlock nestedBlock = (TypeChefBlock) itr.next();
+            SyntaxElement nestedBlock = (SyntaxElement) itr.next();
             collectVars(nestedBlock, finder, formulaCache);
         }
     }
     
     @Override
-    protected double calc(TypeChefBlock function) {
+    protected double calc(SyntaxElement function) {
         VariableFinder finder = new VariableFinder();
         function.getPresenceCondition().accept(finder);
         Set<String> externalVariables = new HashSet<>(finder.getVariableNames());

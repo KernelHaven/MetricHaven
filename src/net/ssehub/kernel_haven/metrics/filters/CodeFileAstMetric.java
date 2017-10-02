@@ -5,10 +5,10 @@ import java.util.List;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.AbstractMetric;
 import net.ssehub.kernel_haven.metrics.MetricResult;
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -37,8 +37,8 @@ public abstract class CodeFileAstMetric extends AbstractMetric {
         
         SourceFile file;
         while ((file = codeModel.get()) != null) {
-            if (file.iterator().hasNext() && !(file.iterator().next() instanceof TypeChefBlock)) {
-                LOGGER.logError("This filter only works with the typechef extractor");
+            if (file.iterator().hasNext() && !(file.iterator().next() instanceof SyntaxElement)) {
+                LOGGER.logError("This filter only works with the SyntaxElements");
                 // TODO: detect this a different way?
                 break;
             }

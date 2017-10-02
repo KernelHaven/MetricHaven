@@ -2,7 +2,7 @@ package net.ssehub.kernel_haven.metrics.example;
 
 import java.util.Map;
 
-import net.ssehub.kernel_haven.code_model.Block;
+import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.filters.CombinedCodeFileBlockMetric;
@@ -36,7 +36,7 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
         
         double result = 0.0;
         
-        for (Block topBlock : file) {
+        for (CodeElement topBlock : file) {
             result += countInBlock(topBlock);
         }
         
@@ -65,14 +65,14 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
      * @param block The block to count in.
      * @return The summed weight of variables found in the block.
      */
-    private double countInBlock(Block block) {
+    private double countInBlock(CodeElement block) {
         double result = 0.0;
         
         if (block.getCondition() != null) {
             result += countInCondition(block.getCondition());
         }
         
-        for (Block child : block) {
+        for (CodeElement child : block.iterateNestedElements()) {
             result += countInBlock(child);
         }
         
