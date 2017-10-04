@@ -1,7 +1,5 @@
 package net.ssehub.kernel_haven.metrics;
 import java.io.PrintStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -12,6 +10,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.util.CodeExtractorException;
 import net.ssehub.kernel_haven.util.ExtractorException;
+import net.ssehub.kernel_haven.util.Timestamp;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -99,12 +98,10 @@ public abstract class AbstractMetric extends AbstractAnalysis {
         }
         
         if (logToFile) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-            LocalDateTime now = LocalDateTime.now();
-            String timestamp = dtf.format(now);
-            
-            PrintStream out = createResultStream(this.getClass().getSimpleName() + ".result_" + timestamp + ".csv");
-            PrintStream err = createResultStream(this.getClass().getSimpleName() + ".errors_" + timestamp + ".csv");
+            PrintStream out = createResultStream(
+                    Timestamp.INSTANCE.getFilename(this.getClass().getSimpleName() + ".result", "csv"));
+            PrintStream err = createResultStream(
+                    Timestamp.INSTANCE.getFilename(this.getClass().getSimpleName() + ".errors", "csv"));
             
             out.println("Context;Value");
             for (MetricResult r : result) {
