@@ -30,16 +30,16 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
     /**
      * Recursively walks through the AST and counts the while-, if-, for- and case-statements.
      * 
-     * @param block The current AST node.
+     * @param element The current AST node.
      * 
      * @return The number of while-, if-, for- and case-statements found.
      */
-    private double count(SyntaxElement block) {
+    private double count(SyntaxElement element) {
         double result = 0.0;
         
         
-        if (block.getType() instanceof SyntaxElementTypes) {
-            switch ((SyntaxElementTypes) block.getType()) {
+        if (element.getType() instanceof SyntaxElementTypes) {
+            switch ((SyntaxElementTypes) element.getType()) {
             case IF_STATEMENT:
             case ELIF_STATEMENT: // TypeChef produces separate nodes for "else if ()"
             case WHILE_STATEMENT:
@@ -53,8 +53,8 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
             }
         }
         
-        for (SyntaxElement b : block.iterateNestedSyntaxElements()) {
-            result += count(b);
+        for (SyntaxElement child : element.iterateNestedSyntaxElements()) {
+            result += count(child);
         }
         
         return result;

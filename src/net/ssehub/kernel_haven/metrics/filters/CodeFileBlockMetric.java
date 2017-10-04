@@ -13,7 +13,7 @@ import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
- * A filter that aggregates the code model to a hierarchy of conditonal blocks. This filter calls the metric once for
+ * A filter that aggregates the code model to a hierarchy of conditional blocks. This filter calls the metric once for
  * each source file.
  * 
  * @author Adam

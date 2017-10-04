@@ -34,20 +34,20 @@ public class VariabilityMcCabe extends CodeFileBlockMetric {
     }
     
     /**
-     * Counts the number of conditional compilation blocks.
+     * Counts the number of conditional compilation elements.
      * 
-     * @param block The block to count in.
+     * @param element The element to count in.
      * 
-     * @return The number of conditional compilation blocks. This is 1 (this block) + number of children blocks.
+     * @return The number of conditional compilation elements. This is 1 (this element) + number of children elements.
      */
-    private int count(CodeElement block) {
+    private int count(CodeElement element) {
         int result = 1;
-        if (block.getCondition() == null) {
+        if (element.getCondition() == null) {
             // this is an else block
             result = 0;
         }
         
-        for (CodeElement child : block.iterateNestedElements()) {
+        for (CodeElement child : element.iterateNestedElements()) {
             result += count(child);
         }
         

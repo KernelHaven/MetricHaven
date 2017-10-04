@@ -65,8 +65,8 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
         
         Iterator<SyntaxElement> itr = function.iterateNestedSyntaxElements().iterator();
         while (itr.hasNext()) {
-            SyntaxElement nestedBlock = itr.next();
-            collectVars(nestedBlock, finder, formulaCache);
+            SyntaxElement nestedElement = itr.next();
+            collectVars(nestedElement, finder, formulaCache);
         }
     }
     
@@ -88,8 +88,8 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
         // Recursively search in nested elements
         Iterator<SyntaxElement> itr = astNode.iterateNestedSyntaxElements().iterator();
         while (itr.hasNext()) {
-            SyntaxElement nestedBlock = (SyntaxElement) itr.next();
-            collectVars(nestedBlock, finder, formulaCache);
+            SyntaxElement nestedElement = (SyntaxElement) itr.next();
+            collectVars(nestedElement, finder, formulaCache);
         }
     }
     

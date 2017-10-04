@@ -36,8 +36,8 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
         
         double result = 0.0;
         
-        for (CodeElement topBlock : file) {
-            result += countInBlock(topBlock);
+        for (CodeElement topElement : file) {
+            result += countInElement(topElement);
         }
         
         return result;
@@ -60,20 +60,20 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
     }
     
     /**
-     * Counts variables in the given source code block. Recursively walks through all child blocks.
+     * Counts variables in the given source code element. Recursively walks through all child elements.
      * 
-     * @param block The block to count in.
-     * @return The summed weight of variables found in the block.
+     * @param element The element to count in.
+     * @return The summed weight of variables found in the element.
      */
-    private double countInBlock(CodeElement block) {
+    private double countInElement(CodeElement element) {
         double result = 0.0;
         
-        if (block.getCondition() != null) {
-            result += countInCondition(block.getCondition());
+        if (element.getCondition() != null) {
+            result += countInCondition(element.getCondition());
         }
         
-        for (CodeElement child : block.iterateNestedElements()) {
-            result += countInBlock(child);
+        for (CodeElement child : element.iterateNestedElements()) {
+            result += countInElement(child);
         }
         
         return result;
@@ -83,7 +83,7 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
      * Counts the variables in the given formula. Recursively walks through the formula.
      * 
      * @param formula The formula to count in.
-     * @return The summed weight of variables found in the block.
+     * @return The summed weight of variables found in the formula.
      */
     private double countInCondition(Formula formula) {
         

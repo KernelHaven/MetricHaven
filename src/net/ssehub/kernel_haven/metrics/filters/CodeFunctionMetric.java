@@ -44,7 +44,7 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
                 if (!(b instanceof SyntaxElement)) {
                     LOGGER.logError("This filter only works with SyntaxElements");
                 }
-                visitCodeBlock((SyntaxElement) b, result);
+                visitSyntaxElement((SyntaxElement) b, result);
             }
         }
         
@@ -90,25 +90,25 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
     /**
      * Recursively walks through the AST to find functions. Calls the metric for each function found.
      * 
-     * @param block The AST node we are currently at.
+     * @param element The AST node we are currently at.
      * @param result The list to add results of metric executions to.
      */
-    private void visitCodeBlock(SyntaxElement block, List<MetricResult> result) {
+    private void visitSyntaxElement(SyntaxElement element, List<MetricResult> result) {
         
-        if (block.getType().equals(SyntaxElementTypes.FUNCTION_DEF)) {
-            String name = getFunctionName(block);
+        if (element.getType().equals(SyntaxElementTypes.FUNCTION_DEF)) {
+            String name = getFunctionName(element);
             
             //LOGGER.logDebug("Running metric for " + name);
             
-            double r = calc(block);
+            double r = calc(element);
             
-            String position = block.getSourceFile() + ":" + block.getLineStart();
+            String position = element.getSourceFile() + ":" + element.getLineStart();
             
             result.add(new MetricResult(position + " " + name + "()", r));
             
         } else {
-            for (SyntaxElement b1 : block.iterateNestedSyntaxElements()) {
-                visitCodeBlock(b1, result);
+            for (SyntaxElement b1 : element.iterateNestedSyntaxElements()) {
+                visitSyntaxElement(b1, result);
             }
         }
         
