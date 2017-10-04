@@ -81,7 +81,21 @@ public abstract class CodeFunctionMetric extends AbstractMetric {
             }
             
         } else {
-            LOGGER.logWarning("Can't find declarator in functionDef:\n" + functionDef.toString());
+            // try srcML format TODO: adapt if format changes
+            if (functionDef.getNestedElementCount() >= 2
+                    && functionDef.getNestedElement(1).getType() == SyntaxElementTypes.ID) {
+                SyntaxElement id = functionDef.getNestedElement(1);
+                if (id.getNestedElementCount() >= 1 
+                        && id.getNestedElement(0).getType() instanceof LiteralSyntaxElement) {
+                    LiteralSyntaxElement lit = (LiteralSyntaxElement) id.getNestedElement(0).getType();
+                    name = lit.getContent();
+                } else {
+                    LOGGER.logWarning("Can't find literal in functionDef ID:\n" + functionDef.toString());
+                }
+                
+            } else {
+                LOGGER.logWarning("Can't find declarator in functionDef:\n" + functionDef.toString());
+            }
         }
         
         return name;
