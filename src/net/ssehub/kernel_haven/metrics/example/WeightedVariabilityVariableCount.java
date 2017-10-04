@@ -53,7 +53,7 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
     private double getWeight(String variable) {
         Double result = variableWeight.get(variable);
         if (result == null) {
-            LOGGER.logWarning("Returning weight 0 for unkown variable " + variable);
+            LOGGER.logWarning("Returning weight 0 for unknown variable " + variable);
             result = 0.0;
         }
         return result;
