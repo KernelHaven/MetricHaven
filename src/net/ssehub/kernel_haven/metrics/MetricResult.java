@@ -1,10 +1,14 @@
 package net.ssehub.kernel_haven.metrics;
 
+import net.ssehub.kernel_haven.util.io.TableElement;
+import net.ssehub.kernel_haven.util.io.TableRow;
+
 /**
  * Represents the result of a metric execution.
  * 
  * @author Adam
  */
+@TableRow
 public class MetricResult {
 
     private String context;
@@ -29,6 +33,7 @@ public class MetricResult {
      * 
      * @return The context of this result. Never <code>null</code>.
      */
+    @TableElement(name = "Context", index = 0)
     public String getContext() {
         return context;
     }
@@ -38,6 +43,7 @@ public class MetricResult {
      * 
      * @return The value of this result.
      */
+    @TableElement(name = "Value", index = 1)
     public double getValue() {
         return value;
     }

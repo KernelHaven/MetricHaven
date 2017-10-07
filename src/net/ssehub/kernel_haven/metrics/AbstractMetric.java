@@ -1,5 +1,5 @@
 package net.ssehub.kernel_haven.metrics;
-import java.io.PrintStream;
+import java.io.IOException;
 import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -11,6 +11,7 @@ import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.util.CodeExtractorException;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.Timestamp;
+import net.ssehub.kernel_haven.util.io.csv.CsvWriter;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -98,33 +99,46 @@ public abstract class AbstractMetric extends AbstractAnalysis {
         }
         
         if (logToFile) {
-            PrintStream out = createResultStream(
-                    Timestamp.INSTANCE.getFilename(this.getClass().getSimpleName() + ".result", "csv"));
-            PrintStream err = createResultStream(
-                    Timestamp.INSTANCE.getFilename(this.getClass().getSimpleName() + ".errors", "csv"));
+            CsvWriter out = new CsvWriter(createResultStream(
+                    Timestamp.INSTANCE.getFilename(this.getClass().getSimpleName() + ".result", "csv")));
+            CsvWriter err = new CsvWriter(createResultStream(
+                    Timestamp.INSTANCE.getFilename(this.getClass().getSimpleName() + ".errors", "csv")));
             
-            out.println("Context;Value");
             for (MetricResult r : result) {
-                out.println(r.getContext() + ";" + r.getValue());
-            }
-            out.close();
-            
-            err.println("file;exception");
-            ExtractorException error;
-            while ((error = cmProvider.getNextException()) != null) {
-                if (error instanceof CodeExtractorException) {
-                    CodeExtractorException exc = (CodeExtractorException) error;
-                    err.print(exc.getCausingFile().getPath() + ";");
-                    if (exc.getCause() != null) {
-                        err.println(exc.getCause().toString());
-                    } else {
-                        err.println(exc.toString());
-                    }
-                } else {
-                    err.println(";" + error.toString());
+                try {
+                    out.writeRow(r);
+                } catch (IOException e) {
+                    LOGGER.logException("Exception while writing output file", e);
                 }
             }
-            err.close();
+            try {
+                out.close();
+            } catch (IOException e) {
+                LOGGER.logException("Exception while closing output file", e);
+            }
+            
+            try {
+                err.writeRow("file", "exception");
+                ExtractorException error;
+                while ((error = cmProvider.getNextException()) != null) {
+                    if (error instanceof CodeExtractorException) {
+                        CodeExtractorException exc = (CodeExtractorException) error;
+    
+                        String message;
+                        if (exc.getCause() != null) {
+                            message = exc.getCause().toString();
+                        } else {
+                            message = exc.toString();
+                        }
+                        err.writeRow(exc.getCausingFile().getPath(), message);
+                    } else {
+                        err.writeRow("", error.toString());
+                    }
+                }
+                err.close();
+            } catch (IOException e) {
+                LOGGER.logException("Exception while writing exception file", e);
+            }
         }
     }
     
