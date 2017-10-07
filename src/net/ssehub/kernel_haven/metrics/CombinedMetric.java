@@ -52,7 +52,7 @@ public abstract class CombinedMetric extends AbstractMetric {
             
             otherMetric = otherMetricClass.getConstructor(Configuration.class).newInstance(config);
             
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException | IllegalArgumentException | ClassCastException e) {
             // throw a runtime exception here; this will be caught by the infrastructure which
             // instantiates us via reflection
             throw new RuntimeException(e);
