@@ -3,6 +3,7 @@ package net.ssehub.kernel_haven.metrics.filters;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
@@ -24,8 +25,10 @@ public abstract class CodeFileAstMetric extends AbstractMetric {
      * Creates a new code AST metric.
      * 
      * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * 
+     * @throws SetUpException If creating this metric fails. 
      */
-    public CodeFileAstMetric(Configuration config) {
+    public CodeFileAstMetric(Configuration config) throws SetUpException {
         super(config);
     }
 

@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metrics.example;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metrics.filters.VariabilityVariableMetric;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -16,8 +17,10 @@ public class VariableTypeMetric extends VariabilityVariableMetric {
      * Creates a new variable type metric.
      * 
      * @param config The global pipeline configuration.
+     * 
+     * @throws SetUpException If creating this metric fails. 
      */
-    public VariableTypeMetric(Configuration config) {
+    public VariableTypeMetric(Configuration config) throws SetUpException {
         super(config);
     }
 

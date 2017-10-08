@@ -7,6 +7,8 @@ import java.util.Set;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.EnumSetting;
+import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metrics.filters.CodeFunctionMetric;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
@@ -29,15 +31,10 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
         INTERNAL, EXTERNAL, ALL;
     }
     
-    /**
-     * Specification if internal, external, or all variables should be measured per function. Valid values are:
-     * <ul>
-     * <li><tt>Internal</tt></li>
-     * <li><tt>External</tt></li>
-     * <li><tt>All</tt></li>
-     * </ul>
-     */
-    public static final String VARIABLE_TYPE_PROPERTY = "metric.variables_per_function.measured_variables_type";
+    private static final Setting<VarType> VARIABLE_TYPE_SETTING
+        = new EnumSetting<>("metric.variables_per_function.measured_variables_type", VarType.class, true, 
+                VarType.ALL, "TODO");
+    
     
     private VarType measuredVars;
     
@@ -50,7 +47,8 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
     public VariablesPerFunctionMetric(Configuration config) throws SetUpException {
         super(config);
         
-        measuredVars = config.getEnumProperty(VARIABLE_TYPE_PROPERTY, VarType.ALL);
+        config.registerSetting(VARIABLE_TYPE_SETTING);
+        measuredVars = config.getValue(VARIABLE_TYPE_SETTING);
     }
 
     /**

@@ -3,6 +3,7 @@ package net.ssehub.kernel_haven.metrics.filters;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
@@ -22,8 +23,10 @@ public abstract class VariabilityModelMetric extends AbstractMetric {
      * Creates a new instance of this metric.
      * 
      * @param config The global pipeline configuration.
+     * 
+     * @throws SetUpException If creating this metric fails. 
      */
-    public VariabilityModelMetric(Configuration config) {
+    public VariabilityModelMetric(Configuration config) throws SetUpException {
         super(config);
     }
 

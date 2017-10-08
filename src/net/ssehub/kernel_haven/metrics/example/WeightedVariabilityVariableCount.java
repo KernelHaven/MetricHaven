@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metrics.example;
 
 import java.util.Map;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
@@ -25,8 +26,10 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
      * Creates a new weighted variability count metric.
      * 
      * @param config The global pipeline configuration.
+     * 
+     * @throws SetUpException If creating this metric fails.
      */
-    public WeightedVariabilityVariableCount(Configuration config) {
+    public WeightedVariabilityVariableCount(Configuration config) throws SetUpException {
         super(config);
     }
     

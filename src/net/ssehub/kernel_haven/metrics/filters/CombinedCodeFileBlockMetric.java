@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.CodeBlock;
 import net.ssehub.kernel_haven.code_model.SourceFile;
@@ -25,8 +26,10 @@ public abstract class CombinedCodeFileBlockMetric extends CombinedMetric {
      * Creates a new combined code file block metric.
      * 
      * @param config The global pipeline configuration.
+     * 
+     * @throws SetUpException If creating this metric fails.
      */
-    public CombinedCodeFileBlockMetric(Configuration config) {
+    public CombinedCodeFileBlockMetric(Configuration config) throws SetUpException {
         super(config);
     }
     

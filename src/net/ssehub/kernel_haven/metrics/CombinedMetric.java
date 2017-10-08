@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -18,14 +21,19 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public abstract class CombinedMetric extends AbstractMetric {
 
+    private static final Setting<String> INPUT_METRIC
+        = new Setting<>("analysis.input_metric", Type.STRING, true, null, "TODO");
+    
     private AbstractMetric otherMetric;
     
     /**
      * Creates a new combined metric.
      * 
      * @param config The global pipeline configuration.
+     * 
+     * @throws SetUpException If creating this metric fails.
      */
-    public CombinedMetric(Configuration config) {
+    public CombinedMetric(Configuration config) throws SetUpException {
         super(config);
         otherMetric = createOtherMetric(config);
     }
@@ -36,13 +44,12 @@ public abstract class CombinedMetric extends AbstractMetric {
      * 
      * @param config The global pipeline configuration. Can be passed to the constructor of the metric.
      * @return The other metric that runs before this one.
+     * 
+     * @throws SetUpException If creating the other metric fails.
      */
-    protected AbstractMetric createOtherMetric(Configuration config) {
-        String className = config.getProperty("analysis.input_metric");
-        
-        if (className == null) {
-            throw new NullPointerException("analysis.input_metric is null");
-        }
+    protected AbstractMetric createOtherMetric(Configuration config) throws SetUpException {
+        config.registerSetting(INPUT_METRIC);
+        String className = config.getValue(INPUT_METRIC);
         
         AbstractMetric otherMetric;
         
@@ -53,9 +60,7 @@ public abstract class CombinedMetric extends AbstractMetric {
             otherMetric = otherMetricClass.getConstructor(Configuration.class).newInstance(config);
             
         } catch (ReflectiveOperationException | IllegalArgumentException | ClassCastException e) {
-            // throw a runtime exception here; this will be caught by the infrastructure which
-            // instantiates us via reflection
-            throw new RuntimeException(e);
+            throw new SetUpException(e);
         }
         
         return otherMetric;

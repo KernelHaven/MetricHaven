@@ -1,4 +1,5 @@
 package net.ssehub.kernel_haven.metrics.example;
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.config.Configuration;
@@ -16,8 +17,10 @@ public class NoVariabilityMcCabe extends CodeFunctionMetric {
      * Creates a new McCabe metric.
      * 
      * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * 
+     * @throws SetUpException If creating this metric fails. 
      */
-    public NoVariabilityMcCabe(Configuration config) {
+    public NoVariabilityMcCabe(Configuration config) throws SetUpException {
         super(config);
     }
 

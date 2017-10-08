@@ -7,6 +7,8 @@ import net.ssehub.kernel_haven.analysis.AbstractAnalysis;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.util.CodeExtractorException;
 import net.ssehub.kernel_haven.util.ExtractorException;
@@ -25,6 +27,12 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public abstract class AbstractMetric extends AbstractAnalysis {
 
+    private static final Setting<Boolean> LOG_FILE
+        = new Setting<>("metric.log_result.file", Type.BOOLEAN, true, "true", "TODO");
+    
+    private static final Setting<Boolean> LOG_CONSOLE
+        = new Setting<>("metric.log_result.console", Type.BOOLEAN, true, "true", "TODO");
+    
     private boolean logToFile;
     
     private boolean logToConsole;
@@ -33,11 +41,15 @@ public abstract class AbstractMetric extends AbstractAnalysis {
      * Creates a new abstract metric.
      * 
      * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * 
+     * @throws SetUpException If creating this metric fails.
      */
-    public AbstractMetric(Configuration config) {
+    public AbstractMetric(Configuration config) throws SetUpException {
         super(config);
-        logToFile = Boolean.parseBoolean(config.getProperty("analysis.log_result.file", "true"));
-        logToConsole = Boolean.parseBoolean(config.getProperty("analysis.log_result.console", "true"));
+        config.registerSetting(LOG_CONSOLE);
+        config.registerSetting(LOG_FILE);
+        logToFile = config.getValue(LOG_FILE);
+        logToConsole = config.getValue(LOG_CONSOLE);
         
         if (!(logToConsole || logToFile)) {
             LOGGER.logWarning("Neither analysis.log_result.file nor analysis.log_result.console are set to true");

@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metrics.example;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
@@ -16,8 +17,10 @@ public class VariabilityMcCabe extends CodeFileBlockMetric {
      * Creates a new McCabe conditional compilation block metric.
      * 
      * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * 
+     * @throws SetUpException If creating this metric fails. 
      */
-    public VariabilityMcCabe(Configuration config) {
+    public VariabilityMcCabe(Configuration config) throws SetUpException {
         super(config);
     }
 
