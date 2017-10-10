@@ -22,7 +22,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 public abstract class CombinedMetric extends AbstractMetric {
 
     private static final Setting<String> INPUT_METRIC
-        = new Setting<>("analysis.input_metric", Type.STRING, true, null, "TODO");
+        = new Setting<>("analysis.input_metric", Type.STRING, true, null, "Fully qualified class name of the metric to "
+                + "use as an input for the main metric.");
     
     private AbstractMetric otherMetric;
     

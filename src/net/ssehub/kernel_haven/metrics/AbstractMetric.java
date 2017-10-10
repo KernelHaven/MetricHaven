@@ -28,10 +28,12 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 public abstract class AbstractMetric extends AbstractAnalysis {
 
     private static final Setting<Boolean> LOG_FILE
-        = new Setting<>("metric.log_result.file", Type.BOOLEAN, true, "true", "TODO");
+        = new Setting<>("metric.log_result.file", Type.BOOLEAN, true, "true", "Defines whether to write the result of "
+                + "the metric to a CSV file.");
     
     private static final Setting<Boolean> LOG_CONSOLE
-        = new Setting<>("metric.log_result.console", Type.BOOLEAN, true, "true", "TODO");
+        = new Setting<>("metric.log_result.console", Type.BOOLEAN, true, "true", "Defines whether to log the result of "
+                + "the metric to console.");
     
     private boolean logToFile;
     

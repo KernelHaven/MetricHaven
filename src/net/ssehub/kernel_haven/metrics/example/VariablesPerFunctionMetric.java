@@ -33,7 +33,7 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
     
     private static final Setting<VarType> VARIABLE_TYPE_SETTING
         = new EnumSetting<>("metric.variables_per_function.measured_variables_type", VarType.class, true, 
-                VarType.ALL, "TODO");
+                VarType.ALL, "Defines which variables should be counted for a function.");
     
     
     private VarType measuredVars;
