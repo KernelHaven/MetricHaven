@@ -44,7 +44,7 @@ public class VariableTypeMetric extends VariabilityVariableMetric {
             result = 15;
             break;
         default:
-            System.out.println(variable.getType());
+            LOGGER.logWarning("Unknown type: " + variable.getType());
             break;
         }
         
