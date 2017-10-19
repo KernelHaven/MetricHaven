@@ -79,7 +79,7 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
         
         // Optimization: search only in formula if not visited before
         if (!formulaCache.contains(formula)) {
-            formula.accept(finder);
+            finder.visit(formula);
             formulaCache.add(formula);
         }
         
@@ -94,7 +94,7 @@ public class VariablesPerFunctionMetric extends CodeFunctionMetric {
     @Override
     protected double calc(SyntaxElement function) {
         VariableFinder finder = new VariableFinder();
-        function.getPresenceCondition().accept(finder);
+        finder.visit(function.getPresenceCondition());
         Set<String> externalVariables = new HashSet<>(finder.getVariableNames());
 
         int result;
