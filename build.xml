@@ -12,11 +12,11 @@
 	  <target name="jenkins">
 	    <antcall target="init" />
 	    <antcall target="KH_Common.compile" />
-	    <!-- antcall target="KH_Common.test" /-->
+	    <antcall target="KH_Common.test" />
 	    <antcall target="KH_Common.jar" />
 	    <antcall target="KH_Common.jarwithsources" />
 	    <antcall target="KH_Common.check" />
-	    <!-- antcall target="KH_Common.jacoco_report" /-->
+	    <antcall target="KH_Common.jacoco_report" />
 	    <!--antcall target="KH_Common.zip_workspace" /-->
 	  </target>
 
