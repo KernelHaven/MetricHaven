@@ -18,18 +18,13 @@ import net.ssehub.kernel_haven.util.logic.True;
  */
 public class VariationPointerCounter {
     
-    // Used as stacks: addFirst(), removeFirst(), peekFirst()
     /**
      * Counts the presence conditions of counted variation points.
      */
     private int nVPs;
     
+    // Used as stack: addFirst(), removeFirst(), peekFirst()
     private Deque<Formula> formulaStack = new ArrayDeque<>();
-    
-    /**
-     * Traces the possible alternatives for a variation point, should be 1 smaller than the {@link #formulaStack}.
-     */
-    private Deque<Formula> alternativesStack = new ArrayDeque<>();
     
     /**
      * Default constructor, will assume {@link True#INSTANCE} as base line.
@@ -56,53 +51,101 @@ public class VariationPointerCounter {
      * @param pc The presence condition of the current syntax element.
      */
     public void add(Formula pc) {
-        // Check if the passed PC is not identical to the currently handled PC
-        if (!formulaStack.peekFirst().equals(pc)) {
-            // Check if the current PC is not the alternative to an earlier PC
-            if (alternativesStack.isEmpty() || !alternativesStack.peekFirst().equals(pc)) {
-                Formula predecessor = formulaStack.peekFirst();
-                
-                // Add the new variation point
-                formulaStack.addFirst(pc);
-                nVPs++;
-                
-                // Add the possible alternative for this variation point, i.e., the estimated else block
-                // PC should be a conjunction of new part and old part, determine old part
-                Formula newPart;
-                Formula oldPart = null;
+        if (null != pc && !pc.equals(formulaStack.peekFirst())) {
+            if (pc instanceof Conjunction) {
+                Formula predecessor = ((Conjunction) pc).getLeft();
+                Formula negatedPre;
                 if (pc instanceof Conjunction) {
                     Formula left = ((Conjunction) pc).getLeft();
                     Formula right = ((Conjunction) pc).getRight();
-                    
-                    if (left.equals(predecessor)) {
-                        newPart = right;
-                        oldPart = left;
-                    } else if (right.equals(predecessor)) {
-                        newPart = left;                        
-                        oldPart = right;
+                    if (right instanceof Negation) {
+                        right = ((Negation) right).getFormula();
                     } else {
-                        // Fallback, hopefully never occur
-                        newPart = pc;
+                        right = new Negation(right);
                     }
+                    negatedPre = new Conjunction(left, right);
                 } else {
-                    // Fallback, hopefully never occur
-                    newPart = pc;
+                    negatedPre = new Negation(predecessor);
                 }
                 
-                Formula negated;
-                if (newPart instanceof Negation) {
-                    negated = ((Negation) newPart).getFormula();
-                } else {
-                    negated = new Negation(newPart);
+                insertPC(predecessor, negatedPre, pc);
+            } else {
+                // New top level element (is not necessary a conjunction)
+                while (formulaStack.size() > 2) {
+                    // Remove everything except for the baseline element and the first PC
+                    formulaStack.removeFirst();
                 }
-                if (null != oldPart) {
-                    negated = new Conjunction(oldPart, negated);
+                
+                // First check if this is the alternative to the existing top PC (or the same)
+                boolean found = false;
+                if (formulaStack.size() == 2) {
+                    Formula oldPC = formulaStack.peekFirst();
+                    if (pc.equals(oldPC)) {
+                        // The passed PC is already the top element of stack -> skip
+                        found = true;
+                    } else {
+                        // Check if this alternative to the top element
+                        // CHECKSTYLE:OFF    SE: Not nice, please refactor
+                        if (oldPC instanceof Negation) {
+                            oldPC = ((Negation) oldPC).getFormula();
+                        } else {
+                            oldPC = new Negation(oldPC);
+                        }
+                        if (pc.equals(oldPC)) {
+                            // This is the alternative -> exchange elements
+                            formulaStack.removeFirst();
+                            formulaStack.addFirst(pc);
+                            found = true;
+                        }
+                        // CHECKSTYLE:ON
+                    }
                 }
-                alternativesStack.addFirst(negated);
+                
+                if (!found) {
+                    // New top level PC detected
+                    formulaStack.addFirst(pc);
+                    nVPs++;
+                }
             }
         }
     }
 
+    /**
+     * Inserts the given presence condition to the correct position of the stack and increments {@link #nVPs} if
+     * necessary.
+     * @param pc The presence condition to insert, e.g., <tt>(A AND B) AND C</tt>
+     * @param predecessor The predecessor of the presence condition, e.g., <tt>A AND B</tt>
+     * @param negatedPre The alternative for the predecessor, e.g., <tt>A AND !B</tt>
+     */
+    private void insertPC(Formula predecessor, Formula negatedPre, Formula pc) {
+        boolean elementFound = false;
+        Formula topElement;
+        do {
+            topElement = formulaStack.peekFirst();
+            if (topElement.equals(pc)) {
+                elementFound = true;
+            } else if (topElement.equals(predecessor)) {
+                // New child for (existing) predecessor -> Add child (PC)
+                formulaStack.addFirst(pc);
+                nVPs++;
+                elementFound = true;
+            } else if (topElement.equals(negatedPre)) {
+                // Alternative for existing predecessor -> exchange: predecessor with negatedPre
+                formulaStack.removeFirst();
+                formulaStack.addFirst(negatedPre);
+                elementFound = true;
+                // Do not increment as this is an alternative for the same block, i.e., an ELSE
+            } else if (formulaStack.size() > 1) {
+                // Continue search
+                formulaStack.removeFirst();
+            } else {
+                // End reached, this is a new element on top level
+                formulaStack.addFirst(pc);
+                nVPs++;
+                elementFound = true;
+            }
+        } while (!elementFound);
+    }
     
     /**
      * Computes the number of variation points based on the {@link Formula}s passed to {@link #add(Formula)}.
