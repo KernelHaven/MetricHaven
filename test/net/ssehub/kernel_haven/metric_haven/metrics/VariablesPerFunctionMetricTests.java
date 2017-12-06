@@ -10,7 +10,6 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.TestCaseGenerator;
-import net.ssehub.kernel_haven.metric_haven.metrics.VariablesPerFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.metrics.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.util.Logger;
 
