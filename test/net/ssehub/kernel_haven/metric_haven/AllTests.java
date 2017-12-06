@@ -13,7 +13,8 @@ import net.ssehub.kernel_haven.metric_haven.metrics.AllMetricTests;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    AllMetricTests.class
+    AllMetricTests.class,
+    VariationPointerCounterTest.class
     })
 public class AllTests {
 
