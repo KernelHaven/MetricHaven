@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metrics.example;
+package net.ssehub.kernel_haven.metric_haven.metrics;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

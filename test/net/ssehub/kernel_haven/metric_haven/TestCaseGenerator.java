@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metrics;
+package net.ssehub.kernel_haven.metric_haven;
 
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;

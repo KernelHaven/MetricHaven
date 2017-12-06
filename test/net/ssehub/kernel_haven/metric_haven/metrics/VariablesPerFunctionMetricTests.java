@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metrics.example;
+package net.ssehub.kernel_haven.metric_haven.metrics;
 
 import java.util.Properties;
 
@@ -9,8 +9,9 @@ import org.junit.Test;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.metrics.TestCaseGenerator;
-import net.ssehub.kernel_haven.metrics.example.VariablesPerFunctionMetric.VarType;
+import net.ssehub.kernel_haven.metric_haven.TestCaseGenerator;
+import net.ssehub.kernel_haven.metric_haven.metrics.VariablesPerFunctionMetric;
+import net.ssehub.kernel_haven.metric_haven.metrics.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.util.Logger;
 
 /**

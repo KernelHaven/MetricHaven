@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metrics;
+package net.ssehub.kernel_haven.metric_haven;
 
 import net.ssehub.kernel_haven.util.io.TableElement;
 import net.ssehub.kernel_haven.util.io.TableRow;

@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metrics;
+package net.ssehub.kernel_haven.metric_haven;
 import java.io.IOException;
 import java.util.List;
 

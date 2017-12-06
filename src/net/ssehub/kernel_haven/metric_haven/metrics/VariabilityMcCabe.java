@@ -1,10 +1,10 @@
-package net.ssehub.kernel_haven.metrics.example;
+package net.ssehub.kernel_haven.metric_haven.metrics;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.metrics.filters.CodeFileBlockMetric;
+import net.ssehub.kernel_haven.metric_haven.filters.CodeFileBlockMetric;
 
 /**
  * McCabe cyclomatic complexity for the conditional compilation code blocks.

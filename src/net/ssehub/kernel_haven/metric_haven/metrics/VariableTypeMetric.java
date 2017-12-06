@@ -1,8 +1,8 @@
-package net.ssehub.kernel_haven.metrics.example;
+package net.ssehub.kernel_haven.metric_haven.metrics;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.metrics.filters.VariabilityVariableMetric;
+import net.ssehub.kernel_haven.metric_haven.filters.VariabilityVariableMetric;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 

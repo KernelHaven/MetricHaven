@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metrics.example;
+package net.ssehub.kernel_haven.metric_haven.metrics;
 
 import java.util.Map;
 
@@ -6,7 +6,7 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.metrics.filters.CombinedCodeFileBlockMetric;
+import net.ssehub.kernel_haven.metric_haven.filters.CombinedCodeFileBlockMetric;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;

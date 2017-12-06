@@ -1,9 +1,9 @@
-package net.ssehub.kernel_haven.metrics.example;
+package net.ssehub.kernel_haven.metric_haven.metrics;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.metrics.filters.CodeFunctionMetric;
+import net.ssehub.kernel_haven.metric_haven.filters.CodeFunctionMetric;
 
 /**
  * The McCabe cyclomatic complexity metric for code functions. This metric ignores variability; it thus calculates the

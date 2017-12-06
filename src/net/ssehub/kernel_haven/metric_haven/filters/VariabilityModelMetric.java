@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metrics.filters;
+package net.ssehub.kernel_haven.metric_haven.filters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,8 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.metrics.AbstractMetric;
-import net.ssehub.kernel_haven.metrics.MetricResult;
+import net.ssehub.kernel_haven.metric_haven.AbstractMetric;
+import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 

@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metrics.example;
+package net.ssehub.kernel_haven.metric_haven.metrics;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,7 +9,7 @@ import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
-import net.ssehub.kernel_haven.metrics.filters.CodeFunctionMetric;
+import net.ssehub.kernel_haven.metric_haven.filters.CodeFunctionMetric;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 
