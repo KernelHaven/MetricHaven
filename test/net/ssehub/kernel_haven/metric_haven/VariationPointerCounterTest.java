@@ -67,6 +67,33 @@ public class VariationPointerCounterTest {
     }
     
     /**
+     * Tests the correct determination of a new variation pointif two elements have the same presence condition.<br/>
+     * Simulates (if we would measure variation points inside the function):
+     * <pre><code>
+     * function() {
+     * #ifdef(A) // +1
+     *   ...
+     * #ifdef(B) // +1
+     *   ...
+     * #endif
+     *   ...  // This will also have PC = A and should not increase the result
+     * #endif
+     * }
+     * </code></pre>
+     */
+    @Test
+    public void testElementsWithSamePC() {
+        VariationPointerCounter counter = new VariationPointerCounter();
+        Variable varA = new Variable("A");
+        counter.add(varA);
+        Variable varB = new Variable("B");
+        Formula nested = new Conjunction(varA, varB);
+        counter.add(nested);
+        counter.add(varA);
+        Assert.assertEquals(2, counter.countVPs());        
+    }
+    
+    /**
      * Tests that an alternative to a variation point is not counted as new variation point.<br/>
      * Simulates (if we would measure variation points inside the function):
      * <pre><code>
