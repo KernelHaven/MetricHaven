@@ -4,11 +4,12 @@ import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.filters.CodeFunctionMetric;
+import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric;
 
 /**
  * The McCabe cyclomatic complexity metric for code functions. This metric ignores variability; it thus calculates the
  * complexity "visible" in the 150% model.
- * 
+ * @deprecated Use {@link CyclomaticComplexityMetric} instead.
  * @author Adam
  */
 public class NoVariabilityMcCabe extends CodeFunctionMetric {

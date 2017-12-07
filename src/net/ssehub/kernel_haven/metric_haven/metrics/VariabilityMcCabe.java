@@ -5,10 +5,11 @@ import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.filters.CodeFileBlockMetric;
+import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric;
 
 /**
  * McCabe cyclomatic complexity for the conditional compilation code blocks.
- * 
+ * @deprecated Use {@link CyclomaticComplexityMetric} instead.
  * @author Adam
  */
 public class VariabilityMcCabe extends CodeFileBlockMetric {

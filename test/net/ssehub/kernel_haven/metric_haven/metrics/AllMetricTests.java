@@ -4,6 +4,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetricTest;
+
 /**
  * Tests suite to test all metrics.
  * @author El-Sharkawy
@@ -11,7 +13,8 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    VariablesPerFunctionMetricTests.class
+    VariablesPerFunctionMetricTests.class,
+    CyclomaticComplexityMetricTest.class
     })
 public class AllMetricTests {
 

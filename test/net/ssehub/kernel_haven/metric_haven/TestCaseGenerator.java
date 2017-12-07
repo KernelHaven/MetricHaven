@@ -77,4 +77,43 @@ public class TestCaseGenerator {
         return func;
     }
 
+    /**
+     * Generates a function with different cylcomatic complexity for the VPs as well as for the classical code.
+     * @return An function with cyclomatic complexity. Simulates:
+     * <pre><code>
+     * #ifdef A
+     * func() {
+     *     if() {     // McCabe + 1
+     *         ...
+     *     } elseif { // McCabe + 1
+     *        ...
+     *     }
+     *     
+     *     #ifdef B   // VP + 1
+     *     while () { // McCabe + 1
+     *         ...
+     *     }
+     *     #endif
+     * }
+     * </code></pre>
+     */
+    public static SyntaxElement cyclomaticFunction() {
+        // Outer expression
+        Variable varA = new Variable("A");
+        Variable varB = new Variable("B");
+        Formula aANDb = new Conjunction(varA, varB);
+        
+        // AST
+        SyntaxElement func = new SyntaxElement(SyntaxElementTypes.FUNCTION_DEF, varA, varA);
+        SyntaxElement ifStatement = new SyntaxElement(SyntaxElementTypes.IF_STATEMENT, varA, varA);
+        SyntaxElement elseStatement = new SyntaxElement(SyntaxElementTypes.ELIF_STATEMENT, varA, varA);
+        SyntaxElement whileStatement = new SyntaxElement(SyntaxElementTypes.WHILE_STATEMENT, varB, aANDb);
+        
+        func.addNestedElement(ifStatement);
+        func.addNestedElement(elseStatement);
+        func.addNestedElement(whileStatement);
+        
+        return func;
+    }
+    
 }
