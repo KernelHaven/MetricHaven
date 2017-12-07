@@ -103,6 +103,11 @@ public class VariationPointerCounter {
                 
                 if (!found) {
                     // New top level PC detected
+                    if (formulaStack.size() == 2) {
+                        // remove last toplevel element
+                        formulaStack.removeFirst();
+                    }
+                    
                     formulaStack.addFirst(pc);
                     nVPs++;
                 }
