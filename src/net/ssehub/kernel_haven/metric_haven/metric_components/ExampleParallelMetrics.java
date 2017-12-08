@@ -38,7 +38,7 @@ public class ExampleParallelMetrics extends PipelineAnalysis {
         
         // use functionSplitter.createOutputComponent() to create inputs for multiple metrics after the split
         AnalysisComponent<MetricResult> metric1
-                = new NoVariabilityMcCabe(config, functionSplitter.createOutputComponent());
+                = new CyclomaticComplexityMetric(config, functionSplitter.createOutputComponent());
         AnalysisComponent<MetricResult> metric2
                 = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
         
