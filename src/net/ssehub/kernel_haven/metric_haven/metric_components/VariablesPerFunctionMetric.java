@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -141,7 +142,11 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
         while ((function = functionFinder.getNextResult()) != null) {
             
             double value = calc(function.getFunction());
-            addResult(new MetricResult(function.getName(), value));
+            
+            SyntaxElement functionAST = function.getFunction();
+            File cFile = function.getSourceFile().getPath();
+            File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
+            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), value));
         }
     }
     
