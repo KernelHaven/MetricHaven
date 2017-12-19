@@ -3,23 +3,44 @@ package net.ssehub.kernel_haven.metric_haven.multi_results;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.metric_haven.MetricResult;
 
 /**
  * Collects the results of multiple metric analysis and aggregates them.
  * @author El-Sharkawy
  *
  */
-public class MetricsAggregator {
+public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
+    
+    private AnalysisComponent<MetricResult>[] metrics;
     
     private Map<String, ValueRow> valueTable = new HashMap<>();
     private Set<String> metricNames = new HashSet<>();
     private Map<String, MeasuredItem> ids = new HashMap<>();
     private boolean hasIncludedFiles = false;
-    
+
+    /**
+     * Creates a {@link MetricsAggregator} for the given metric components.
+     * 
+     * @param config The pipeline configuration.
+     * @param metrics The metric components to aggregate the results for.
+     */
+    @SafeVarargs
+    public MetricsAggregator(Configuration config, AnalysisComponent<MetricResult>... metrics) {
+        super(config);
+        this.metrics = metrics;
+    }
+
     /**
      * Adds a new metric results to this table.
+     * 
      * @param mainFile The measured source file (e.g., a C-file).
      * @param includedFile Optional: an included file (e.g., a H-file).
      * @param lineNo The line number of the measured item.
@@ -28,7 +49,7 @@ public class MetricsAggregator {
      * @param value The measured/computed value for the given element.
      */
     // CHECKSTYLE:OFF
-    public void addValue(String mainFile, String includedFile, int lineNo, String element, String metricName,
+    private synchronized void addValue(String mainFile, String includedFile, int lineNo, String element, String metricName,
         double value) {
     // CHECKSTYLE:ON
         
@@ -71,7 +92,7 @@ public class MetricsAggregator {
      * {@link #addValue(String, String, int, String, String, double)}.
      * @return An ordered list of {@link MultiMetricResult}s.
      */
-    public MultiMetricResult[] createTable() {
+    private MultiMetricResult[] createTable() {
         // Create header/columns
         String[] metricColumns = metricNames.toArray(new String[0]);
         Arrays.sort(metricColumns);
@@ -115,5 +136,47 @@ public class MetricsAggregator {
         }
         
         return result;
+    }
+
+    @Override
+    protected void execute() {
+        // start threads to poll from each input metric
+        
+        List<Thread> threads = new LinkedList<>();
+        for (AnalysisComponent<MetricResult> metric : metrics) {
+            
+            Thread th = new Thread(() -> {
+                
+                MetricResult result;
+                while ((result = metric.getNextResult()) != null) {
+                    String sourceFile = result.getSourceFile() != null ? result.getSourceFile().getPath() : null;
+                    String includedFile = result.getIncludedFile() != null ? result.getIncludedFile().getPath() : null;
+                    addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
+                            metric.getResultName(), result.getValue());
+                }
+                
+            }, "MetricsAggreagtorPollThread");
+            
+            threads.add(th);
+            th.start();
+            
+        }
+        
+        for (Thread th : threads) {
+            try {
+                th.join();
+            } catch (InterruptedException e) {
+                // can't happen
+            }
+        }
+        
+        for (MultiMetricResult result : createTable()) {
+            addResult(result);
+        }
+    }
+
+    @Override
+    public String getResultName() {
+        return "Aggregated Metric Results";
     }
 }

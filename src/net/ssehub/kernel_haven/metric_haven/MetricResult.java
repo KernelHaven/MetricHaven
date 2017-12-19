@@ -56,21 +56,21 @@ public class MetricResult {
     /**
      * Returns the main source file containing the measured element.
      * 
-     * @return The path to the source file (e.g., a C-File), may be an empty string if there was no included file.
+     * @return The path to the source file (e.g., a C-File). May be <code>null</code>.
      */
     @TableElement(name = "Source File", index = 0)
-    public String getSourceFile() {
-        return null != sourceFile ? sourceFile.getPath() : "";
+    public File getSourceFile() {
+        return sourceFile;
     }
     
     /**
      * Returns the (included) intermediated source file containing the measured element.
      * 
-     * @return The path to the included file (e.g., a H-File), may be an empty string if there was no included file.
+     * @return The path to the included file (e.g., a H-File). May be <code>null</code>.
      */
     @TableElement(name = "Include File", index = 1)
-    public String getIncludedFile() {
-        return null != includedFile ? includedFile.getPath() : "";
+    public File getIncludedFile() {
+        return includedFile;
     }
     
     /**

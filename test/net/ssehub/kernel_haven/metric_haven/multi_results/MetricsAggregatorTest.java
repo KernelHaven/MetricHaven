@@ -4,10 +4,19 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.ssehub.kernel_haven.SetUpException;
+import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
+import net.ssehub.kernel_haven.test_utils.TestConfiguration;
+import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.io.csv.CsvWriter;
 
 /**
@@ -18,33 +27,72 @@ import net.ssehub.kernel_haven.util.io.csv.CsvWriter;
 public class MetricsAggregatorTest {
     
     /**
+     * Inits the logger.
+     */
+    @BeforeClass
+    public static void initLogger() {
+        if (Logger.get() == null) {
+            Logger.init();
+        }
+    }
+    
+    /**
+     * Creates a {@link MetricsAggregator} for the given input metrics.
+     * 
+     * @param names The names for the input metrics.
+     * @param metrics The input metric results.
+     * @return A {@link MetricsAggregator} for the given inputs.
+     * 
+     * @throws SetUpException Shouldn't happen.
+     */
+    private MetricsAggregator createAggreagtor(String[] names, MetricResult[]... metrics) throws SetUpException {
+        TestConfiguration config = new TestConfiguration(new Properties());
+        
+        @SuppressWarnings("unchecked")
+        AnalysisComponent<MetricResult>[] inputs = new AnalysisComponent[names.length];
+        
+        for (int i = 0; i < names.length; i++) {
+            inputs[i] = new TestAnalysisComponentProvider<>(names[i], metrics[i]);
+        }
+        
+        MetricsAggregator result = new MetricsAggregator(config, inputs);
+        return result;
+    }
+    
+    /**
      * Tests two metrics that return values for the same contexts.
      * 
      * @throws IOException unwanted.
+     * @throws SetUpException unwanted.
      */
     @Test
-    public void testTwoMetricsSameContext() throws IOException {
-        MetricsAggregator aggregator = new MetricsAggregator();
-        
-        aggregator.addValue("test.c", null, 1, "funcA", "McCabe", 2.3);
-        aggregator.addValue("test.c", null, 1, "funcB", "McCabe", 23.2);
-        aggregator.addValue("test.c", null, 1, "funcC", "McCabe", 23.2);
-        
-        aggregator.addValue("test.c", null, 1, "funcB", "Vars", 3);
-        aggregator.addValue("test.c", null, 1, "funcA", "Vars", 2);
-        aggregator.addValue("test.c", null, 1, "funcC", "Vars", 8);
+    public void testTwoMetricsSameContext() throws IOException, SetUpException {
+        MetricsAggregator aggregator = createAggreagtor(
+                new String[] {"McCabe", "Vars"},
+                new MetricResult[] {
+                    new MetricResult(new File("test.c"), null, 1, "funcA", 2.3),
+                    new MetricResult(new File("test.c"), null, 1, "funcB", 23.2),
+                    new MetricResult(new File("test.c"), null, 1, "funcC", 23.2),
+                },
+                new MetricResult[] {
+                    new MetricResult(new File("test.c"), null, 1, "funcA", 3),
+                    new MetricResult(new File("test.c"), null, 1, "funcB", 2),
+                    new MetricResult(new File("test.c"), null, 1, "funcC", 8),
+                }
+        );
         
         
         ByteArrayOutputStream str = new ByteArrayOutputStream();
         try (CsvWriter out = new CsvWriter(str)) {
-            for (MultiMetricResult result : aggregator.createTable()) {
+            MultiMetricResult result;
+            while ((result = aggregator.getNextResult()) != null) {
                 out.writeRow(result);
             }
         }
         
         assertThat(str.toString(), is("Source File;Line No.;Element;McCabe;Vars\n"
-                + "test.c;1;funcA;2.3;2.0\n"
-                + "test.c;1;funcB;23.2;3.0\n"
+                + "test.c;1;funcA;2.3;3.0\n"
+                + "test.c;1;funcB;23.2;2.0\n"
                 + "test.c;1;funcC;23.2;8.0\n"));
     }
     
@@ -52,23 +100,29 @@ public class MetricsAggregatorTest {
      * Tests two metrics that return values for different contexts.
      * 
      * @throws IOException unwanted.
+     * @throws SetUpException unwanted.
      */
     @Test
-    public void testTwoMetricsDifferentContext() throws IOException {
-        MetricsAggregator aggregator = new MetricsAggregator();
-        
-        aggregator.addValue("test.c", null, 1, "funcA", "McCabe", 2.3);
-        aggregator.addValue("test.c", null, 1, "funcB", "McCabe", 23.2);
-        aggregator.addValue("test.c", null, 1, "funcC", "McCabe", 5.2);
-        
-        aggregator.addValue("test2.c", null, 1, "funcA", "Vars", 3);
-        aggregator.addValue("test.c", null, 1, "funcD", "Vars", 2);
-        aggregator.addValue("test.c", "header.h", 1, "funcA", "Vars", 8);
+    public void testTwoMetricsDifferentContext() throws IOException, SetUpException {
+        MetricsAggregator aggregator = createAggreagtor(
+                new String[] {"McCabe", "Vars"},
+                new MetricResult[] {
+                    new MetricResult(new File("test.c"), null, 1, "funcA", 2.3),
+                    new MetricResult(new File("test.c"), null, 1, "funcB", 23.2),
+                    new MetricResult(new File("test.c"), null, 1, "funcC", 5.2),
+                },
+                new MetricResult[] {
+                    new MetricResult(new File("test2.c"), null, 1, "funcA", 3),
+                    new MetricResult(new File("test.c"), null, 1, "funcD", 2),
+                    new MetricResult(new File("test.c"), new File("header.h"), 1, "funcA", 8),
+                }
+        );
         
         
         ByteArrayOutputStream str = new ByteArrayOutputStream();
         try (CsvWriter out = new CsvWriter(str)) {
-            for (MultiMetricResult result : aggregator.createTable()) {
+            MultiMetricResult result;
+            while ((result = aggregator.getNextResult()) != null) {
                 out.writeRow(result);
             }
         }
@@ -87,21 +141,27 @@ public class MetricsAggregatorTest {
      * Tests two metrics that return values for partly overlapping contexts.
      * 
      * @throws IOException unwanted.
+     * @throws SetUpException unwanted.
      */
     @Test
-    public void testTwoMetricsOverlappingContext() throws IOException {
-        MetricsAggregator aggregator = new MetricsAggregator();
-        
-        aggregator.addValue("test.c", null, 1, "funcA", "McCabe", 2.3);
-        aggregator.addValue("test.c", null, 1, "funcB", "McCabe", 23.2);
-        
-        aggregator.addValue("test.c", null, 1, "funcA", "Vars", 3);
-        aggregator.addValue("test.c", null, 1, "funcC", "Vars", 2);
+    public void testTwoMetricsOverlappingContext() throws IOException, SetUpException {
+        MetricsAggregator aggregator = createAggreagtor(
+                new String[] {"McCabe", "Vars"},
+                new MetricResult[] {
+                    new MetricResult(new File("test.c"), null, 1, "funcA", 2.3),
+                    new MetricResult(new File("test.c"), null, 1, "funcB", 23.2),
+                },
+                new MetricResult[] {
+                    new MetricResult(new File("test.c"), null, 1, "funcA", 3),
+                    new MetricResult(new File("test.c"), null, 1, "funcC", 2),
+                }
+        );
         
         
         ByteArrayOutputStream str = new ByteArrayOutputStream();
         try (CsvWriter out = new CsvWriter(str)) {
-            for (MultiMetricResult result : aggregator.createTable()) {
+            MultiMetricResult result;
+            while ((result = aggregator.getNextResult()) != null) {
                 out.writeRow(result);
             }
         }
