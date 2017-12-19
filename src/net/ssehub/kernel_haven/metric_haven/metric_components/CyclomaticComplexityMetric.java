@@ -36,7 +36,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
         MCCABE, VARIATION_POINTS, ALL;
     }
     
-    static final Setting<CCType> VARIABLE_TYPE_SETTING
+    public static final Setting<CCType> VARIABLE_TYPE_SETTING
         = new EnumSetting<>("metric.cyclomatic_complexity.measured_type", CCType.class, true, 
             CCType.MCCABE, "Defines which variables should be counted for a function.");
 

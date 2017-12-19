@@ -16,9 +16,9 @@ import net.ssehub.kernel_haven.util.logic.VariableFinder;
 /**
  * Implements the <tt>Number of internal/external configuration options</tt> metric from
  * <a href="https://doi.org/10.1145/2934466.2934467">
- * Do #ifdefs influence the occurrence of vulnerabilities? an empirical study of the linux kernel paper</a>.
+ * Do #ifdefs influence the occurrence of vulnerabilities? an empirical study of the Linux kernel paper</a>.
  * @author El-Sharkawy
- *
+ * @deprecated Define metric based on net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric
  */
 public class VariablesPerFunctionMetric extends CodeFunctionMetric {
 
