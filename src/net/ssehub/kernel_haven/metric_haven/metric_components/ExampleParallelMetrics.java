@@ -2,7 +2,6 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
-import net.ssehub.kernel_haven.analysis.JoinComponent;
 import net.ssehub.kernel_haven.analysis.PipelineAnalysis;
 import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
@@ -10,6 +9,8 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
+import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 
 /**
  * An example pipeline that executes 2 metrics in parallel with the same input component.
@@ -42,10 +43,8 @@ public class ExampleParallelMetrics extends PipelineAnalysis {
         AnalysisComponent<MetricResult> metric2
                 = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
         
-        // join the parallel metrics together, since we can only return a single component
-        AnalysisComponent<Void> join = new JoinComponent(config, metric1, metric2);
-        // the pipeline will detect that the last component is a JoinComponent, and create excel sheet tabs for each
-        // of the joined components
+        // join the parallel metrics together
+        AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, metric1, metric2);
         
         return join;
     }
