@@ -3,7 +3,7 @@ Infrastructure for running (variability-aware) metrics on Software Product Lines
 
 ## Provided Metrics
 For the sake of simplicity we omit the full qualified class names in the following table. All class names start with the
-prefix `net.ssehub.kernel_haven.metric_haven.metrics`.
+prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
 
 <table style="width:100%">
   <tr>
