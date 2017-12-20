@@ -1,11 +1,12 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.TestCaseGenerator;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
-import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
+import net.ssehub.kernel_haven.test_utils.AnalysisComponentExecuter;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
 import net.ssehub.kernel_haven.util.Logger;
 
@@ -98,16 +99,16 @@ public class VariablesPerFunctionMetricTests {
             prop.setProperty(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING.getKey(), type.name());
             Configuration config = new TestConfiguration(prop);
             
-            TestAnalysisComponentProvider<CodeFunction> input
-                    = new TestAnalysisComponentProvider<>(new CodeFunction("testfunc", testFunc,
-                            new SourceFile(new File("test.c"))));
+            List<MetricResult> metricResults = AnalysisComponentExecuter.executeComponent(
+                    VariablesPerFunctionMetric.class, config,
+                    new Object[] {
+                        new CodeFunction("testfunc", testFunc, new SourceFile(new File("test.c")))
+                    });
             
-            VariablesPerFunctionMetric metric = new VariablesPerFunctionMetric(config, input);
+            assertThat(metricResults.size(), is(1));
             
-            MetricResult metricResult = metric.getNextResult();
-            assertThat(metric.getNextResult(), CoreMatchers.nullValue());
+            result = metricResults.get(0).getValue();
             
-            result = metricResult.getValue();
         } catch (SetUpException e) {
             Assert.fail("Settings up metric \"" + VariablesPerFunctionMetric.class.getSimpleName() + "\" failed due: "
                 + e.getMessage());
