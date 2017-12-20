@@ -41,7 +41,7 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> {
          * @param function The function that should be held by this object.
          * @param file The C-file containing the function directly or indirectly via an included H-file.
          */
-        private CodeFunction(String name, SyntaxElement function, SourceFile file) {
+        public CodeFunction(String name, SyntaxElement function, SourceFile file) {
             this.name = name;
             this.function = function;
             this.file = file;

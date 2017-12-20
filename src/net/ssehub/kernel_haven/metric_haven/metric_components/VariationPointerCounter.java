@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metric_haven;
+package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

@@ -1,12 +1,13 @@
-package net.ssehub.kernel_haven.metric_haven.metrics;
+package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import net.ssehub.kernel_haven.SetUpException;
+import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.metric_haven.filters.CombinedCodeFileBlockMetric;
+import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
@@ -14,29 +15,63 @@ import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.Variable;
 
 /**
- * A metric that counts variability variables used in source files. The variables are weighted based on another metric.
+ * A component that counts variability variables in source files with a given rating.
  * 
  * @author Adam
  */
-public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetric {
+public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricResult> {
 
-    private Map<String, Double> variableWeight;
+    private AnalysisComponent<MetricResult> variableRatings;
+    
+    private AnalysisComponent<SourceFile> sourceFiles;
+    
+    private Map<String, Double> variableWeights;
     
     /**
-     * Creates a new weighted variability count metric.
+     * Creates this component.
      * 
-     * @param config The global pipeline configuration.
-     * 
-     * @throws SetUpException If creating this metric fails.
+     * @param config The pipeline configuration.
+     * @param variableRatings The component to get the variable ratings from. The {@link MetricResult#getContext()} is
+     *      expected to be variable names.
+     * @param sourceFiles The component to get the source file blocks to count in from.
      */
-    public WeightedVariabilityVariableCount(Configuration config) throws SetUpException {
+    public WeightedVariabilityVariableCount(Configuration config, AnalysisComponent<MetricResult> variableRatings,
+            AnalysisComponent<SourceFile> sourceFiles) {
         super(config);
     }
-    
+
     @Override
-    protected double calc(SourceFile file, Map<String, Double> variableWeight) {
-        this.variableWeight = variableWeight; 
+    protected void execute() {
+        variableWeights = new HashMap<>();
         
+        MetricResult rating;
+        while ((rating = variableRatings.getNextResult()) != null) {
+            variableWeights.put(rating.getContext(), rating.getValue());
+        }
+        
+        SourceFile file;
+        while ((file = sourceFiles.getNextResult()) != null) {
+            
+            double value = countInSourceFile(file);
+            
+            addResult(new MetricResult(file.getPath(), null, -1, file.getPath().getName(), value));
+        }
+        
+    }
+
+    @Override
+    public String getResultName() {
+        return "Weighted Variability Variable Count";
+    }
+    
+    /**
+     * Counts the weighted variables in the given source file.
+     * 
+     * @param file The {@link SourceFile} to count in.
+     * 
+     * @return The summed weight of variables found in the file.
+     */
+    private double countInSourceFile(SourceFile file) {
         double result = 0.0;
         
         for (CodeElement topElement : file) {
@@ -54,7 +89,7 @@ public class WeightedVariabilityVariableCount extends CombinedCodeFileBlockMetri
      * @return The weight of the other variable.
      */
     private double getWeight(String variable) {
-        Double result = variableWeight.get(variable);
+        Double result = variableWeights.get(variable);
         if (result == null) {
             LOGGER.logWarning("Returning weight 0 for unknown variable " + variable);
             result = 0.0;

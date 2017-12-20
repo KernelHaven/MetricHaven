@@ -4,7 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import net.ssehub.kernel_haven.metric_haven.metrics.AllMetricTests;
+import net.ssehub.kernel_haven.metric_haven.metric_components.AllMetricComponentTests;
 import net.ssehub.kernel_haven.metric_haven.multi_results.AllMultiResultTests;
 
 /**
@@ -14,10 +14,8 @@ import net.ssehub.kernel_haven.metric_haven.multi_results.AllMultiResultTests;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    AllMetricTests.class,
+    AllMetricComponentTests.class,
     AllMultiResultTests.class,
-    
-    VariationPointerCounterTest.class
     })
 public class AllTests {
 

@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metric_haven;
+package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import org.junit.Assert;
 import org.junit.Test;
