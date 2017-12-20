@@ -62,7 +62,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         metrics[5] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
         
         // join the parallel metrics together
-        AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, metrics);
+        AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics", metrics);
         
         return join;
     }

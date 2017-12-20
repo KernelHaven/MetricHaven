@@ -2,11 +2,9 @@ package net.ssehub.kernel_haven.metric_haven.multi_results;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
@@ -15,6 +13,7 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
 /**
  * Collects the results of multiple metric analysis and aggregates them.
  * @author El-Sharkawy
+ * @author Adam
  *
  */
 public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
@@ -22,20 +21,40 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     private AnalysisComponent<MetricResult>[] metrics;
     
     private Map<String, ValueRow> valueTable = new HashMap<>();
-    private Set<String> metricNames = new HashSet<>();
+    private String[] metricNames;
     private Map<String, MeasuredItem> ids = new HashMap<>();
     private boolean hasIncludedFiles = false;
+    private String resultName;
 
     /**
-     * Creates a {@link MetricsAggregator} for the given metric components.
+     * Creates a {@link MetricsAggregator} for the given metric components, with a fixed name for the results.
      * 
      * @param config The pipeline configuration.
      * @param metrics The metric components to aggregate the results for.
      */
     @SafeVarargs
     public MetricsAggregator(Configuration config, AnalysisComponent<MetricResult>... metrics) {
+        this(config, "Aggregated Metric Results", metrics);
+    }
+    
+    /**
+     * Creates a {@link MetricsAggregator} for the given metric components, allows to specify the result name.
+     * 
+     * @param config The pipeline configuration.
+     * @param resultName The name of the results (i.e., the name of the Excel sheet or the CSV file).
+     * @param metrics The metric components to aggregate the results for.
+     */
+    @SafeVarargs
+    public MetricsAggregator(Configuration config, String resultName, AnalysisComponent<MetricResult>... metrics) {
         super(config);
         this.metrics = metrics;
+        this.resultName =  resultName;
+        
+        int nMetrics = (null != metrics) ? metrics.length : 0;
+        metricNames = new String[nMetrics];
+        for (int i = 0; i < nMetrics; i++) {
+            metricNames[i] = metrics[i].getResultName();
+        }
     }
 
     /**
@@ -64,7 +83,6 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             MeasuredItem item = new MeasuredItem(mainFile, includedFile, lineNo, element);
             ids.put(id, item);
         }
-        metricNames.add(metricName);
         hasIncludedFiles |= (null != includedFile);
         
         // Add the value
@@ -94,9 +112,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      */
     private MultiMetricResult[] createTable() {
         // Create header/columns
-        String[] metricColumns = metricNames.toArray(new String[0]);
-        Arrays.sort(metricColumns);
-        int nColumns = hasIncludedFiles ? metricColumns.length + 4 : metricColumns.length + 3;
+        int nColumns = hasIncludedFiles ? metricNames.length + 4 : metricNames.length + 3;
         String[] header = new String[nColumns];
         int index = 0;
         header[index++] = "Source File";
@@ -105,7 +121,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         }
         header[index++] = "Line No.";
         header[index++] = "Element";
-        System.arraycopy(metricColumns, 0, header, index, metricColumns.length);
+        System.arraycopy(metricNames, 0, header, index, metricNames.length);
         
         // Create rows
         String[] columnIDs = ids.keySet().toArray(new String[0]);
@@ -128,8 +144,8 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             values[index++] = item.getLineNo();
             values[index++] = item.getElement();
             // The measured values
-            for (int j = 0; j < metricColumns.length; j++) {
-                values[index++] = column.getValue(metricColumns[j]);
+            for (int j = 0; j < metricNames.length; j++) {
+                values[index++] = column.getValue(metricNames[j]);
             }
             
             result[i] = new MultiMetricResult(header, values);
@@ -177,6 +193,6 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
 
     @Override
     public String getResultName() {
-        return "Aggregated Metric Results";
+        return resultName;
     }
 }
