@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.io.File;
+
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
@@ -83,7 +85,10 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
                 break;
             }
             
-            addResult(new MetricResult(function.getName(), result));
+            SyntaxElement functionAST = function.getFunction();
+            File cFile = function.getSourceFile().getPath();
+            File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
+            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
         }
     }
 

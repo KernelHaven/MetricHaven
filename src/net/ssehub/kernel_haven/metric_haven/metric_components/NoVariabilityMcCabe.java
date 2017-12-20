@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.io.File;
+
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
@@ -35,7 +37,10 @@ public class NoVariabilityMcCabe extends AnalysisComponent<MetricResult> {
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
             double value = 1.0 + count(function.getFunction());
             
-            addResult(new MetricResult(function.getName(), value));
+            SyntaxElement functionAST = function.getFunction();
+            File cFile = function.getSourceFile().getPath();
+            File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
+            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), value));
         }
     }
 

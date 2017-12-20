@@ -28,6 +28,7 @@ public class MetricResult {
      * @param element The measured element (i.e. the thing that the metric was execute on) of the result. Must not be
      *      <code>null</code>.
      * @param value The value that the metric returned.
+     * @deprecated Use {@link #MetricResult(File, File, int, String, double)} instead
      */
     public MetricResult(String element, double value) {
         this(null, null, -1, element, value);
