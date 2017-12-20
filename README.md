@@ -24,6 +24,17 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
         <li><code>ALL</code>: <code>EXTERNAL + INTERNAL</code></li>
     </ul></td>
   </tr>
+  <!-- CyclomaticComplexityMetric -->
+  <tr>
+    <td><code>CyclomaticComplexityMetric</code></td>
+    <td>Measures the Cyclomatic Complexity of code functions.
+    </td>
+    <td><ul>
+        <li><code>MCCABE</code>: Measures the cyclomatic complexity of classical code elements as defined by McCabe; uses a simplification that only the following keywords will be counted: <tt>if, for, while, case</tt>.</li>
+        <li><code>VARIATION_POINTS</code>: Measures the cyclomatic complexity of variation points only; uses a simplification that only the following keywords will be counted: <tt>if, elif</tt>.</li>
+        <li><code>ALL</code>: <code>MCCABE + VARIATION_POINTS</code></li>
+    </ul></td>
+  </tr>
 </table>
 
 ### Dependencies
