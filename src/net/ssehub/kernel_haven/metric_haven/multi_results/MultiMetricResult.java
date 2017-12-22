@@ -26,19 +26,13 @@ public class MultiMetricResult implements ITableRow {
     }
 
     @Override
-    public String[] getContent() {
-        String[] result = new String[values.length];
-        
-        for (int i = 0; i < values.length; i++) {
-            // values are either a String or a number -> toString returns something useful
-            result[i] = (null != values[i]) ? values[i].toString() : "";
-        }
-        
-        return result;
+    public Object[] getContent() {
+        return values;
     }
 
     @Override
     public String[] getHeader() {
         return header;
     }
+    
 }

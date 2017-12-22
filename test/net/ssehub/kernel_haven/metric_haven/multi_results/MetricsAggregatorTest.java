@@ -86,7 +86,7 @@ public class MetricsAggregatorTest {
         try (CsvWriter out = new CsvWriter(str)) {
             MultiMetricResult result;
             while ((result = aggregator.getNextResult()) != null) {
-                out.writeRow(result);
+                out.writeObject(result);
             }
         }
         
@@ -123,7 +123,7 @@ public class MetricsAggregatorTest {
         try (CsvWriter out = new CsvWriter(str)) {
             MultiMetricResult result;
             while ((result = aggregator.getNextResult()) != null) {
-                out.writeRow(result);
+                out.writeObject(result);
             }
         }
         
@@ -162,7 +162,7 @@ public class MetricsAggregatorTest {
         try (CsvWriter out = new CsvWriter(str)) {
             MultiMetricResult result;
             while ((result = aggregator.getNextResult()) != null) {
-                out.writeRow(result);
+                out.writeObject(result);
             }
         }
         
