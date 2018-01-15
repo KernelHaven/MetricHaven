@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.multi_results;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -53,7 +55,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         int nMetrics = (null != metrics) ? metrics.length : 0;
         metricNames = new String[nMetrics];
         for (int i = 0; i < nMetrics; i++) {
-            metricNames[i] = metrics[i].getResultName();
+            metricNames[i] = notNull(metrics)[i].getResultName();
         }
     }
 
