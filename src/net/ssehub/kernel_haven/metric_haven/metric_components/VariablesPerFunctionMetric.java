@@ -96,7 +96,7 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
         // Recursively search in nested elements
         Iterator<SyntaxElement> itr = astNode.iterateNestedSyntaxElements().iterator();
         while (itr.hasNext()) {
-            SyntaxElement nestedElement = (SyntaxElement) itr.next();
+            SyntaxElement nestedElement = itr.next();
             collectVars(nestedElement, finder, formulaCache);
         }
     }
