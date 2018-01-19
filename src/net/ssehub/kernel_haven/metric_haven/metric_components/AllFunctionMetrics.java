@@ -13,6 +13,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexi
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * Runs all function metrics in parallel.
@@ -26,7 +27,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
      * 
      * @param config The global configuration.
      */
-    public AllFunctionMetrics(Configuration config) {
+    public AllFunctionMetrics(@NonNull Configuration config) {
         super(config);
     }
 
