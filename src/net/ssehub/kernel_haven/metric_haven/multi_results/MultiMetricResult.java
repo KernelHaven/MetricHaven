@@ -1,6 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.multi_results;
 
 import net.ssehub.kernel_haven.util.io.ITableRow;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * Data object storing multiple results for one measured item, e.g., one function.
@@ -9,8 +10,8 @@ import net.ssehub.kernel_haven.util.io.ITableRow;
  */
 public class MultiMetricResult implements ITableRow {
     
-    private String[] header;
-    private Object[] values;
+    private @NonNull String[] header;
+    private @NonNull Object[] values;
 
     /**
      * Sole constructor, should not be visible from outside of this package.
@@ -20,18 +21,18 @@ public class MultiMetricResult implements ITableRow {
      *     should be as long as {@link #getHeader()} and start with the measured item
      *     (file, included file, line number, element).
      */
-    MultiMetricResult(String[] header, Object[] values) {
+    MultiMetricResult(@NonNull String[] header, @NonNull Object[] values) {
         this.header = header;
         this.values = values;
     }
 
     @Override
-    public Object[] getContent() {
+    public @NonNull Object[] getContent() {
         return values;
     }
 
     @Override
-    public String[] getHeader() {
+    public @NonNull String[] getHeader() {
         return header;
     }
     
