@@ -32,7 +32,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
     }
 
     @Override
-    protected AnalysisComponent<?> createPipeline() throws SetUpException {
+    protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
         
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
         AnalysisComponent<CodeFunction> functionFilter = new CodeFunctionFilter(config, codeModel);
