@@ -23,7 +23,5 @@
 	  <target name="init">
 	    <antcall target="KH_Common.prepare.folders" />
 	    <get src="${infrastructure.location}" dest="${dependencies.dir}/kernelhaven.jar" />
-	    <get src="${TypeChef.location}" dest="${dependencies.dir}/TypeChef.jar" />
-        <get src="${Undertaker.location}" dest="${dependencies.dir}/Undertaker.jar" />
 	  </target>
 	</project>
