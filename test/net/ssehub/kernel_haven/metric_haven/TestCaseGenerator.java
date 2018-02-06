@@ -5,6 +5,7 @@ import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement.Type;
 import net.ssehub.kernel_haven.code_model.ast.Code;
+import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement.LoopType;
@@ -114,12 +115,14 @@ public class TestCaseGenerator {
         Code header = new Code(varA, "void func()");
         Function func = new Function(varA, "func", header);
         BranchStatement ifStatement = new BranchStatement(varA, Type.IF, new Code(varA, "if(a)"));
-        BranchStatement elseStatement = new BranchStatement(varA, Type.ELSE, new Code(varA, "else"));
+        BranchStatement elseStatement = new BranchStatement(varA, Type.ELSE_IF, new Code(varA, "else"));
+        CppBlock ifDef = new CppBlock(aANDb, varB, CppBlock.Type.IFDEF);
         LoopStatement whileStatement = new LoopStatement(aANDb, new Code(varA, "while(true)"), LoopType.WHILE);
+        ifDef.addNestedElement(whileStatement);
         
         func.addNestedElement(ifStatement);
         func.addNestedElement(elseStatement);
-        func.addNestedElement(whileStatement);
+        func.addNestedElement(ifDef);
         
         return func;
     }
