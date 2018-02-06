@@ -6,7 +6,7 @@ import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.ElseStatement;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.IfStructure;
-import net.ssehub.kernel_haven.code_model.ast.Loop;
+import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
 import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.SwitchStatement;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
@@ -99,11 +99,11 @@ public class LoCVisitor extends AbstractFunctionVisitor {
     }
     
     @Override
-    public void visitLoop(Loop loop) {
+    public void visitLoopStatement(LoopStatement loop) {
         count();
         
         // Continue visiting
-        super.visitLoop(loop);
+        super.visitLoopStatement(loop);
     }
     
     @Override
