@@ -1,11 +1,10 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
 import net.ssehub.kernel_haven.code_model.ast.CaseStatement;
 import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
-import net.ssehub.kernel_haven.code_model.ast.ElseStatement;
 import net.ssehub.kernel_haven.code_model.ast.Function;
-import net.ssehub.kernel_haven.code_model.ast.IfStructure;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
 import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.SwitchStatement;
@@ -67,19 +66,11 @@ public class LoCVisitor extends AbstractFunctionVisitor {
     // C Control structures
     
     @Override
-    public void visitIfStructure(IfStructure ifStatement) {
+    public void visitBranchStatement(BranchStatement elseStatement) {
         count();
         
         // Continue visiting
-        super.visitIfStructure(ifStatement);
-    }
-    
-    @Override
-    public void visitElseStatement(ElseStatement elseStatement) {
-        count();
-        
-        // Continue visiting
-        super.visitElseStatement(elseStatement);
+        super.visitBranchStatement(elseStatement);
     }
     
     @Override
