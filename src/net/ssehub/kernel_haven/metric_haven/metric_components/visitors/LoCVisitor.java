@@ -141,7 +141,7 @@ public class LoCVisitor extends AbstractFunctionVisitor {
      * @return {@link #getLoF()} / {@link #getDLoC()} or 0 (if {@link #getDLoC()} is 0).
      */
     public double getPLoF() {
-        double basis = (double) getDLoC();
-        return (basis != 0) ? (double) getLoF() / basis : 0.0d;
+        double basis = getDLoC();
+        return (basis != 0) ? getLoF() / basis : 0.0d;
     }
 }
