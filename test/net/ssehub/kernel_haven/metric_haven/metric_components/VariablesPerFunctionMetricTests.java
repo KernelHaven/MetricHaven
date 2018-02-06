@@ -17,7 +17,7 @@ import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.TestCaseGenerator;
-import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.test_utils.AnalysisComponentExecuter;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
@@ -102,7 +102,7 @@ public class VariablesPerFunctionMetricTests {
             List<MetricResult> metricResults = AnalysisComponentExecuter.executeComponent(
                     VariablesPerFunctionMetric.class, config,
                     new Object[] {
-                        new CodeFunction("testfunc", testFunc, new SourceFile(new File("test.c")))
+                        new OldCodeFunction("testfunc", testFunc, new SourceFile(new File("test.c")))
                     });
             
             assertThat(metricResults.size(), is(1));

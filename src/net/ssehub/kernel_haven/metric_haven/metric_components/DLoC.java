@@ -4,13 +4,12 @@ import java.io.File;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
-import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -84,7 +83,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
         
         CodeFunction function;
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
-            Function astRoot = null; //(Function) function.getFunction();
+            Function astRoot = function.getFunction();
             
             LoCVisitor visitor = new LoCVisitor(varModel);
             astRoot.accept(visitor);
@@ -106,7 +105,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
                 return;
             }
             
-            SyntaxElement functionAST = function.getFunction();
+            Function functionAST = function.getFunction();
             File cFile = function.getSourceFile().getPath();
             File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
             addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));

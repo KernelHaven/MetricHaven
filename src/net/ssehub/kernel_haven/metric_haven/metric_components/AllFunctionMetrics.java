@@ -7,8 +7,8 @@ import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
-import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
-import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
@@ -35,10 +35,10 @@ public class AllFunctionMetrics extends PipelineAnalysis {
     protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
         
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
-        AnalysisComponent<CodeFunction> functionFilter = new CodeFunctionFilter(config, codeModel);
+        AnalysisComponent<OldCodeFunction> functionFilter = new OldCodeFunctionFilter(config, codeModel);
         
         // add a split component after the function filter
-        SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
+        SplitComponent<OldCodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
         
         // use functionSplitter.createOutputComponent() to create inputs for multiple metrics after the split
         

@@ -10,7 +10,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
-import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunction;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.logic.Formula;
 
@@ -41,7 +41,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
         = new EnumSetting<>("metric.cyclomatic_complexity.measured_type", CCType.class, true, 
             CCType.MCCABE, "Defines which variables should be counted for a function.");
 
-    private AnalysisComponent<CodeFunction> codeFunctionFinder;
+    private AnalysisComponent<OldCodeFunction> codeFunctionFinder;
     private CCType measuredCode;
     
     /**
@@ -50,7 +50,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
      * @param codeFunctionFinder The component to get the code functions from.
      * @throws SetUpException In case of problems with the configuration of {@link #VARIABLE_TYPE_SETTING}.
      */
-    public CyclomaticComplexityMetric(Configuration config, AnalysisComponent<CodeFunction> codeFunctionFinder)
+    public CyclomaticComplexityMetric(Configuration config, AnalysisComponent<OldCodeFunction> codeFunctionFinder)
         throws SetUpException {
         
         super(config);
@@ -61,7 +61,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
 
     @Override
     protected void execute() {
-        CodeFunction function;
+        OldCodeFunction function;
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
             Formula baseLine = function.getFunction().getPresenceCondition();
             VariationPointerCounter counter = new VariationPointerCounter(baseLine);

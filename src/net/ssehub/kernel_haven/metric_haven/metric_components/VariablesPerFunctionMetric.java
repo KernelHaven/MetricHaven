@@ -12,7 +12,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
-import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 
@@ -41,7 +41,7 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
     
     private VarType measuredVars;
     
-    private AnalysisComponent<CodeFunction> functionFinder;
+    private AnalysisComponent<OldCodeFunction> functionFinder;
     
     /**
      * Sole constructor for this class.
@@ -51,7 +51,7 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
      * 
      * @throws SetUpException If {@link #VARIABLE_TYPE_PROPERTY} was defined with an invalid option.
      */
-    public VariablesPerFunctionMetric(Configuration config, AnalysisComponent<CodeFunction> functionFinder)
+    public VariablesPerFunctionMetric(Configuration config, AnalysisComponent<OldCodeFunction> functionFinder)
             throws SetUpException {
         
         super(config);
@@ -138,7 +138,7 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
     
     @Override
     protected void execute() {
-        CodeFunction function;
+        OldCodeFunction function;
         while ((function = functionFinder.getNextResult()) != null) {
             
             double value = calc(function.getFunction());
