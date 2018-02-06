@@ -2,6 +2,12 @@ package net.ssehub.kernel_haven.metric_haven;
 
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
+import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
+import net.ssehub.kernel_haven.code_model.ast.BranchStatement.Type;
+import net.ssehub.kernel_haven.code_model.ast.Code;
+import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
+import net.ssehub.kernel_haven.code_model.ast.LoopStatement.LoopType;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
@@ -21,14 +27,15 @@ public class TestCaseGenerator {
      * <b>Condition:</b><tt>A or B </tt>
      * @return An empty function with the specified expression.
      */
-    public static SyntaxElement externalExpressionFunc() {
+    public static Function externalExpressionFunc() {
         // Outer expression
         Variable varA = new Variable("A");
         Variable varB = new Variable("B");
         Formula aORb = new Disjunction(varA, varB);
         
         // AST
-        SyntaxElement func = new SyntaxElement(SyntaxElementTypes.FUNCTION_DEF, aORb, aORb);
+        Code header = new Code(aORb, "void func()");
+        Function func = new Function(aORb, "func", header);
         
         return func;
     }
@@ -97,17 +104,18 @@ public class TestCaseGenerator {
      * }
      * </code></pre>
      */
-    public static SyntaxElement cyclomaticFunction() {
+    public static Function cyclomaticFunction() {
         // Outer expression
         Variable varA = new Variable("A");
         Variable varB = new Variable("B");
         Formula aANDb = new Conjunction(varA, varB);
         
         // AST
-        SyntaxElement func = new SyntaxElement(SyntaxElementTypes.FUNCTION_DEF, varA, varA);
-        SyntaxElement ifStatement = new SyntaxElement(SyntaxElementTypes.IF_STATEMENT, varA, varA);
-        SyntaxElement elseStatement = new SyntaxElement(SyntaxElementTypes.ELIF_STATEMENT, varA, varA);
-        SyntaxElement whileStatement = new SyntaxElement(SyntaxElementTypes.WHILE_STATEMENT, varB, aANDb);
+        Code header = new Code(varA, "void func()");
+        Function func = new Function(varA, "func", header);
+        BranchStatement ifStatement = new BranchStatement(varA, Type.IF, new Code(varA, "if(a)"));
+        BranchStatement elseStatement = new BranchStatement(varA, Type.ELSE, new Code(varA, "else"));
+        LoopStatement whileStatement = new LoopStatement(aANDb, new Code(varA, "while(true)"), LoopType.WHILE);
         
         func.addNestedElement(ifStatement);
         func.addNestedElement(elseStatement);

@@ -10,7 +10,7 @@ import org.junit.Test;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
@@ -40,7 +40,7 @@ public class CyclomaticComplexityMetricTest {
      */
     @Test
     public void testClassicalMcCabe() {
-        SyntaxElement testFunction = TestCaseGenerator.cyclomaticFunction();
+        Function testFunction = TestCaseGenerator.cyclomaticFunction();
         double mcCabe = runMetricOnFunction(testFunction, CCType.MCCABE);
         
         Assert.assertEquals(4, (int) mcCabe);
@@ -51,7 +51,7 @@ public class CyclomaticComplexityMetricTest {
      */
     @Test
     public void testVPMcCabe() {
-        SyntaxElement testFunction = TestCaseGenerator.cyclomaticFunction();
+        Function testFunction = TestCaseGenerator.cyclomaticFunction();
         double mcCabe = runMetricOnFunction(testFunction, CCType.VARIATION_POINTS);
         
         Assert.assertEquals(2, (int) mcCabe);
@@ -62,7 +62,7 @@ public class CyclomaticComplexityMetricTest {
      */
     @Test
     public void testCombinedMcCabe() {
-        SyntaxElement testFunction = TestCaseGenerator.cyclomaticFunction();
+        Function testFunction = TestCaseGenerator.cyclomaticFunction();
         double mcCabe = runMetricOnFunction(testFunction, CCType.ALL);
         
         Assert.assertEquals(6, (int) mcCabe);
@@ -74,7 +74,7 @@ public class CyclomaticComplexityMetricTest {
      * @param type Specifies, which kind of code type should be used to measure the cyclomatic complexity.
      * @return The result of the Metric
      */
-    private double runMetricOnFunction(SyntaxElement testFunc, CCType type) {
+    private double runMetricOnFunction(Function testFunc, CCType type) {
         MetricResult result = null;
         try {
             // Configuration
