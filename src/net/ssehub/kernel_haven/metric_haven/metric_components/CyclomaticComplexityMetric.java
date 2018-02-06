@@ -4,7 +4,7 @@ import java.io.File;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
-import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
+import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
@@ -62,7 +62,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
     protected void execute() {
         CodeFunction function;
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
-            ISyntaxElement functionAST = function.getFunction();
+            Function functionAST = function.getFunction();
             McCabeVisitor visitor = new McCabeVisitor(null);
             functionAST.accept(visitor);
 

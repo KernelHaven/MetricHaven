@@ -10,6 +10,7 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
@@ -45,7 +46,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // All Cyclomatic complexity metrics
         config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
         @SuppressWarnings("unchecked")
-        AnalysisComponent<MetricResult>[] metrics = new AnalysisComponent[6];
+        AnalysisComponent<MetricResult>[] metrics = new AnalysisComponent[9];
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.MCCABE);
         metrics[0] = new CyclomaticComplexityMetric(config, functionSplitter.createOutputComponent());
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.VARIATION_POINTS);
@@ -61,6 +62,15 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         metrics[4] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
         config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.ALL);
         metrics[5] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
+        
+        // All dLoC per Function metrics
+        config.registerSetting(DLoC.LOC_TYPE_SETTING);
+        config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.DLOC);
+        metrics[6] = new DLoC(config, functionSplitter.createOutputComponent());
+        config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.LOF);
+        metrics[7] = new DLoC(config, functionSplitter.createOutputComponent());
+        config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.PLOF);
+        metrics[8] = new DLoC(config, functionSplitter.createOutputComponent());
         
         // join the parallel metrics together
         AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics", metrics);

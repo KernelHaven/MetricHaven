@@ -32,7 +32,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
         DLOC, LOF, PLOF;
     }
     
-    public static final Setting<LoFType> VARIABLE_TYPE_SETTING
+    public static final Setting<LoFType> LOC_TYPE_SETTING
         = new EnumSetting<>("metric.loc.measured_type", LoFType.class, true, 
             LoFType.DLOC, "Defines which lines of code should be counted for a function:\n"
                 + LoFType.DLOC.name() + ": Counts all statements, i.e., all delivered Lines of Code (dLoC).\n"
@@ -48,15 +48,15 @@ public class DLoC extends AnalysisComponent<MetricResult> {
      * Creates this metric.
      * @param config The global configuration.
      * @param codeFunctionFinder The component to get the code functions from.
-     * @throws SetUpException if {@link #VARIABLE_TYPE_SETTING} is misconfigured.
+     * @throws SetUpException if {@link #LOC_TYPE_SETTING} is misconfigured.
      */
     public DLoC(Configuration config, AnalysisComponent<CodeFunction> codeFunctionFinder) throws SetUpException {
         
         super(config);
         this.codeFunctionFinder = codeFunctionFinder;
         
-        config.registerSetting(VARIABLE_TYPE_SETTING);
-        type = config.getValue(VARIABLE_TYPE_SETTING);
+        config.registerSetting(LOC_TYPE_SETTING);
+        type = config.getValue(LOC_TYPE_SETTING);
     }
     
     /**
@@ -66,7 +66,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
      * @param varModelComponent Optional: The component to get the variability model from. If not <tt>null</tt>
      *     {@link LoFType#LOF} and {@link LoFType#PLOF} will check if at least one variable of the variability
      *     model is involved in {@link net.ssehub.kernel_haven.code_model.ast.CppBlock#getCondition()} expressions.
-     * @throws SetUpException if {@link #VARIABLE_TYPE_SETTING} is misconfigured.
+     * @throws SetUpException if {@link #LOC_TYPE_SETTING} is misconfigured.
      */
     public DLoC(Configuration config, AnalysisComponent<CodeFunction> codeFunctionFinder,
         AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
@@ -102,7 +102,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
                 break;
             default:
                 Logger.get().logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
-                    + VARIABLE_TYPE_SETTING.getKey() + "=" + type.name());
+                    + LOC_TYPE_SETTING.getKey() + "=" + type.name());
                 return;
             }
             
@@ -129,7 +129,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
         default:
             resultName = "Unsupported metric specified";
             Logger.get().logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
-                + VARIABLE_TYPE_SETTING.getKey() + "=" + type.name());
+                + LOC_TYPE_SETTING.getKey() + "=" + type.name());
             break;
         }
         
