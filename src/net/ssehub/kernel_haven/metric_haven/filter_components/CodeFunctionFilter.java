@@ -10,12 +10,25 @@ import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
+
+/**
+ * Aggregates the code model to a function level. Passes along each function wrapped inside a {@link Function}
+ * instance.
+ *
+ * @author Adam
+ */
 public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implements ISyntaxElementVisitor {
 
     private AnalysisComponent<SourceFile> codeModelProvider;
     
     private SourceFile currentFile;
     
+    /**
+     * Creates this component.
+     * 
+     * @param config The pipeline configuration.
+     * @param codeModelProvider The component to get the code model from.
+     */
     public CodeFunctionFilter(@NonNull Configuration config, AnalysisComponent<SourceFile> codeModelProvider) {
         super(config);
         this.codeModelProvider = codeModelProvider;
