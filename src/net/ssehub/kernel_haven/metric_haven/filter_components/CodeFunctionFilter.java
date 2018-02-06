@@ -5,8 +5,8 @@ import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
-import net.ssehub.kernel_haven.code_model.ast.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
@@ -28,10 +28,10 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
             LOGGER.logInfo("Running metric for functions in " + file.getPath().getPath());
             currentFile = file;
             for (CodeElement b : file) {
-                if (!(b instanceof SyntaxElement)) {
-                    LOGGER.logError("This filter only works with SyntaxElements");
+                if (!(b instanceof ISyntaxElement)) {
+                    LOGGER.logError("This filter only works with ISyntaxElement");
                 } else {
-                    ((SyntaxElement) b).accept(this);
+                    ((ISyntaxElement) b).accept(this);
                 }
             }
         }

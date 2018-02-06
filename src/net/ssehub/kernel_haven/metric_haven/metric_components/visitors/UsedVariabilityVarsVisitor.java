@@ -6,7 +6,7 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
-import net.ssehub.kernel_haven.code_model.ast.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -26,7 +26,7 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
     /**
      * Sole constructor.
      * @param varModel Optional, if not <tt>null</tt> for each variable used in a
-     *     {@link SyntaxElement#getPresenceCondition()}, whether it is defined in the variability model.
+     *     {@link ISyntaxElement#getPresenceCondition()}, whether it is defined in the variability model.
      */
     public UsedVariabilityVarsVisitor(VariabilityModel varModel) {
         super(varModel);

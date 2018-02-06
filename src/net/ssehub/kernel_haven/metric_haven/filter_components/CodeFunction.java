@@ -4,7 +4,7 @@ import java.io.File;
 
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Function;
-import net.ssehub.kernel_haven.code_model.ast.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 
 /**
  * Holds a function from the code model.
@@ -62,7 +62,7 @@ public class CodeFunction {
     
     /**
      * Returns the (main) source file containing the function. <br/>
-     * <b>Please note:</b> This is not necessary identical to {@link SyntaxElement#getSourceFile()} as this
+     * <b>Please note:</b> This is not necessary identical to {@link ISyntaxElement#getSourceFile()} as this
      * points to the direct location of an (included) source file.
      * @return The location of the C-file (not of an included H-file of a macro).
      */
