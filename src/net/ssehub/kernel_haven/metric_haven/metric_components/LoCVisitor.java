@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import net.ssehub.kernel_haven.code_model.ast.CaseStatement;
 import net.ssehub.kernel_haven.code_model.ast.Code;
+import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.ElseStatement;
 import net.ssehub.kernel_haven.code_model.ast.Function;
@@ -19,6 +20,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * the following metrics:
  * <ul>
  *     <li>Lines of Code: {@link #getDLoC()}</li>
+ *     <li>Lines of Feature code: {@link #getLoF()}</li>
+ *     <li>Percentage of Lines of Feature code: {@link #getPLoF()}</li>
  * </ul>
  * @author El-Sharkawy
  *
@@ -160,6 +163,11 @@ public class LoCVisitor implements ISyntaxElementVisitor {
         
         // Continue visiting
         ISyntaxElementVisitor.super.visitLoop(loop);
+    }
+    
+    @Override
+    public void visitComment(Comment comment) {
+        // Do not visit comments!
     }
 
     /**
