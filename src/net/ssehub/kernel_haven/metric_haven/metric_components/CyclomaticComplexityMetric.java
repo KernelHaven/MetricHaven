@@ -4,15 +4,14 @@ import java.io.File;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
-import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
+import net.ssehub.kernel_haven.code_model.ast.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
-import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.McCabeVisitor;
 import net.ssehub.kernel_haven.util.Logger;
-import net.ssehub.kernel_haven.util.logic.Formula;
 
 /**
  * Measures the Cyclomatic Complexity of Functions. Supports 3 different variants:
@@ -41,7 +40,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
         = new EnumSetting<>("metric.cyclomatic_complexity.measured_type", CCType.class, true, 
             CCType.MCCABE, "Defines which variables should be counted for a function.");
 
-    private AnalysisComponent<OldCodeFunction> codeFunctionFinder;
+    private AnalysisComponent<CodeFunction> codeFunctionFinder;
     private CCType measuredCode;
     
     /**
@@ -50,7 +49,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
      * @param codeFunctionFinder The component to get the code functions from.
      * @throws SetUpException In case of problems with the configuration of {@link #VARIABLE_TYPE_SETTING}.
      */
-    public CyclomaticComplexityMetric(Configuration config, AnalysisComponent<OldCodeFunction> codeFunctionFinder)
+    public CyclomaticComplexityMetric(Configuration config, AnalysisComponent<CodeFunction> codeFunctionFinder)
         throws SetUpException {
         
         super(config);
@@ -61,21 +60,22 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
 
     @Override
     protected void execute() {
-        OldCodeFunction function;
+        CodeFunction function;
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
-            Formula baseLine = function.getFunction().getPresenceCondition();
-            VariationPointerCounter counter = new VariationPointerCounter(baseLine);
-            int mcCabeValue = count(function.getFunction(), counter);
+            SyntaxElement functionAST = function.getFunction();
+            McCabeVisitor visitor = new McCabeVisitor(null);
+            functionAST.accept(visitor);
+
             int result;
             switch (measuredCode) {
             case MCCABE:
-                result = 1 + mcCabeValue;
+                result = visitor.getClassicCyclomaticComplexity();
                 break;
             case VARIATION_POINTS:
-                result = 1 + counter.countVPs();
+                result = visitor.getVariabilityCyclomaticComplexity();
                 break;
             case ALL:
-                result = mcCabeValue + counter.countVPs() + 2;
+                result = visitor.getCombinedCyclomaticComplexity();
                 break;
             default:
                 // Indicate that something went wrong.
@@ -84,57 +84,10 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
                 break;
             }
             
-            SyntaxElement functionAST = function.getFunction();
             File cFile = function.getSourceFile().getPath();
             File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
             addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
         }
-    }
-
-    /**
-     * Recursively walks through the AST and counts the while-, if-, for- and case-statements.
-     * 
-     * @param element The current AST node.
-     * @param counter To count the different variation points based on changing presence conditions.
-     * 
-     * @return The number of while-, if-, for- and case-statements found.
-     */
-    private int count(SyntaxElement element, VariationPointerCounter counter) {
-        int result = 0;
-        
-        switch (measuredCode) {
-        case ALL: 
-            counter.add(element.getPresenceCondition());            
-            // falls through
-        case MCCABE:
-            if (element.getType() instanceof SyntaxElementTypes) {
-                switch ((SyntaxElementTypes) element.getType()) {
-                case IF_STATEMENT:
-                case ELIF_STATEMENT: // TypeChef produces separate nodes for "else if ()"
-                case WHILE_STATEMENT:
-                case FOR_STATEMENT:
-                case DO_STATEMENT:
-                case CASE_STATEMENT:
-                    result++;
-                    break;
-                default:
-                    // ignore
-                }
-            }
-            break;
-        case VARIATION_POINTS:
-            counter.add(element.getPresenceCondition());
-            break;
-        default:
-            // Do nothing an return 0
-            break;
-        }
-        
-        for (SyntaxElement child : element.iterateNestedSyntaxElements()) {
-            result += count(child, counter);
-        }
-        
-        return result;
     }
 
     @Override

@@ -7,8 +7,9 @@ import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunction;
-import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
@@ -35,10 +36,10 @@ public class AllFunctionMetrics extends PipelineAnalysis {
     protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
         
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
-        AnalysisComponent<OldCodeFunction> functionFilter = new OldCodeFunctionFilter(config, codeModel);
+        AnalysisComponent<CodeFunction> functionFilter = new CodeFunctionFilter(config, codeModel);
         
         // add a split component after the function filter
-        SplitComponent<OldCodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
+        SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
         
         // use functionSplitter.createOutputComponent() to create inputs for multiple metrics after the split
         
@@ -54,13 +55,13 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         metrics[2] = new CyclomaticComplexityMetric(config, functionSplitter.createOutputComponent());
 
         // All Variables per Function metrics
-        config.registerSetting(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING);
-        config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.EXTERNAL);
-        metrics[3] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
-        config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.INTERNAL);
-        metrics[4] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
-        config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.ALL);
-        metrics[5] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
+//        config.registerSetting(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING);
+//        config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.EXTERNAL);
+//        metrics[3] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
+//        config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.INTERNAL);
+//        metrics[4] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
+//        config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.ALL);
+//        metrics[5] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
         
         // join the parallel metrics together
         AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics", metrics);

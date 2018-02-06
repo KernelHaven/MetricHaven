@@ -15,7 +15,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.TestCaseGenerator;
-import net.ssehub.kernel_haven.metric_haven.filter_components.OldCodeFunctionFilter;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.util.Logger;
@@ -91,7 +91,7 @@ public class CyclomaticComplexityMetricTest {
                 sourceFile1.addElement(testFunc);
             }
             AnalysisComponent<SourceFile> cmComponent = new TestAnalysisComponentProvider<SourceFile>(sourceFile1);
-            OldCodeFunctionFilter funcFilter = new OldCodeFunctionFilter(config, cmComponent);
+            CodeFunctionFilter funcFilter = new CodeFunctionFilter(config, cmComponent);
             
             // Metric
             CyclomaticComplexityMetric metric = new CyclomaticComplexityMetric(config, funcFilter);
