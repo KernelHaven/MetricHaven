@@ -11,7 +11,7 @@ import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.McCabeVisitor;
-import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * Measures the Cyclomatic Complexity of Functions. Supports 3 different variants:
@@ -36,7 +36,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
         MCCABE, VARIATION_POINTS, ALL;
     }
     
-    public static final Setting<CCType> VARIABLE_TYPE_SETTING
+    public static final @NonNull Setting<@NonNull CCType> VARIABLE_TYPE_SETTING
         = new EnumSetting<>("metric.cyclomatic_complexity.measured_type", CCType.class, true, 
             CCType.MCCABE, "Defines which variables should be counted for a function.");
 
@@ -49,8 +49,8 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
      * @param codeFunctionFinder The component to get the code functions from.
      * @throws SetUpException In case of problems with the configuration of {@link #VARIABLE_TYPE_SETTING}.
      */
-    public CyclomaticComplexityMetric(Configuration config, AnalysisComponent<CodeFunction> codeFunctionFinder)
-        throws SetUpException {
+    public CyclomaticComplexityMetric(@NonNull Configuration config,
+            @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder) throws SetUpException {
         
         super(config);
         config.registerSetting(VARIABLE_TYPE_SETTING);
@@ -80,7 +80,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
             default:
                 // Indicate that something went wrong.
                 result = 0;
-                Logger.get().logError("Unknown code type specified for " + getClass().getName());
+                LOGGER.logError("Unknown code type specified for " + getClass().getName());
                 break;
             }
             
@@ -91,7 +91,7 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
     }
 
     @Override
-    public String getResultName() {
+    public @NonNull String getResultName() {
         String result;
         switch (measuredCode) {
         case MCCABE:

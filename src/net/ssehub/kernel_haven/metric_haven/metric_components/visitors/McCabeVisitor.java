@@ -6,6 +6,8 @@ import net.ssehub.kernel_haven.code_model.ast.CaseStatement;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.CaseStatement.CaseType;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -32,14 +34,14 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
      * @param varModel  Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
      *     model is involved in {@link CppBlock#getCondition()} expressions.
      */
-    public McCabeVisitor(VariabilityModel varModel) {
+    public McCabeVisitor(@Nullable VariabilityModel varModel) {
         super(varModel);
         classicCC = 1;
         variabilityCC = 1;
     }
     
     @Override
-    public void visitCppBlock(CppBlock block) {
+    public void visitCppBlock(@NonNull CppBlock block) {
         if (isFeatureDependentBlock(block)) {
             variabilityCC++;
         }
@@ -48,7 +50,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     }
 
     @Override
-    public void visitLoopStatement(LoopStatement loop) {
+    public void visitLoopStatement(@NonNull LoopStatement loop) {
         if (isInFunction()) {
             classicCC++;
         }
@@ -57,7 +59,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     }
     
     @Override
-    public void visitBranchStatement(BranchStatement branchStatement) {
+    public void visitBranchStatement(@NonNull BranchStatement branchStatement) {
         if (isInFunction() && branchStatement.getType() != Type.ELSE) {
             classicCC++;
         }
@@ -66,7 +68,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     }
     
     @Override
-    public void visitCaseStatement(CaseStatement caseStatement) {
+    public void visitCaseStatement(@NonNull CaseStatement caseStatement) {
         if (isInFunction() && caseStatement.getType() != CaseType.DEFAULT) {
             classicCC++;
         }

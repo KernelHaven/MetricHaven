@@ -3,6 +3,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
@@ -12,7 +13,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  */
 public abstract class AbstractVariabilityVariableRatingComponent extends AnalysisComponent<MetricResult> {
 
-    private AnalysisComponent<VariabilityVariable> variableSource;
+    private @NonNull AnalysisComponent<VariabilityVariable> variableSource;
     
     /**
      * Creates this component.
@@ -20,8 +21,8 @@ public abstract class AbstractVariabilityVariableRatingComponent extends Analysi
      * @param config The pipeline configuration.
      * @param variableSource The component to get the {@link VariabilityVariable}s from.
      */
-    public AbstractVariabilityVariableRatingComponent(Configuration config,
-            AnalysisComponent<VariabilityVariable> variableSource) {
+    public AbstractVariabilityVariableRatingComponent(@NonNull Configuration config,
+            @NonNull AnalysisComponent<VariabilityVariable> variableSource) {
         super(config);
         this.variableSource = variableSource;
     }
@@ -32,7 +33,7 @@ public abstract class AbstractVariabilityVariableRatingComponent extends Analysi
      * @param variable The variable to rate.
      * @return The rating of the variable.
      */
-    protected abstract double getRating(VariabilityVariable variable);
+    protected abstract double getRating(@NonNull VariabilityVariable variable);
 
     @Override
     protected void execute() {
@@ -43,7 +44,7 @@ public abstract class AbstractVariabilityVariableRatingComponent extends Analysi
     }
 
     @Override
-    public String getResultName() {
+    public @NonNull String getResultName() {
         return "Rated Variability Variables";
     }
     

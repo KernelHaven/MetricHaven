@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
@@ -19,7 +21,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implements ISyntaxElementVisitor {
 
-    private AnalysisComponent<SourceFile> codeModelProvider;
+    private @NonNull AnalysisComponent<SourceFile> codeModelProvider;
     
     private SourceFile currentFile;
     
@@ -29,7 +31,7 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
      * @param config The pipeline configuration.
      * @param codeModelProvider The component to get the code model from.
      */
-    public CodeFunctionFilter(@NonNull Configuration config, AnalysisComponent<SourceFile> codeModelProvider) {
+    public CodeFunctionFilter(@NonNull Configuration config, @NonNull AnalysisComponent<SourceFile> codeModelProvider) {
         super(config);
         this.codeModelProvider = codeModelProvider;
     }
@@ -52,7 +54,7 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
 
     @Override
     public void visitFunction(Function function) {
-        addResult(new CodeFunction(function.getName(), function, currentFile));
+        addResult(new CodeFunction(function.getName(), function, notNull(currentFile)));
     }
 
     @Override

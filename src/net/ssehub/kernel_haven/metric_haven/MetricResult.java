@@ -4,6 +4,8 @@ import java.io.File;
 
 import net.ssehub.kernel_haven.util.io.TableElement;
 import net.ssehub.kernel_haven.util.io.TableRow;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
  * Represents the result of a metric execution.
@@ -14,12 +16,12 @@ import net.ssehub.kernel_haven.util.io.TableRow;
 @TableRow
 public class MetricResult {
 
-    private String element;
+    private @NonNull String element;
     
     private double value;
     
-    private File sourceFile;
-    private File includedFile;
+    private @Nullable File sourceFile;
+    private @Nullable File includedFile;
     private int lineNo;
 
     /**
@@ -34,7 +36,8 @@ public class MetricResult {
      *      <code>null</code>.
      * @param value The value that the metric returned.
      */
-    public MetricResult(File sourceFile, File includedFile, int lineNo, String element, double value) {
+    public MetricResult(@Nullable File sourceFile, @Nullable File includedFile, int lineNo,  @NonNull String element,
+            double value) {
         this.sourceFile = sourceFile;
         this.includedFile = includedFile;
         this.lineNo = lineNo;
@@ -48,7 +51,7 @@ public class MetricResult {
      * @return The path to the source file (e.g., a C-File). May be <code>null</code>.
      */
     @TableElement(name = "Source File", index = 0)
-    public File getSourceFile() {
+    public @Nullable File getSourceFile() {
         return sourceFile;
     }
     
@@ -58,7 +61,7 @@ public class MetricResult {
      * @return The path to the included file (e.g., a H-File). May be <code>null</code>.
      */
     @TableElement(name = "Include File", index = 1)
-    public File getIncludedFile() {
+    public @Nullable File getIncludedFile() {
         return includedFile;
     }
     
@@ -79,7 +82,7 @@ public class MetricResult {
      * @return The mesured element of this result. Never <code>null</code>.
      */
     @TableElement(name = "Element", index = 3)
-    public String getContext() {
+    public @NonNull String getContext() {
         return element;
     }
     
@@ -94,7 +97,7 @@ public class MetricResult {
     }
     
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return element + ": " + value;
     }
     

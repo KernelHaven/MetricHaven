@@ -1,10 +1,13 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.io.File;
 
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * Holds a function from the code model.
@@ -13,13 +16,13 @@ import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
  */
 public class CodeFunction {
     
-    private String name;
+    private @NonNull String name;
     
-    private Function function;
+    private @NonNull Function function;
 
-    private SourceFile file;
+    private @NonNull SourceFile file;
     
-    private String id;
+    private @NonNull String id;
 
     /**
      * Creates a {@link CodeFunction}.
@@ -28,7 +31,7 @@ public class CodeFunction {
      * @param function The function that should be held by this object.
      * @param file The C-file containing the function directly or indirectly via an included H-file.
      */
-    public CodeFunction(String name, Function function, SourceFile file) {
+    public CodeFunction(@NonNull String name, @NonNull Function function, @NonNull SourceFile file) {
         this.name = name;
         this.function = function;
         this.file = file;
@@ -38,7 +41,7 @@ public class CodeFunction {
         if (!functionSource.equals(fileSource)) {
             id = fileSource.getPath() + ":" + functionSource.getPath();
         } else {
-            id = fileSource.getPath();
+            id = notNull(fileSource.getPath());
         }
     }
 
@@ -47,7 +50,7 @@ public class CodeFunction {
      * 
      * @return The name of this function. Never <code>null</code>.
      */
-    public String getName() {
+    public @NonNull String getName() {
         return name;
     }
 
@@ -56,7 +59,7 @@ public class CodeFunction {
      * 
      * @return The function. Never <code>null</code>.
      */
-    public Function getFunction() {
+    public @NonNull Function getFunction() {
         return function;
     }
     
@@ -66,7 +69,7 @@ public class CodeFunction {
      * points to the direct location of an (included) source file.
      * @return The location of the C-file (not of an included H-file of a macro).
      */
-    public SourceFile getSourceFile() {
+    public @NonNull SourceFile getSourceFile() {
         return file;
     }
     
@@ -75,7 +78,7 @@ public class CodeFunction {
      * H-files if existent.
      * @return The full qualified name of the function.
      */
-    public String getQualifiedName() {
+    public @NonNull String getQualifiedName() {
         return id;
     }
 }

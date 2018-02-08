@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.multi_results;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -11,6 +12,8 @@ import java.util.Map;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
  * Collects the results of multiple metric analysis and aggregates them.
@@ -20,13 +23,13 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
  */
 public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     
-    private AnalysisComponent<MetricResult>[] metrics;
+    private @NonNull AnalysisComponent<MetricResult> @NonNull [] metrics;
     
-    private Map<String, ValueRow> valueTable = new HashMap<>();
-    private String[] metricNames;
-    private Map<String, MeasuredItem> ids = new HashMap<>();
+    private @NonNull Map<String, ValueRow> valueTable = new HashMap<>();
+    private @NonNull String @NonNull [] metricNames;
+    private @NonNull Map<String, MeasuredItem> ids = new HashMap<>();
     private boolean hasIncludedFiles = false;
-    private String resultName;
+    private @NonNull String resultName;
 
     /**
      * Creates a {@link MetricsAggregator} for the given metric components, with a fixed name for the results.
@@ -35,7 +38,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      * @param metrics The metric components to aggregate the results for.
      */
     @SafeVarargs
-    public MetricsAggregator(Configuration config, AnalysisComponent<MetricResult>... metrics) {
+    public MetricsAggregator(@NonNull Configuration config,
+            @NonNull AnalysisComponent<MetricResult> /*@NonNull*/ ... metrics) {
+        // TODO: commented out @NonNull annotation because checkstyle can't parse it
         this(config, "Aggregated Metric Results", metrics);
     }
     
@@ -47,13 +52,15 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      * @param metrics The metric components to aggregate the results for.
      */
     @SafeVarargs
-    public MetricsAggregator(Configuration config, String resultName, AnalysisComponent<MetricResult>... metrics) {
+    public MetricsAggregator(@NonNull Configuration config, @NonNull String resultName,
+            @NonNull AnalysisComponent<MetricResult> /*@NonNull*/ ... metrics) {
+        // TODO: commented out @NonNull annotation because checkstyle can't parse it
         super(config);
-        this.metrics = metrics;
+        this.metrics = notNull(metrics);
         this.resultName =  resultName;
         
         int nMetrics = (null != metrics) ? metrics.length : 0;
-        metricNames = new String[nMetrics];
+        metricNames = new @NonNull String[nMetrics];
         for (int i = 0; i < nMetrics; i++) {
             metricNames[i] = notNull(metrics)[i].getResultName();
         }
@@ -70,8 +77,8 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      * @param value The measured/computed value for the given element.
      */
     // CHECKSTYLE:OFF
-    private synchronized void addValue(String mainFile, String includedFile, int lineNo, String element, String metricName,
-        double value) {
+    private synchronized void addValue(@NonNull String mainFile, @Nullable String includedFile, int lineNo,
+            @NonNull String element, @NonNull String metricName, double value) {
     // CHECKSTYLE:ON
         
         String id = mainFile;
@@ -97,7 +104,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      * @param id A unique identifier for an measured element.
      * @return The row values (maybe empty) for the measured element.
      */
-    private ValueRow getRow(String id) {
+    private @NonNull ValueRow getRow(@NonNull String id) {
         ValueRow column = valueTable.get(id);
         if (null == column) {
             column = new ValueRow();
@@ -112,7 +119,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      * {@link #addValue(String, String, int, String, String, double)}.
      * @return An ordered list of {@link MultiMetricResult}s.
      */
-    private MultiMetricResult[] createTable() {
+    private @NonNull MultiMetricResult @NonNull [] createTable() {
         // Create header/columns
         int nColumns = hasIncludedFiles ? metricNames.length + 4 : metricNames.length + 3;
         String[] header = new String[nColumns];
@@ -126,11 +133,11 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         System.arraycopy(metricNames, 0, header, index, metricNames.length);
         
         // Create rows
-        String[] columnIDs = ids.keySet().toArray(new String[0]);
+        @NonNull String[] columnIDs = ids.keySet().toArray(new @NonNull String[0]);
         Arrays.sort(columnIDs);
         
         // Create Values
-        MultiMetricResult[] result = new MultiMetricResult[columnIDs.length];
+        @NonNull MultiMetricResult[] result = new @NonNull MultiMetricResult[columnIDs.length];
         for (int i = 0; i < columnIDs.length; i++) {
             String id = columnIDs[i];
             ValueRow column = getRow(id);
@@ -167,8 +174,10 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 
                 MetricResult result;
                 while ((result = metric.getNextResult()) != null) {
-                    String sourceFile = result.getSourceFile() != null ? result.getSourceFile().getPath() : null;
-                    String includedFile = result.getIncludedFile() != null ? result.getIncludedFile().getPath() : null;
+                    File f = result.getSourceFile();
+                    String sourceFile = f != null ? notNull(f.getPath()) : "<unknown>";
+                    f = result.getIncludedFile();
+                    String includedFile = f != null ? f.getPath() : null;
                     addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
                             metric.getResultName(), result.getValue());
                 }
@@ -194,7 +203,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     }
 
     @Override
-    public String getResultName() {
+    public @NonNull String getResultName() {
         return resultName;
     }
 }

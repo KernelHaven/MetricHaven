@@ -18,6 +18,7 @@ import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.io.csv.CsvWriter;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * Tests the {@link MetricsAggregator} and {@link MultiMetricResult}s.
@@ -49,7 +50,7 @@ public class MetricsAggregatorTest {
         TestConfiguration config = new TestConfiguration(new Properties());
         
         @SuppressWarnings("unchecked")
-        AnalysisComponent<MetricResult>[] inputs = new AnalysisComponent[names.length];
+        @NonNull AnalysisComponent<MetricResult>[] inputs = new @NonNull AnalysisComponent[names.length];
         
         for (int i = 0; i < names.length; i++) {
             inputs[i] = new TestAnalysisComponentProvider<>(names[i], metrics[i]);

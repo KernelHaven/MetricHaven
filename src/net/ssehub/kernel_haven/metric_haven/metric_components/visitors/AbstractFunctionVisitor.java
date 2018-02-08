@@ -5,7 +5,10 @@ import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
+import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -15,7 +18,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     
-    private VariabilityModel varModel;
+    private @Nullable VariabilityModel varModel;
     
     private boolean isInCPP = false;
     private boolean isInFunction = false;
@@ -26,12 +29,12 @@ abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
      *     model is involved in {@link CppBlock#getCondition()} expressions.
      */
-    protected AbstractFunctionVisitor(VariabilityModel varModel) {
+    protected AbstractFunctionVisitor(@Nullable VariabilityModel varModel) {
         this.varModel = varModel;
     }
     
     @Override
-    public void visitCppBlock(CppBlock block) {
+    public void visitCppBlock(@NonNull CppBlock block) {
         boolean oldState = isInCPP;
         isInCPP = isInCPP || isFeatureDependentBlock(block);
         
@@ -47,13 +50,15 @@ abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
      * @return <tt>true</tt> if it contains at least one variable from the variability model or if no variability model
      *     was passed to the constructor, <tt>false</tt> otherwise.
      */
-    protected boolean isFeatureDependentBlock(CppBlock block) {
+    protected boolean isFeatureDependentBlock(@NonNull CppBlock block) {
         boolean isFeatureDependent = true;
         
-        if (null != varModel && null != block.getCondition()) {
+        VariabilityModel varModel = this.varModel;
+        Formula condition = block.getCondition();
+        if (null != varModel && null != condition) {
             isFeatureDependent = false;
             VariableFinder varFinder = new VariableFinder();
-            varFinder.visit(block.getCondition());
+            varFinder.visit(condition);
             
             // Check whether at least 1 variable name is known by the variability model
             for (int i = varFinder.getVariableNames().size() - 1; i >= 0 && !isFeatureDependent; i--) {
@@ -84,7 +89,7 @@ abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     }
     
     @Override
-    public void visitFunction(Function function) {
+    public void visitFunction(@NonNull Function function) {
         boolean oldState = isInFunction;
         isInFunction = true;
         
@@ -95,12 +100,12 @@ abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     }
     
     @Override
-    public void visitComment(Comment comment) {
+    public void visitComment(@NonNull Comment comment) {
         // Do not visit comments!
     }
     
     @Override
-    public void visitCode(Code code) {
+    public void visitCode(@NonNull Code code) {
         // No action needed by default for visiting code elements
     }
 

@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.filter_components;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
@@ -12,7 +13,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  */
 public class VariabilityVariableFilter extends AnalysisComponent<VariabilityVariable> {
 
-    private AnalysisComponent<VariabilityModel> varModel;
+    private @NonNull AnalysisComponent<VariabilityModel> varModel;
     
     /**
      * Creates this component.
@@ -20,7 +21,9 @@ public class VariabilityVariableFilter extends AnalysisComponent<VariabilityVari
      * @param config The pipeline configuration.
      * @param varModel The component to get the variability model from.
      */
-    public VariabilityVariableFilter(Configuration config, AnalysisComponent<VariabilityModel> varModel) {
+    public VariabilityVariableFilter(@NonNull Configuration config,
+            @NonNull AnalysisComponent<VariabilityModel> varModel) {
+        
         super(config);
         this.varModel = varModel;
     }
@@ -29,13 +32,18 @@ public class VariabilityVariableFilter extends AnalysisComponent<VariabilityVari
     protected void execute() {
         VariabilityModel varModel = this.varModel.getNextResult();
         
+        if (varModel == null) {
+            LOGGER.logError("Could not get variability model");
+            return;
+        }
+        
         for (VariabilityVariable variable : varModel.getVariables()) {
             addResult(variable);
         }
     }
 
     @Override
-    public String getResultName() {
+    public @NonNull String getResultName() {
         return "Variability Variables";
     }
     

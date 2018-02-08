@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.Variable;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * A component that counts variability variables in source files with a given rating.
@@ -21,11 +24,11 @@ import net.ssehub.kernel_haven.util.logic.Variable;
  */
 public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricResult> {
 
-    private AnalysisComponent<MetricResult> variableRatings;
+    private @NonNull AnalysisComponent<MetricResult> variableRatings;
     
-    private AnalysisComponent<SourceFile> sourceFiles;
+    private @NonNull AnalysisComponent<SourceFile> sourceFiles;
     
-    private Map<String, Double> variableWeights;
+    private @NonNull Map<@NonNull String, Double> variableWeights;
     
     /**
      * Creates this component.
@@ -35,14 +38,18 @@ public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricRe
      *      expected to be variable names.
      * @param sourceFiles The component to get the source file blocks to count in from.
      */
-    public WeightedVariabilityVariableCount(Configuration config, AnalysisComponent<MetricResult> variableRatings,
-            AnalysisComponent<SourceFile> sourceFiles) {
+    public WeightedVariabilityVariableCount(@NonNull Configuration config,
+            @NonNull AnalysisComponent<MetricResult> variableRatings,
+            @NonNull  AnalysisComponent<SourceFile> sourceFiles) {
+        
         super(config);
+        this.variableRatings = variableRatings;
+        this.sourceFiles = sourceFiles;
+        this.variableWeights = new HashMap<>();
     }
 
     @Override
     protected void execute() {
-        variableWeights = new HashMap<>();
         
         MetricResult rating;
         while ((rating = variableRatings.getNextResult()) != null) {
@@ -54,13 +61,13 @@ public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricRe
             
             double value = countInSourceFile(file);
             
-            addResult(new MetricResult(file.getPath(), null, -1, file.getPath().getName(), value));
+            addResult(new MetricResult(file.getPath(), null, -1, notNull(file.getPath().getName()), value));
         }
         
     }
 
     @Override
-    public String getResultName() {
+    public @NonNull String getResultName() {
         return "Weighted Variability Variable Count";
     }
     
@@ -71,7 +78,7 @@ public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricRe
      * 
      * @return The summed weight of variables found in the file.
      */
-    private double countInSourceFile(SourceFile file) {
+    private double countInSourceFile(@NonNull SourceFile file) {
         double result = 0.0;
         
         for (CodeElement topElement : file) {
@@ -88,7 +95,7 @@ public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricRe
      * 
      * @return The weight of the other variable.
      */
-    private double getWeight(String variable) {
+    private double getWeight(@NonNull String variable) {
         Double result = variableWeights.get(variable);
         if (result == null) {
             LOGGER.logWarning("Returning weight 0 for unknown variable " + variable);
@@ -103,11 +110,12 @@ public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricRe
      * @param element The element to count in.
      * @return The summed weight of variables found in the element.
      */
-    private double countInElement(CodeElement element) {
+    private double countInElement(@NonNull CodeElement element) {
         double result = 0.0;
         
-        if (element.getCondition() != null) {
-            result += countInCondition(element.getCondition());
+        Formula condition = element.getCondition();
+        if (condition != null) {
+            result += countInCondition(condition);
         }
         
         for (CodeElement child : element.iterateNestedElements()) {
@@ -123,7 +131,7 @@ public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricRe
      * @param formula The formula to count in.
      * @return The summed weight of variables found in the formula.
      */
-    private double countInCondition(Formula formula) {
+    private double countInCondition(@NonNull Formula formula) {
         
         double result = 0.0;
         

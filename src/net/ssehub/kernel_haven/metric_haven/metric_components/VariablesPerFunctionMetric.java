@@ -11,6 +11,7 @@ import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.UsedVariabilityVarsVisitor;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * Implements the <tt>Number of internal/external configuration options</tt> metric from
@@ -30,14 +31,14 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
         INTERNAL, EXTERNAL, ALL;
     }
     
-    public static final Setting<VarType> VARIABLE_TYPE_SETTING
+    public static final @NonNull Setting<@NonNull VarType> VARIABLE_TYPE_SETTING
         = new EnumSetting<>("metric.variables_per_function.measured_variables_type", VarType.class, true, 
                 VarType.ALL, "Defines which variables should be counted for a function.");
     
     
-    private VarType measuredVars;
+    private @NonNull VarType measuredVars;
     
-    private AnalysisComponent<CodeFunction> functionFinder;
+    private @NonNull AnalysisComponent<CodeFunction> functionFinder;
     
     /**
      * Sole constructor for this class.
@@ -47,8 +48,8 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
      * 
      * @throws SetUpException If {@link #VARIABLE_TYPE_PROPERTY} was defined with an invalid option.
      */
-    public VariablesPerFunctionMetric(Configuration config, AnalysisComponent<CodeFunction> functionFinder)
-        throws SetUpException {
+    public VariablesPerFunctionMetric(@NonNull Configuration config,
+            @NonNull AnalysisComponent<CodeFunction> functionFinder) throws SetUpException {
         
         super(config);
         
@@ -88,7 +89,7 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
     }
     
     @Override
-    public String getResultName() {
+    public @NonNull String getResultName() {
         return "Variables per Function (" + measuredVars.toString() + ")";
     }
 

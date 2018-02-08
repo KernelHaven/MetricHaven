@@ -9,6 +9,8 @@ import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
 import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.SwitchStatement;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -42,12 +44,12 @@ public class LoCVisitor extends AbstractFunctionVisitor {
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
      *     model is involved in {@link CppBlock#getCondition()} expressions.
      */
-    public LoCVisitor(VariabilityModel varModel) {
+    public LoCVisitor(@Nullable VariabilityModel varModel) {
         super(varModel);
     }
     
     @Override
-    public void visitSingleStatement(SingleStatement statement) {
+    public void visitSingleStatement(@NonNull SingleStatement statement) {
         count();
         
         // Continue visiting
@@ -55,7 +57,7 @@ public class LoCVisitor extends AbstractFunctionVisitor {
     }
     
     @Override
-    public void visitTypeDefinition(TypeDefinition typeDef) {
+    public void visitTypeDefinition(@NonNull TypeDefinition typeDef) {
         // Count the typedef as one statement
         count();
         
@@ -66,7 +68,7 @@ public class LoCVisitor extends AbstractFunctionVisitor {
     // C Control structures
     
     @Override
-    public void visitBranchStatement(BranchStatement elseStatement) {
+    public void visitBranchStatement(@NonNull BranchStatement elseStatement) {
         count();
         
         // Continue visiting
@@ -74,7 +76,7 @@ public class LoCVisitor extends AbstractFunctionVisitor {
     }
     
     @Override
-    public void visitSwitchStatement(SwitchStatement switchStatement) {
+    public void visitSwitchStatement(@NonNull SwitchStatement switchStatement) {
         count();
         
         // Continue visiting
@@ -82,7 +84,7 @@ public class LoCVisitor extends AbstractFunctionVisitor {
     }
     
     @Override
-    public void visitCaseStatement(CaseStatement caseStatement) {
+    public void visitCaseStatement(@NonNull CaseStatement caseStatement) {
         count();
         
         // Continue visiting
@@ -90,7 +92,7 @@ public class LoCVisitor extends AbstractFunctionVisitor {
     }
     
     @Override
-    public void visitLoopStatement(LoopStatement loop) {
+    public void visitLoopStatement(@NonNull LoopStatement loop) {
         count();
         
         // Continue visiting
@@ -98,7 +100,7 @@ public class LoCVisitor extends AbstractFunctionVisitor {
     }
     
     @Override
-    public void visitComment(Comment comment) {
+    public void visitComment(@NonNull Comment comment) {
         // Do not visit comments!
     }
 

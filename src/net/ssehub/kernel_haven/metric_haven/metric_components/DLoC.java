@@ -11,8 +11,8 @@ import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
-import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -32,7 +32,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
         DLOC, LOF, PLOF;
     }
     
-    public static final Setting<LoFType> LOC_TYPE_SETTING
+    public static final @NonNull Setting<@NonNull LoFType> LOC_TYPE_SETTING
         = new EnumSetting<>("metric.loc.measured_type", LoFType.class, true, 
             LoFType.DLOC, "Defines which lines of code should be counted for a function:\n"
                 + LoFType.DLOC.name() + ": Counts all statements, i.e., all delivered Lines of Code (dLoC).\n"
@@ -40,9 +40,9 @@ public class DLoC extends AnalysisComponent<MetricResult> {
                 + "Feature code (LoF).\n"
                 + LoFType.PLOF.name() + ": Computes the fraction of LoF/dLoC.\n");
     
-    private AnalysisComponent<CodeFunction> codeFunctionFinder;
-    private AnalysisComponent<VariabilityModel> varModelComponent;
-    private LoFType type;
+    private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
+    private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
+    private @NonNull LoFType type;
     
     /**
      * Creates this metric.
@@ -50,7 +50,8 @@ public class DLoC extends AnalysisComponent<MetricResult> {
      * @param codeFunctionFinder The component to get the code functions from.
      * @throws SetUpException if {@link #LOC_TYPE_SETTING} is misconfigured.
      */
-    public DLoC(Configuration config, AnalysisComponent<CodeFunction> codeFunctionFinder) throws SetUpException {
+    public DLoC(@NonNull Configuration config, @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder)
+            throws SetUpException {
         
         super(config);
         this.codeFunctionFinder = codeFunctionFinder;
@@ -68,8 +69,8 @@ public class DLoC extends AnalysisComponent<MetricResult> {
      *     model is involved in {@link net.ssehub.kernel_haven.code_model.ast.CppBlock#getCondition()} expressions.
      * @throws SetUpException if {@link #LOC_TYPE_SETTING} is misconfigured.
      */
-    public DLoC(Configuration config, AnalysisComponent<CodeFunction> codeFunctionFinder,
-        AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
+    public DLoC(@NonNull Configuration config, @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+            @NonNull AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
         this(config, codeFunctionFinder);
         this.varModelComponent = varModelComponent;
@@ -101,7 +102,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
                 result = visitor.getPLoF();
                 break;
             default:
-                Logger.get().logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
+                LOGGER.logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
                     + LOC_TYPE_SETTING.getKey() + "=" + type.name());
                 return;
             }
@@ -128,7 +129,7 @@ public class DLoC extends AnalysisComponent<MetricResult> {
             break;
         default:
             resultName = "Unsupported metric specified";
-            Logger.get().logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
+            LOGGER.logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
                 + LOC_TYPE_SETTING.getKey() + "=" + type.name());
             break;
         }

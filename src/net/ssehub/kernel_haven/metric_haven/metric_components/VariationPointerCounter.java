@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -7,6 +9,7 @@ import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.True;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * Counts variation points, similarly to McCabe's Cyclomatic Complexity, this metric won't count an else block as a new
@@ -16,6 +19,7 @@ import net.ssehub.kernel_haven.util.logic.True;
  * @author El-Sharkawy
  *
  */
+// TODO: SE: is this class even used anywhere? seems like it's only used in test cases...
 public class VariationPointerCounter {
     
     /**
@@ -24,7 +28,7 @@ public class VariationPointerCounter {
     private int nVPs;
     
     // Used as stack: addFirst(), removeFirst(), peekFirst()
-    private Deque<Formula> formulaStack = new ArrayDeque<>();
+    private @NonNull Deque<@NonNull Formula> formulaStack = new ArrayDeque<>();
     
     /**
      * Default constructor, will assume {@link True#INSTANCE} as base line.
@@ -40,7 +44,7 @@ public class VariationPointerCounter {
      * @param baseLine A {@link Formula}, which applies already for the very first element, without having a
      *     new variation point. For instance, this may be {@link True#INSTANCE}.
      */
-    public VariationPointerCounter(Formula baseLine) {
+    public VariationPointerCounter(@NonNull Formula baseLine) {
         formulaStack.addFirst(baseLine);
         nVPs = 0;
     }
@@ -50,8 +54,8 @@ public class VariationPointerCounter {
      * heuristically whether the variation point is a new variation point of belongs to an earlier variation point.
      * @param pc The presence condition of the current syntax element.
      */
-    public void add(Formula pc) {
-        if (null != pc && !pc.equals(formulaStack.peekFirst())) {
+    public void add(@NonNull Formula pc) {
+        if (!pc.equals(formulaStack.peekFirst())) {
             if (pc instanceof Conjunction) {
                 Formula predecessor = ((Conjunction) pc).getLeft();
                 Formula negatedPre;
@@ -79,7 +83,7 @@ public class VariationPointerCounter {
                 // First check if this is the alternative to the existing top PC (or the same)
                 boolean found = false;
                 if (formulaStack.size() == 2) {
-                    Formula oldPC = formulaStack.peekFirst();
+                    Formula oldPC = notNull(formulaStack.peekFirst());
                     if (pc.equals(oldPC)) {
                         // The passed PC is already the top element of stack -> skip
                         found = true;
@@ -122,11 +126,11 @@ public class VariationPointerCounter {
      * @param predecessor The predecessor of the presence condition, e.g., <tt>A AND B</tt>
      * @param negatedPre The alternative for the predecessor, e.g., <tt>A AND !B</tt>
      */
-    private void insertPC(Formula predecessor, Formula negatedPre, Formula pc) {
+    private void insertPC(@NonNull Formula predecessor, @NonNull Formula negatedPre, @NonNull Formula pc) {
         boolean elementFound = false;
         Formula topElement;
         do {
-            topElement = formulaStack.peekFirst();
+            topElement = notNull(formulaStack.peekFirst());
             if (topElement.equals(pc)) {
                 elementFound = true;
             } else if (topElement.equals(predecessor)) {

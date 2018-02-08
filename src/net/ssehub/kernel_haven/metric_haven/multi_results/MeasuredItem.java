@@ -1,5 +1,8 @@
 package net.ssehub.kernel_haven.metric_haven.multi_results;
 
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
+
 /**
  * Part of {@link MetricsAggregator}, will be used to order the rows. A {@link MeasuredItem} represents the fowllowing
  * tuple: (file, included file, line number, element), while the included file is optional.
@@ -8,10 +11,10 @@ package net.ssehub.kernel_haven.metric_haven.multi_results;
  */
 class MeasuredItem implements Comparable<MeasuredItem> {
     
-    private String mainFile;
-    private String includedFile;
+    private @NonNull String mainFile;
+    private @Nullable String includedFile;
     private int lineNo;
-    private String element;
+    private @NonNull String element;
     
     /**
      * Initializes the measured element (a row).
@@ -20,7 +23,7 @@ class MeasuredItem implements Comparable<MeasuredItem> {
      * @param lineNo The line number of the measured item.
      * @param element The measured item (e.g., the name of a function).
      */
-    MeasuredItem(String sourceFile, String includedFile, int lineNo, String element) {
+    MeasuredItem(@NonNull String sourceFile, @Nullable String includedFile, int lineNo, @NonNull String element) {
         this.mainFile = sourceFile;
         this.includedFile = includedFile;
         this.lineNo = lineNo;
@@ -31,7 +34,7 @@ class MeasuredItem implements Comparable<MeasuredItem> {
      * Returns the measured source file (e.g., a C-file).
      * @return The mainFile (e.g., a C-file).
      */
-    public String getMainFile() {
+    public @NonNull String getMainFile() {
         return mainFile;
     }
 
@@ -39,7 +42,7 @@ class MeasuredItem implements Comparable<MeasuredItem> {
      * Returns the included file.
      * @return The included file, e.g., a H-file or <tt>null</tt>.
      */
-    public String getIncludedFile() {
+    public @Nullable String getIncludedFile() {
         return includedFile;
     }
 
@@ -55,7 +58,7 @@ class MeasuredItem implements Comparable<MeasuredItem> {
      * Returns the measured element.
      * @return The measured element, e.g., the name of the measured function.
      */
-    public String getElement() {
+    public @NonNull String getElement() {
         return element;
     }
 
@@ -69,15 +72,21 @@ class MeasuredItem implements Comparable<MeasuredItem> {
         
         // First: Order by main file
         if (0 == result) {
-            // Second: All included files at the bottum
-            if (null == this.includedFile && null != other.includedFile) {
-                result = 1;
-            } else if (null != this.includedFile && null == other.includedFile) {
-                result = -1;
-            } else if (null == this.includedFile && null == other.includedFile) {
-                result = 0; 
+            String thisIncludedFile = this.includedFile;
+            String otherIncludedFile = other.includedFile;
+            // Second: All included files at the bottom
+            if (thisIncludedFile == null) {
+                if (otherIncludedFile == null) {
+                    result = 0;
+                } else {
+                    result = 1;
+                }
             } else {
-                result = this.includedFile.compareTo(other.includedFile);
+                if (otherIncludedFile == null) {
+                    result = -1;
+                } else {
+                    result = thisIncludedFile.compareTo(otherIncludedFile);
+                }
             }
         }
         

@@ -46,7 +46,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // All Cyclomatic complexity metrics
         config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
         @SuppressWarnings("unchecked")
-        AnalysisComponent<MetricResult>[] metrics = new AnalysisComponent[9];
+        @NonNull AnalysisComponent<MetricResult>[] metrics = new @NonNull AnalysisComponent[9];
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.MCCABE);
         metrics[0] = new CyclomaticComplexityMetric(config, functionSplitter.createOutputComponent());
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.VARIATION_POINTS);

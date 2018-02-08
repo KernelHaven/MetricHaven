@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
@@ -17,12 +18,13 @@ public class VariableTypeMetric extends AbstractVariabilityVariableRatingCompone
      * @param config The pipeline configuration.
      * @param variableSource The component to get the {@link VariabilityVariable}s from.
      */
-    public VariableTypeMetric(Configuration config, AnalysisComponent<VariabilityVariable> variableSource) {
+    public VariableTypeMetric(@NonNull Configuration config,
+            @NonNull AnalysisComponent<VariabilityVariable> variableSource) {
         super(config, variableSource);
     }
 
     @Override
-    protected double getRating(VariabilityVariable variable) {
+    protected double getRating(@NonNull VariabilityVariable variable) {
         int result = 1;
         
         switch (variable.getType()) {
