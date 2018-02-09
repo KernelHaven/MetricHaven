@@ -146,4 +146,11 @@ public class LoCVisitor extends AbstractFunctionVisitor {
         double basis = getDLoC();
         return (basis != 0) ? getLoF() / basis : 0.0d;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        nDLoC = 0;
+        nLoF = 0;
+    }
 }

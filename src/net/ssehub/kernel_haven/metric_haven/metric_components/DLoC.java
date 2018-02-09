@@ -84,10 +84,10 @@ public class DLoC extends AnalysisComponent<MetricResult> {
         }
         
         CodeFunction function;
+        LoCVisitor visitor = new LoCVisitor(varModel);
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
             Function astRoot = function.getFunction();
-            
-            LoCVisitor visitor = new LoCVisitor(varModel);
+            visitor.reset();
             astRoot.accept(visitor);
             
             double result;

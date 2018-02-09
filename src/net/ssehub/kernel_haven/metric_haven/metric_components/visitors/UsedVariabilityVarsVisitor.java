@@ -88,7 +88,7 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
      * @return The number of variables used inside the function (&gt; 0)
      */
     public int internalVarsSize() {
-        return externalVars.size();
+        return internalVars.size();
     }
     
     
@@ -102,5 +102,12 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
         superSet.addAll(externalVars);
         
         return superSet.size();
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        internalVars.clear();
+        externalVars.clear();
     }
 }

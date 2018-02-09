@@ -108,5 +108,13 @@ abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     public void visitCode(@NonNull Code code) {
         // No action needed by default for visiting code elements
     }
+    
+    /**
+     * Resets this visitor so that it an be reused without re-instantiation.
+     */
+    public void reset() {
+        isInCPP = false;
+        isInFunction = false;
+    }
 
 }

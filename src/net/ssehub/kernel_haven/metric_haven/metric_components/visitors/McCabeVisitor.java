@@ -101,4 +101,11 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     public int getCombinedCyclomaticComplexity() {
         return getClassicCyclomaticComplexity() + getVariabilityCyclomaticComplexity();
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        classicCC = 1;
+        variabilityCC = 1;
+    }
 }

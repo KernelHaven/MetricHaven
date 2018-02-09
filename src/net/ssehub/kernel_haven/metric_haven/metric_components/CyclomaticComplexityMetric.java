@@ -61,9 +61,10 @@ public class CyclomaticComplexityMetric extends AnalysisComponent<MetricResult> 
     @Override
     protected void execute() {
         CodeFunction function;
+        McCabeVisitor visitor = new McCabeVisitor(null);
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
             Function functionAST = function.getFunction();
-            McCabeVisitor visitor = new McCabeVisitor(null);
+            visitor.reset();
             functionAST.accept(visitor);
 
             int result;

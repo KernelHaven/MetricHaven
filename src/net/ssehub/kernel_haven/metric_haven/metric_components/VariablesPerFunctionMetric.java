@@ -60,10 +60,11 @@ public class VariablesPerFunctionMetric extends AnalysisComponent<MetricResult> 
 
     @Override
     protected void execute() {
+        UsedVariabilityVarsVisitor visitor = new UsedVariabilityVarsVisitor(null);
         CodeFunction function;
         while ((function = functionFinder.getNextResult()) != null) {
             Function functionAST = function.getFunction();
-            UsedVariabilityVarsVisitor visitor = new UsedVariabilityVarsVisitor(null);
+            visitor.reset();
             functionAST.accept(visitor);
             
             int result;
