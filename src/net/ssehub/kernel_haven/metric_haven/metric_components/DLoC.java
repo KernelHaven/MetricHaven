@@ -1,14 +1,10 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
-import java.io.File;
-
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
-import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
-import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -21,7 +17,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-public class DLoC extends AnalysisComponent<MetricResult> {
+public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
     
     /**
      * Specification which kind of LoC-metric shall be measured.
@@ -40,8 +36,6 @@ public class DLoC extends AnalysisComponent<MetricResult> {
                 + "Feature code (LoF).\n"
                 + LoFType.PLOF.name() + ": Computes the fraction of LoF/dLoC.\n");
     
-    private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
-    private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @NonNull LoFType type;
     
     /**
@@ -51,13 +45,9 @@ public class DLoC extends AnalysisComponent<MetricResult> {
      * @throws SetUpException if {@link #LOC_TYPE_SETTING} is misconfigured.
      */
     public DLoC(@NonNull Configuration config, @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder)
-            throws SetUpException {
+        throws SetUpException {
         
-        super(config);
-        this.codeFunctionFinder = codeFunctionFinder;
-        
-        config.registerSetting(LOC_TYPE_SETTING);
-        type = config.getValue(LOC_TYPE_SETTING);
+        this(config, codeFunctionFinder, null);
     }
     
     /**
@@ -70,48 +60,39 @@ public class DLoC extends AnalysisComponent<MetricResult> {
      * @throws SetUpException if {@link #LOC_TYPE_SETTING} is misconfigured.
      */
     public DLoC(@NonNull Configuration config, @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
-            @NonNull AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        this(config, codeFunctionFinder);
-        this.varModelComponent = varModelComponent;
+        super(config, codeFunctionFinder, varModelComponent);
+        config.registerSetting(LOC_TYPE_SETTING);
+        type = config.getValue(LOC_TYPE_SETTING);
     }
-
+    
     @Override
-    protected void execute() {
-        VariabilityModel varModel = null;
-        if (null != varModelComponent) {
-            varModel = varModelComponent.getNextResult();
+    protected LoCVisitor createVisitor(@Nullable VariabilityModel varModel) {
+        return new LoCVisitor(varModel);
+    }
+    
+    @Override
+    protected double computeResult(@NonNull LoCVisitor visitor) {
+        double result;
+        switch(type) {
+        case DLOC:
+            result = visitor.getDLoC();
+            break;
+        case LOF:
+            result = visitor.getLoF();
+            break;
+        case PLOF:
+            result = visitor.getPLoF();
+            break;
+        default:
+            LOGGER.logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
+                + LOC_TYPE_SETTING.getKey() + "=" + type.name());
+            result = Double.NaN;
+            break;
         }
         
-        CodeFunction function;
-        LoCVisitor visitor = new LoCVisitor(varModel);
-        while ((function = codeFunctionFinder.getNextResult()) != null)  {
-            Function astRoot = function.getFunction();
-            visitor.reset();
-            astRoot.accept(visitor);
-            
-            double result;
-            switch(type) {
-            case DLOC:
-                result = visitor.getDLoC();
-                break;
-            case LOF:
-                result = visitor.getLoF();
-                break;
-            case PLOF:
-                result = visitor.getPLoF();
-                break;
-            default:
-                LOGGER.logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
-                    + LOC_TYPE_SETTING.getKey() + "=" + type.name());
-                return;
-            }
-            
-            Function functionAST = function.getFunction();
-            File cFile = function.getSourceFile().getPath();
-            File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
-            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
-        }
+        return result;
     }
 
     @Override

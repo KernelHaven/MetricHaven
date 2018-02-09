@@ -16,7 +16,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
+public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     
     private @Nullable VariabilityModel varModel;
     
