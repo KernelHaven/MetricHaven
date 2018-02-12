@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.multi_results;
 
+import java.util.Arrays;
+
 import net.ssehub.kernel_haven.util.io.ITableRow;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -37,4 +39,8 @@ public class MultiMetricResult implements ITableRow {
         return header;
     }
     
+    @Override
+    public String toString() {
+        return (null != values) ? "MultiMetricResult: " + Arrays.toString(values) : super.toString();
+    }
 }
