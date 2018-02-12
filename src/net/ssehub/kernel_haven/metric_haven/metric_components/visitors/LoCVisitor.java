@@ -111,7 +111,7 @@ public class LoCVisitor extends AbstractFunctionVisitor {
         if (isInFunction()) {
             nDLoC++;
             
-            if (isinConditionalCode()) {
+            if (isInConditionalCode()) {
                 nLoF++;
             }
         }

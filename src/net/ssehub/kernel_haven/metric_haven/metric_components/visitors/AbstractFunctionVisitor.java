@@ -84,7 +84,7 @@ public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
      * @return <tt>true</tt> if inside a {@link CppBlock} (dependent on a variability variables),
      *     <tt>false</tt> otherwise
      */
-    protected boolean isinConditionalCode() {
+    protected boolean isInConditionalCode() {
         return isInCPP;
     }
     
