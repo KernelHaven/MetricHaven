@@ -41,6 +41,6 @@ public class MultiMetricResult implements ITableRow {
     
     @Override
     public String toString() {
-        return (null != values) ? "MultiMetricResult: " + Arrays.toString(values) : super.toString();
+        return "MultiMetricResult: " + Arrays.toString(values);
     }
 }
