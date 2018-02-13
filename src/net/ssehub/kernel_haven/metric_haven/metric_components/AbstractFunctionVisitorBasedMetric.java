@@ -22,7 +22,6 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisitor>
     extends AnalysisComponent<MetricResult> {
 
-    
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     
