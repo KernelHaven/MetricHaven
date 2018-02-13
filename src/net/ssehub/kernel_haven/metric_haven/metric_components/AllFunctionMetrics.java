@@ -9,6 +9,7 @@ import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
@@ -31,6 +32,11 @@ public class AllFunctionMetrics extends PipelineAnalysis {
     public static boolean ADD_OBSERVEABLE = false;
     
     /**
+     * Whether this pipeline should add a {@link CodeFunctionByLineFilter} or not.
+     */
+    public static boolean ADD_LINE_FILTER = false;
+    
+    /**
      * Creates this pipeline object.
      * 
      * @param config The global configuration.
@@ -44,6 +50,10 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
         AnalysisComponent<CodeFunction> functionFilter = new CodeFunctionFilter(config, codeModel);
+        
+        if (ADD_LINE_FILTER) {
+            functionFilter = new CodeFunctionByLineFilter(config, functionFilter);
+        }
         
         // add a split component after the function filter
         SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
