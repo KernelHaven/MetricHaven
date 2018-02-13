@@ -1,6 +1,10 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
+import net.ssehub.kernel_haven.code_model.ast.BranchStatement.Type;
 import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
@@ -20,6 +24,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
     private int nStatements;
     
     // Classical code parameters
+    private Set<BranchStatement> visitedIFs = new HashSet<>();
     private int currentNestingDepth;
     private int maxDepth;
     private int allDepth;
@@ -41,13 +46,15 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
 
     @Override
     public void visitBranchStatement(@NonNull BranchStatement branchStatement) {
-        if (isInFunction()) {
+        // IF, ELSE IF, and ELSE are also nested inside top level IF (as siblings) -> avoid double counting
+        boolean count = isInFunction() && branchStatement.getType() == Type.IF && !visitedIFs.contains(branchStatement);
+        if (count) {
             currentNestingDepth++;
         }
         
         super.visitBranchStatement(branchStatement);
         
-        if (isInFunction()) {
+        if (count) {
             currentNestingDepth--;
         }
     }
@@ -119,6 +126,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
     @Override
     public void reset() {
         super.reset();
+        visitedIFs.clear();
         nStatements = 0;
 
         // Classical code
