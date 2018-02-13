@@ -40,6 +40,7 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
                 /*
                  * Not 100% thread safe, on the other hand we want to fill the set with the same data,
                  * so it should not be a big issue
+                 * See for more details: https://www.javaworld.com/article/2073352/?page=2
                  */
                 if (null == allFunctionNames) {
                     Set<String> names = new HashSet<>();
