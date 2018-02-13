@@ -1,14 +1,16 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
-import java.util.HashSet;
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFanInOutVisitor;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -17,8 +19,11 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * Abstract super class for metrics, which count any function calls (outgoing or incoming).
  * @author El-Sharkawy
  *
+ * @param <V> The {@link AbstractFanInOutVisitor}-<b>visitor</b>
+ *     which is used for all (derivations) of the metric to compute.
  */
-public abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricResult> {
+public abstract class AbstractFanInOutMetric<V extends AbstractFanInOutVisitor>
+    extends AnalysisComponent<MetricResult> {
 
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -49,22 +54,59 @@ public abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricRes
         
         CodeFunction function;
         List<CodeFunction> functions = new LinkedList<>();
-        Set<String> allFunctionNames = new HashSet<>();
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
             functions.add(function);
-            allFunctionNames.add(function.getName());
+        }
+        // Looses threading for sub analyses, but should not be a big issue
+        
+        // Gather function calls for all functions
+        V visitor = createVisitor(functions, varModel);
+        for (int i = functions.size() - 1; i >= 0; i--) {
+            functions.get(i).getFunction().accept(visitor);
         }
         
-        // Looses threading for sub analyses, but should not be a big issue
-        computeMetrics(functions, allFunctionNames, varModel);
+        // Compute and report all results
+        for (int i = functions.size() - 1; i >= 0; i--) {
+            function = functions.get(i);
+            
+            
+            double result = computeResult(visitor, function);
+            if (Double.NaN == result) {
+                return;
+            }
+            
+            Function functionAST = function.getFunction();
+            File cFile = function.getSourceFile().getPath();
+            File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
+            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
+        }
+        computeMetrics(functions, varModel);
     }
+    
+    /**
+     * This method will compute the result based on the results of the visitor created by
+     *     {@link #createVisitor(List, VariabilityModel)}.
+     * @param visitor The visitor after visitation of a single function.
+     * @param function The function for which we compute the metric result for.
+     * @return The computed value or {@link Double#NaN} if no result could be computed an this metric should not
+     *     mention the result.
+     */
+    protected abstract double computeResult(@NonNull V visitor, CodeFunction function);
+    
+    /**
+     * Creates the visitor to be used by the metric.
+     * @param functions All gathered functions.
+     * @param varModel Optional, if not <tt>null</tt> this visitor should use the variability model to check if at least
+     *     one variable of the variability model is involved in {@link CppBlock#getCondition()} expressions.
+     * @return The visitor to compute the fan-in fan-out metric by the inherited metric analysis.
+     */
+    protected abstract @NonNull V createVisitor(@NonNull List<CodeFunction> functions,
+        @Nullable VariabilityModel varModel);
 
     /**
      * Computes Fan-In / Fan-Out Metrics.
      * @param functions All gathered functions.
-     * @param allFunctionNames The names of all functions.
      * @param varModel Optional: the variability model.
      */
-    protected abstract void computeMetrics(@NonNull List<CodeFunction> functions, @NonNull Set<String> allFunctionNames,
-        @Nullable VariabilityModel varModel);
+    protected abstract void computeMetrics(@NonNull List<CodeFunction> functions, @Nullable VariabilityModel varModel);
 }
