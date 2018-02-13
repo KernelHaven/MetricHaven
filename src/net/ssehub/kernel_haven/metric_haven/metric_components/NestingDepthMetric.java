@@ -24,7 +24,7 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
      * @author El-Sharkawy
      *
      */
-    static enum NDType {
+    public static enum NDType {
         CLASSIC_ND_MAX, CLASSIC_ND_AVG,
         VP_ND_MAX, VP_ND_AVG,
         COMBINED_ND_MAX, COMBINED_ND_AVG;
