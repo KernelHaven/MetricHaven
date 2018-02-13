@@ -12,8 +12,17 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
- * A metric, which measures the amount of delivered lines of code (dLoC) per function. More precisely, this metric
- * measures the number of statements within a function which should be a good approximation for dLoC.
+ * A metric, which measures the maximum/average nesting depth. These metrics are based on:
+ * <ul>
+ *     <ul>Classical Nesting Depth as specified by <a href="https://dl.acm.org/citation.cfm?id=42168">[Conte et al.
+ *         1986]</a></ul>
+ *     <ul>Nesting Depth of Variation Points (e.g., used/specified by
+ *         <a href="http://ieeexplore.ieee.org/abstract/document/6062078/">[Liebig et al. 2010]</a>, 
+ *         <a href="https://link.springer.com/article/10.1007/s10664-015-9360-1">[Hunsen et al. 2016]</a>)</ul>
+ * </ul>
+ * However, we did a small variation as we count the nested statements instead of the branching elements itself. This is
+ * done to count the average for nested elements inside a function and also to avoid counting of nesting structures,
+ * which do not have at least one nested element. 
  * @author El-Sharkawy
  *
  */
