@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.analysis.ObservableAnalysis;
 import net.ssehub.kernel_haven.analysis.PipelineAnalysis;
 import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
@@ -24,6 +25,11 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class AllFunctionMetrics extends PipelineAnalysis {
 
+    /**
+     * Whether this pipeline should add an {@link ObservableAnalysis} at the end or not.
+     */
+    public static boolean ADD_OBSERVEABLE = false;
+    
     /**
      * Creates this pipeline object.
      * 
@@ -90,6 +96,10 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         
         // join the parallel metrics together
         AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics", metrics);
+        
+        if (ADD_OBSERVEABLE) {
+            join = new ObservableAnalysis<>(config, join);
+        }
         
         return join;
     }
