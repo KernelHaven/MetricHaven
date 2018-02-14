@@ -58,24 +58,21 @@ abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricResult> {
         
         // Gather function calls for all functions
         AbstractFanInOutVisitor visitor = createVisitor(functions, varModel);
-        for (int i = functions.size() - 1; i >= 0; i--) {
-            functions.get(i).getFunction().accept(visitor);
+        for (CodeFunction func : functions) {
+            func.getFunction().accept(visitor);
         }
         
         // Compute and report all results
-        for (int i = functions.size() - 1; i >= 0; i--) {
-            function = functions.get(i);
-            
-            
-            double result = computeResult(visitor, function);
+        for (CodeFunction func : functions) {
+            double result = computeResult(visitor, func);
             if (Double.NaN == result) {
                 return;
             }
             
-            Function functionAST = function.getFunction();
-            File cFile = function.getSourceFile().getPath();
+            Function functionAST = func.getFunction();
+            File cFile = func.getSourceFile().getPath();
             File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
-            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
+            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), func.getName(), result));
         }
     }
     
