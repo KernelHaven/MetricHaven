@@ -21,6 +21,11 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     
+    /**
+     * Currently, we measure approx. 275,000 distinct function names (depending on capabilities of used extractor). 
+     */
+    private static final int INITIAL_MAP_SIZE = 3 * 275000;
+    
     private static Set<String> allFunctionNames;
     private static Map<String, CodeFunction> functionMap;
     private static int instanceCounter = 0;
@@ -47,8 +52,8 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
                  * See for more details: https://www.javaworld.com/article/2073352/?page=2
                  */
                 if (null == allFunctionNames) {
-                    allFunctionNames = new HashSet<>();
-                    functionMap = new HashMap<>();
+                    allFunctionNames = new HashSet<>(INITIAL_MAP_SIZE);
+                    functionMap = new HashMap<>(INITIAL_MAP_SIZE);
                     for (CodeFunction function: functions) {
                         allFunctionNames.add(function.getName());
                         functionMap.put(function.getName(), function);
