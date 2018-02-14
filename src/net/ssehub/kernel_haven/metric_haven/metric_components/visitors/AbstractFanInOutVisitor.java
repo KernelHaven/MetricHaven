@@ -1,10 +1,12 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -20,6 +22,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     
     private static Set<String> allFunctionNames;
+    private static Map<String, CodeFunction> functionMap;
+    private static int instanceCounter = 0;
     
     private @Nullable Function currentFunction;
 
@@ -34,7 +38,7 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
         @Nullable VariabilityModel varModel) {
         
         super(varModel);
-        
+        instanceCounter++;
         if (null == allFunctionNames) {
             synchronized (AbstractFanInOutVisitor.class) {
                 /*
@@ -43,12 +47,12 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
                  * See for more details: https://www.javaworld.com/article/2073352/?page=2
                  */
                 if (null == allFunctionNames) {
-                    Set<String> names = new HashSet<>();
+                    allFunctionNames = new HashSet<>();
+                    functionMap = new HashMap<>();
                     for (CodeFunction function: functions) {
-                        names.add(function.getName());
+                        allFunctionNames.add(function.getName());
+                        functionMap.put(function.getName(), function);
                     }
-                    
-                    allFunctionNames = Collections.unmodifiableSet(names);
                 }
             }
         }
@@ -61,6 +65,15 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
      */
     protected final boolean isFunction(String identifier) {
         return allFunctionNames.contains(identifier);
+    }
+    
+    /**
+     * Returns the {@link CodeFunction} for the specified function.
+     * @param functionName The name of the function for which the {@link CodeFunction} shall be returned.
+     * @return The (parsed) {@link CodeFunction} of the specified function(name).
+     */
+    protected final @Nullable CodeFunction getFunction(String functionName) {
+        return functionMap.get(functionName);
     }
     
     /**
@@ -80,12 +93,44 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
         
         this.currentFunction = previousFunction;
     }
+    
+    @Override
+    public void visitCode(@NonNull Code code) {
+        String unparsedCode = code.getText();
+        if (isFunction(unparsedCode) && null != currentFunction) {
+            functionCall(currentFunction, unparsedCode);
+        }
+    }
 
+    /**
+     * Informs an inherited visitors about the detection of a function call.
+     * @param caller The calling function.
+     * @param callee The called function (name).
+     */
+    protected abstract void functionCall(@NonNull Function caller, @NonNull String callee);
+    
     /**
      * Returns the result for the specified function, may only be called after the visitor was applied to <b>all</b>
      * functions.
      * @param functionName The function for which the result shall be returned.
      * @return The result for the specified function (&ge; 0).
      */
-    public abstract int getResult(String functionName);
+    public abstract int getResult(@NonNull String functionName);
+    
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            instanceCounter--;
+            
+            if (instanceCounter <= 0 && null != allFunctionNames) {
+                // Clear memory after last visitor was closed (if required, the maps will be re-build)
+                synchronized (AbstractFanInOutVisitor.class) {
+                    allFunctionNames = null;
+                    functionMap = null;
+                }
+            }
+        } finally {
+            super.finalize();
+        }
+    }
 }

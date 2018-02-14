@@ -19,11 +19,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * Abstract super class for metrics, which count any function calls (outgoing or incoming).
  * @author El-Sharkawy
  *
- * @param <V> The {@link AbstractFanInOutVisitor}-<b>visitor</b>
- *     which is used for all (derivations) of the metric to compute.
  */
-public abstract class AbstractFanInOutMetric<V extends AbstractFanInOutVisitor>
-    extends AnalysisComponent<MetricResult> {
+abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricResult> {
 
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -60,7 +57,7 @@ public abstract class AbstractFanInOutMetric<V extends AbstractFanInOutVisitor>
         // Looses threading for sub analyses, but should not be a big issue
         
         // Gather function calls for all functions
-        V visitor = createVisitor(functions, varModel);
+        AbstractFanInOutVisitor visitor = createVisitor(functions, varModel);
         for (int i = functions.size() - 1; i >= 0; i--) {
             functions.get(i).getFunction().accept(visitor);
         }
@@ -80,7 +77,6 @@ public abstract class AbstractFanInOutMetric<V extends AbstractFanInOutVisitor>
             File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
             addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
         }
-        computeMetrics(functions, varModel);
     }
     
     /**
@@ -91,7 +87,7 @@ public abstract class AbstractFanInOutMetric<V extends AbstractFanInOutVisitor>
      * @return The computed value or {@link Double#NaN} if no result could be computed an this metric should not
      *     mention the result.
      */
-    protected abstract double computeResult(@NonNull V visitor, CodeFunction function);
+    protected abstract double computeResult(@NonNull AbstractFanInOutVisitor visitor, CodeFunction function);
     
     /**
      * Creates the visitor to be used by the metric.
@@ -100,13 +96,6 @@ public abstract class AbstractFanInOutMetric<V extends AbstractFanInOutVisitor>
      *     one variable of the variability model is involved in {@link CppBlock#getCondition()} expressions.
      * @return The visitor to compute the fan-in fan-out metric by the inherited metric analysis.
      */
-    protected abstract @NonNull V createVisitor(@NonNull List<CodeFunction> functions,
+    protected abstract @NonNull AbstractFanInOutVisitor createVisitor(@NonNull List<CodeFunction> functions,
         @Nullable VariabilityModel varModel);
-
-    /**
-     * Computes Fan-In / Fan-Out Metrics.
-     * @param functions All gathered functions.
-     * @param varModel Optional: the variability model.
-     */
-    protected abstract void computeMetrics(@NonNull List<CodeFunction> functions, @Nullable VariabilityModel varModel);
 }

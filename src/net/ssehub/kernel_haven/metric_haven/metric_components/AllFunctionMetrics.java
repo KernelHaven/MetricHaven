@@ -13,6 +13,7 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLine
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric.NDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
@@ -63,7 +64,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // All Cyclomatic complexity metrics
         config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
         @SuppressWarnings("unchecked")
-        @NonNull AnalysisComponent<MetricResult>[] metrics = new @NonNull AnalysisComponent[15];
+        @NonNull AnalysisComponent<MetricResult>[] metrics = new @NonNull AnalysisComponent[19];
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.MCCABE);
         metrics[0] = new CyclomaticComplexityMetric(config, functionSplitter.createOutputComponent());
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.VARIATION_POINTS);
@@ -103,6 +104,17 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         metrics[13] = new NestingDepthMetric(config, functionSplitter.createOutputComponent());
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.COMBINED_ND_AVG);
         metrics[14] = new NestingDepthMetric(config, functionSplitter.createOutputComponent());
+        
+        // Fan-in / Fan-out
+        config.registerSetting(FanInOutMetric.FAN_TYPE_SETTING);
+        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_GLOBALLY);
+        metrics[15] = new FanInOutMetric(config, functionSplitter.createOutputComponent());
+        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_LOCALLY);
+        metrics[16] = new FanInOutMetric(config, functionSplitter.createOutputComponent());
+        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_GLOBALLY);
+        metrics[17] = new FanInOutMetric(config, functionSplitter.createOutputComponent());
+        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_LOCALLY);
+        metrics[18] = new FanInOutMetric(config, functionSplitter.createOutputComponent());
         
         // join the parallel metrics together
         AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics", metrics);
