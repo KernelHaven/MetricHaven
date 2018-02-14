@@ -28,7 +28,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
      * @author El-Sharkawy
      *
      */
-    static enum FanType {
+    public static enum FanType {
         CLASSICAL_FAN_IN_GLOBALLY, CLASSICAL_FAN_IN_LOCALLY,
         CLASSICAL_FAN_OUT_GLOBALLY, CLASSICAL_FAN_OUT_LOCALLY;
     }
