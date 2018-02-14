@@ -21,6 +21,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
 
+    private static final Logger LOGGER = Logger.get();
+    
     /**
      * Specification which kind of fan-in/fan-out shall be measured.
      * @author El-Sharkawy
@@ -90,7 +92,7 @@ public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
             }
             break;
         default:
-            Logger.get().logError("Unsupported operation " + type.name() + " for visitor " + getClass().getName());
+            LOGGER.logError("Unsupported operation " + type.name() + " for visitor " + getClass().getName());
             break;
         }
     }

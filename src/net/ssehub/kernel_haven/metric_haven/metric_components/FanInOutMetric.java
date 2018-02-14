@@ -11,7 +11,6 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.ClassicalFanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.ClassicalFanInOutVisitor.MeasurementType;
-import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;

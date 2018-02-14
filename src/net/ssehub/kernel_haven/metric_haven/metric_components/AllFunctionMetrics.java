@@ -52,58 +52,73 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
         AnalysisComponent<CodeFunction> functionFilter = new CodeFunctionFilter(config, codeModel);
         
-        if (ADD_LINE_FILTER) {
-            functionFilter = new CodeFunctionByLineFilter(config, functionFilter);
-        }
-        
         // add a split component after the function filter
         SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
+        SplitComponent<CodeFunction> filteredFunctionSplitter = functionSplitter;
         
-        // use functionSplitter.createOutputComponent() to create inputs for multiple metrics after the split
+        if (ADD_LINE_FILTER) {
+            /*
+             * One of the split outputs will get a filter and another split.
+             * The resulting pipeline will look like this:
+             * 
+             * functionFilter -> Split -> CodeFunctionByLineFilter -> Split -> metric on filtered
+             *                         -> metric on unfiltered              -> metric on filtered
+             *                         -> metric on unfiltered              -> ....
+             *                         -> ...
+             */
+            
+            AnalysisComponent<CodeFunction> filteredFunctionFilter = functionSplitter.createOutputComponent();
+            filteredFunctionFilter = new CodeFunctionByLineFilter(config, filteredFunctionFilter);
+            filteredFunctionSplitter = new SplitComponent<>(config, filteredFunctionFilter);
+        }
+
+        
+        // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
+        // inputs for multiple metrics after the split
         
         // All Cyclomatic complexity metrics
         config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
         @SuppressWarnings("unchecked")
         @NonNull AnalysisComponent<MetricResult>[] metrics = new @NonNull AnalysisComponent[19];
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.MCCABE);
-        metrics[0] = new CyclomaticComplexityMetric(config, functionSplitter.createOutputComponent());
+        metrics[0] = new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.VARIATION_POINTS);
-        metrics[1] = new CyclomaticComplexityMetric(config, functionSplitter.createOutputComponent());
+        metrics[1] = new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.ALL);
-        metrics[2] = new CyclomaticComplexityMetric(config, functionSplitter.createOutputComponent());
+        metrics[2] = new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent());
 
         // All Variables per Function metrics
         config.registerSetting(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING);
         config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.EXTERNAL);
-        metrics[3] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
+        metrics[3] = new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.INTERNAL);
-        metrics[4] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
+        metrics[4] = new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.ALL);
-        metrics[5] = new VariablesPerFunctionMetric(config, functionSplitter.createOutputComponent());
+        metrics[5] = new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent());
         
         // All dLoC per Function metrics
         config.registerSetting(DLoC.LOC_TYPE_SETTING);
         config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.DLOC);
-        metrics[6] = new DLoC(config, functionSplitter.createOutputComponent());
+        metrics[6] = new DLoC(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.LOF);
-        metrics[7] = new DLoC(config, functionSplitter.createOutputComponent());
+        metrics[7] = new DLoC(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.PLOF);
-        metrics[8] = new DLoC(config, functionSplitter.createOutputComponent());
+        metrics[8] = new DLoC(config, filteredFunctionSplitter.createOutputComponent());
         
         // All Nesting Depth metrics
         config.registerSetting(NestingDepthMetric.ND_TYPE_SETTING);
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.CLASSIC_ND_MAX);
-        metrics[9] = new NestingDepthMetric(config, functionSplitter.createOutputComponent());
+        metrics[9] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.CLASSIC_ND_AVG);
-        metrics[10] = new NestingDepthMetric(config, functionSplitter.createOutputComponent());
+        metrics[10] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.VP_ND_MAX);
-        metrics[11] = new NestingDepthMetric(config, functionSplitter.createOutputComponent());
+        metrics[11] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.VP_ND_AVG);
-        metrics[12] = new NestingDepthMetric(config, functionSplitter.createOutputComponent());
+        metrics[12] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.COMBINED_ND_MAX);
-        metrics[13] = new NestingDepthMetric(config, functionSplitter.createOutputComponent());
+        metrics[13] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.COMBINED_ND_AVG);
-        metrics[14] = new NestingDepthMetric(config, functionSplitter.createOutputComponent());
+        metrics[14] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
         
         // Fan-in / Fan-out
         config.registerSetting(FanInOutMetric.FAN_TYPE_SETTING);
