@@ -90,7 +90,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
             visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_OUT_GLOBALLY);
             break;
         case CLASSICAL_FAN_OUT_LOCALLY:
-            visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_IN_LOCALLY);
+            visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_OUT_LOCALLY);
             break;
         default:
             LOGGER.logError("Unsupported metric variation " + type.name() + " for metric "

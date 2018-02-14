@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,6 +69,9 @@ public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
 
     @Override
     protected void functionCall(@NonNull Function caller, @NonNull String callee) {
+        CodeFunction other = getFunction(callee);
+        File calleFile = other != null ? other.getSourceFile().getPath() : null;
+        
         switch (type) {
         case FAN_OUT_GLOBALLY:
             // Measures (globally) the number of CALLED functions for a specified function
@@ -75,8 +79,7 @@ public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
             break;
         case FAN_OUT_LOCALLY:
             // Measures (locally) the number of CALLED functions for a specified function
-            CodeFunction calledFunction = getFunction(callee);
-            if (null != calledFunction && caller.getSourceFile().equals(calledFunction.getSourceFile())) {
+            if (null != calleFile && calleFile.equals(caller.getSourceFile())) {
                 getFunctionCalls(caller.getName()).add(callee);
             }
             break;
@@ -86,8 +89,7 @@ public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
             break;
         case FAN_IN_LOCALLY:
             // Measures (locally) the number of functions CALLING the specified function
-            CodeFunction callingFunction = getFunction(callee);
-            if (null != callingFunction && caller.getSourceFile().equals(callingFunction.getSourceFile())) {
+            if (null != calleFile && calleFile.equals(caller.getSourceFile())) {
                 getFunctionCalls(callee).add(caller.getName());
             }
             break;

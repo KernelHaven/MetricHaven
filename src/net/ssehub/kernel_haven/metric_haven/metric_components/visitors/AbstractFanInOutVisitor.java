@@ -96,9 +96,14 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitCode(@NonNull Code code) {
-        String unparsedCode = code.getText();
-        if (isFunction(unparsedCode) && null != currentFunction) {
-            functionCall(currentFunction, unparsedCode);
+        String[] unparsedCodeFragments = code.getText().split(" ");
+        for (int i = unparsedCodeFragments.length - 1; i >= 0; i--) {
+            String unparsedCode = unparsedCodeFragments[i];
+            if (null != unparsedCode && isFunction(unparsedCode) && null != currentFunction
+                && !unparsedCode.equals(currentFunction.getName())) {
+                
+                functionCall(currentFunction, unparsedCode);
+            }            
         }
     }
 
