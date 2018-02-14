@@ -37,7 +37,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
                 FanType.CLASSICAL_FAN_IN_GLOBALLY, "Defines which type of fan in/out should be counted for a"
                     + " function.");
     
-    private FanType type;
+    private @NonNull FanType type;
     
     /**
      * Creates this metric.
@@ -121,7 +121,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
             resultName = "Classical Fan-Out (globally)";
             break;
         case CLASSICAL_FAN_OUT_LOCALLY:
-            resultName = "Classical Fan-In (locally)";
+            resultName = "Classical Fan-Out (locally)";
             break;
         default:
             resultName = "Unspecified Fan-In/Out metric";
