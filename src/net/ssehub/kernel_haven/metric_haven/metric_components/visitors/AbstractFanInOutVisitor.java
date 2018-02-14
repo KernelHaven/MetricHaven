@@ -101,6 +101,8 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitCode(@NonNull Code code) {
+        Function currentFunction = this.currentFunction;
+        
         String[] unparsedCodeFragments = code.getText().split(" ");
         for (int i = unparsedCodeFragments.length - 1; i >= 0; i--) {
             String unparsedCode = unparsedCodeFragments[i];
