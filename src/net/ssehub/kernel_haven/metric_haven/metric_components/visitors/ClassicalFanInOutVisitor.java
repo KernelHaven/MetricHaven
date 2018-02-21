@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,8 +70,18 @@ public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
 
     @Override
     protected void functionCall(@NonNull Function caller, @NonNull String callee) {
-        CodeFunction other = getFunction(callee);
-        File calleFile = other != null ? other.getSourceFile().getPath() : null;
+        List<CodeFunction> others = getFunction(callee);
+        boolean isSameFile = false;
+        
+        if (null != others) {
+            for (CodeFunction otherFunction : others) {
+                File calleFile = otherFunction != null ? otherFunction.getSourceFile().getPath() : null;
+                isSameFile = (null != calleFile && calleFile.equals(caller.getSourceFile()));
+                if (isSameFile) {
+                    break;
+                }
+            }
+        }
         
         switch (type) {
         case FAN_OUT_GLOBALLY:
@@ -79,7 +90,7 @@ public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
             break;
         case FAN_OUT_LOCALLY:
             // Measures (locally) the number of CALLED functions for a specified function
-            if (null != calleFile && calleFile.equals(caller.getSourceFile())) {
+            if (isSameFile) {
                 getFunctionCalls(caller.getName()).add(callee);
             }
             break;
@@ -89,7 +100,7 @@ public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
             break;
         case FAN_IN_LOCALLY:
             // Measures (locally) the number of functions CALLING the specified function
-            if (null != calleFile && calleFile.equals(caller.getSourceFile())) {
+            if (isSameFile) {
                 getFunctionCalls(callee).add(caller.getName());
             }
             break;

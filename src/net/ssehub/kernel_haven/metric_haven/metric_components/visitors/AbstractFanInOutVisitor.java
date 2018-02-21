@@ -3,6 +3,8 @@ package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +29,16 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     private static final int INITIAL_MAP_SIZE = 3 * 275000;
     
     private static Set<String> allFunctionNames;
-    private static Map<String, CodeFunction> functionMap;
+    
+    /**
+     * Tuple of
+     * <ul>
+     *   <li>Unique name of function</li>
+     *   <li>Locations of function (maybe there exist multiple definitions of the same function, e.g., in different
+     *   CPP blocks.</li>
+     * </ul>
+     */
+    private static Map<String, List<CodeFunction>> functionMap;
     private static int instanceCounter = 0;
     
     private @Nullable Function currentFunction;
@@ -56,7 +67,12 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
                     functionMap = new HashMap<>(INITIAL_MAP_SIZE);
                     for (CodeFunction function: functions) {
                         allFunctionNames.add(function.getName());
-                        functionMap.put(function.getName(), function);
+                        List<CodeFunction> sameFunctions = functionMap.get(function.getName());
+                        if (null == sameFunctions) {
+                            sameFunctions = new LinkedList<>();
+                            functionMap.put(function.getName(), sameFunctions);
+                        }
+                        sameFunctions.add(function);
                     }
                 }
             }
@@ -75,9 +91,9 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     /**
      * Returns the {@link CodeFunction} for the specified function.
      * @param functionName The name of the function for which the {@link CodeFunction} shall be returned.
-     * @return The (parsed) {@link CodeFunction} of the specified function(name).
+     * @return The (parsed) {@link CodeFunction}s of the specified function(name).
      */
-    protected final @Nullable CodeFunction getFunction(String functionName) {
+    protected final @Nullable List<CodeFunction> getFunction(String functionName) {
         return functionMap.get(functionName);
     }
     
