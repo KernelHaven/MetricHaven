@@ -75,8 +75,10 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
     }
 
     @Override
+    // CHECKSTYLE:OFF checkstyle can't parse the annotations properly...
     protected @NonNull AbstractFanInOutVisitor createVisitor(@NonNull List<CodeFunction> functions,
         @Nullable VariabilityModel varModel) {
+    // CHECKSTYLE:ON
         
         AbstractFanInOutVisitor visitor = null;
         switch (type) {

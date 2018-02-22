@@ -46,8 +46,11 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         super(config);
     }
 
+    
+    // CHECKSTYLE:OFF this method is too long, but splitting it up wouldn't make too much sense
     @Override
     protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
+    // CHECKSTYLE:ON
         
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
         AnalysisComponent<CodeFunction> functionFilter = new CodeFunctionFilter(config, codeModel);
@@ -76,10 +79,11 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
         // inputs for multiple metrics after the split
         
-        // All Cyclomatic complexity metrics
-        config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
         @SuppressWarnings("unchecked")
         @NonNull AnalysisComponent<MetricResult>[] metrics = new @NonNull AnalysisComponent[19];
+        
+        // All Cyclomatic complexity metrics
+        config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.MCCABE);
         metrics[0] = new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent());
         config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.VARIATION_POINTS);
