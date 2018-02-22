@@ -29,7 +29,7 @@ public class AllLineFilterableFunctionMetrics extends PipelineAnalysis {
     /**
      * Whether this pipeline should add an {@link ObservableAnalysis} at the end or not.
      */
-    public static boolean ADD_OBSERVEABLE = false;
+    private static boolean addObservable = false;
     
     /**
      * Creates this pipeline object.
@@ -99,11 +99,21 @@ public class AllLineFilterableFunctionMetrics extends PipelineAnalysis {
         // join the parallel metrics together
         AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics", metrics);
         
-        if (ADD_OBSERVEABLE) {
+        if (addObservable) {
             join = new ObservableAnalysis<>(config, join);
         }
         
         return join;
     }
-
+    
+    /**
+     * Whether this pipeline should add an {@link ObservableAnalysis} at the end or not.
+     * Default is <code>false</code>.
+     * 
+     * @param addObservable <code>true</code> if an {@link ObservableAnalysis} should be added.
+     */
+    public static void setAddObservable(boolean addObservable) {
+        AllLineFilterableFunctionMetrics.addObservable = addObservable;
+    }
+    
 }

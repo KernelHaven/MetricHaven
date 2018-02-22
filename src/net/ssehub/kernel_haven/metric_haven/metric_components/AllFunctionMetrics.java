@@ -30,12 +30,12 @@ public class AllFunctionMetrics extends PipelineAnalysis {
     /**
      * Whether this pipeline should add an {@link ObservableAnalysis} at the end or not.
      */
-    public static boolean ADD_OBSERVEABLE = false;
+    private static boolean addObservable = false;
     
     /**
      * Whether this pipeline should add a {@link CodeFunctionByLineFilter} or not.
      */
-    public static boolean ADD_LINE_FILTER = false;
+    private static boolean addLineFilter = false;
     
     /**
      * Creates this pipeline object.
@@ -56,7 +56,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
         SplitComponent<CodeFunction> filteredFunctionSplitter = functionSplitter;
         
-        if (ADD_LINE_FILTER) {
+        if (addLineFilter) {
             /*
              * One of the split outputs will get a filter and another split.
              * The resulting pipeline will look like this:
@@ -134,11 +134,31 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // join the parallel metrics together
         AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics", metrics);
         
-        if (ADD_OBSERVEABLE) {
+        if (addObservable) {
             join = new ObservableAnalysis<>(config, join);
         }
         
         return join;
+    }
+    
+    /**
+     * Whether this pipeline should add an {@link ObservableAnalysis} at the end or not.
+     * Default is <code>false</code>.
+     * 
+     * @param addObservable <code>true</code> if an {@link ObservableAnalysis} should be added.
+     */
+    public static void setAddObservable(boolean addObservable) {
+        AllFunctionMetrics.addObservable = addObservable;
+    }
+    
+    /**
+     * Whether this pipeline should add a {@link CodeFunctionByLineFilter} or not.
+     * Default is <code>false</code>.
+     * 
+     * @param addLineFilter <code>true</code> if a {@link CodeFunctionByLineFilter} should be added
+     */
+    public static void setAddLineFilter(boolean addLineFilter) {
+        AllFunctionMetrics.addLineFilter = addLineFilter;
     }
 
 }
