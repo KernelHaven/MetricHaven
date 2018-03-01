@@ -1,6 +1,5 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
-import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
@@ -102,11 +101,6 @@ public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     @Override
     public void visitComment(@NonNull Comment comment) {
         // Do not visit comments!
-    }
-    
-    @Override
-    public void visitCode(@NonNull Code code) {
-        // No action needed by default for visiting code elements
     }
     
     /**

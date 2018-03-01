@@ -5,7 +5,6 @@ import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
-import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
@@ -60,11 +59,6 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
     @Override
     public @NonNull String getResultName() {
         return "Code Functions";
-    }
-
-    @Override
-    public void visitCode(Code code) {
-        // do nothing
     }
 
 }

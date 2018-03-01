@@ -79,6 +79,10 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
         // inputs for multiple metrics after the split
         
+        // TODO @SE: use this as input for your new metrics
+        //AnalysisComponent<CountedVariabilityVariable> countedVariabilityVariables
+        //        = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+        
         @SuppressWarnings("unchecked")
         @NonNull AnalysisComponent<MetricResult>[] metrics = new @NonNull AnalysisComponent[19];
         
