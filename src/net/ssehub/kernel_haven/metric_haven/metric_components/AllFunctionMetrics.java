@@ -80,8 +80,8 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // inputs for multiple metrics after the split
         
         // TODO @SE: use this as input for your new metrics
-        //AnalysisComponent<CountedVariabilityVariable> countedVariabilityVariables
-        //        = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+//        AnalysisComponent<ScatteringDegree> countedVariabilityVariables
+//                = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         
         @SuppressWarnings("unchecked")
         @NonNull AnalysisComponent<MetricResult>[] metrics = new @NonNull AnalysisComponent[19];

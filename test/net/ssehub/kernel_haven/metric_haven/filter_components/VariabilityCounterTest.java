@@ -65,10 +65,10 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        List<CountedVariabilityVariable> result = runComponent(varModel, Arrays.asList(file1));
+        List<ScatteringDegree> result = runComponent(varModel, Arrays.asList(file1));
         
-        CountedVariabilityVariable varA = result.get(0);
-        CountedVariabilityVariable varB = result.get(1);
+        ScatteringDegree varA = result.get(0);
+        ScatteringDegree varB = result.get(1);
 
         if (!varA.getVariable().getName().equals("CONFIG_A")) {
             varA = result.get(1);
@@ -103,10 +103,10 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        List<CountedVariabilityVariable> result = runComponent(varModel, Arrays.asList(file1));
+        List<ScatteringDegree> result = runComponent(varModel, Arrays.asList(file1));
         
-        CountedVariabilityVariable varA = result.get(0);
-        CountedVariabilityVariable varB = result.get(1);
+        ScatteringDegree varA = result.get(0);
+        ScatteringDegree varB = result.get(1);
 
         if (!varA.getVariable().getName().equals("CONFIG_A")) {
             varA = result.get(1);
@@ -141,10 +141,10 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        List<CountedVariabilityVariable> result = runComponent(varModel, Arrays.asList(file1));
+        List<ScatteringDegree> result = runComponent(varModel, Arrays.asList(file1));
         
-        CountedVariabilityVariable varA = result.get(0);
-        CountedVariabilityVariable varB = result.get(1);
+        ScatteringDegree varA = result.get(0);
+        ScatteringDegree varB = result.get(1);
 
         if (!varA.getVariable().getName().equals("CONFIG_A")) {
             varA = result.get(1);
@@ -180,10 +180,10 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        List<CountedVariabilityVariable> result = runComponent(varModel, Arrays.asList(file1, file2));
+        List<ScatteringDegree> result = runComponent(varModel, Arrays.asList(file1, file2));
         
-        CountedVariabilityVariable varA = result.get(0);
-        CountedVariabilityVariable varB = result.get(1);
+        ScatteringDegree varA = result.get(0);
+        ScatteringDegree varB = result.get(1);
 
         if (!varA.getVariable().getName().equals("CONFIG_A")) {
             varA = result.get(1);
@@ -210,8 +210,8 @@ public class VariabilityCounterTest {
      * 
      * @return The result of the component.
      */
-    private List<CountedVariabilityVariable> runComponent(VariabilityModel varModel, List<SourceFile> sourceFiles) {
-        List<CountedVariabilityVariable> result = new ArrayList<>();
+    private List<ScatteringDegree> runComponent(VariabilityModel varModel, List<SourceFile> sourceFiles) {
+        List<ScatteringDegree> result = new ArrayList<>();
         try {
             Properties prop = new Properties();
             Configuration config = new TestConfiguration(prop);
@@ -220,7 +220,7 @@ public class VariabilityCounterTest {
             AnalysisComponent<VariabilityModel> vmComponent = new TestAnalysisComponentProvider<>(varModel);
             VariabilityCounter counter = new VariabilityCounter(config, vmComponent, cmComponent);
             
-            CountedVariabilityVariable variable;
+            ScatteringDegree variable;
             while ((variable = counter.getNextResult()) != null) {
                 result.add(variable);
             }

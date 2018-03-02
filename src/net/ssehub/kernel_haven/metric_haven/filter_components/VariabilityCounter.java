@@ -27,18 +27,18 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
- * Counts in how many #ifdefs and files a {@link VariabilityVariable} is used.
+ * Counts in how many &#35;ifdefs and files a {@link VariabilityVariable} is used.
  * 
  * @author Adam
  */
-public class VariabilityCounter extends AnalysisComponent<CountedVariabilityVariable> implements ISyntaxElementVisitor,
+public class VariabilityCounter extends AnalysisComponent<ScatteringDegree> implements ISyntaxElementVisitor,
         IVoidFormulaVisitor {
 
     private @NonNull AnalysisComponent<VariabilityModel> vmProvider;
     
     private @NonNull AnalysisComponent<SourceFile> cmProvider;
     
-    private @NonNull Map<@NonNull String, CountedVariabilityVariable> countedVariables;
+    private @NonNull Map<@NonNull String, ScatteringDegree> countedVariables;
     
     private @NonNull Set<@NonNull String> variablesSeenInCurrentFile;
     
@@ -71,7 +71,7 @@ public class VariabilityCounter extends AnalysisComponent<CountedVariabilityVari
         }
         
         for (VariabilityVariable variable : varModel.getVariables()) {
-            countedVariables.put(variable.getName(), new CountedVariabilityVariable(variable));
+            countedVariables.put(variable.getName(), new ScatteringDegree(variable));
         }
         
         SourceFile file;
@@ -88,7 +88,7 @@ public class VariabilityCounter extends AnalysisComponent<CountedVariabilityVari
             variablesSeenInCurrentFile.clear();
         }
         
-        for (CountedVariabilityVariable variable : countedVariables.values()) {
+        for (ScatteringDegree variable : countedVariables.values()) {
             addResult(notNull(variable));
         }
     }
@@ -131,7 +131,7 @@ public class VariabilityCounter extends AnalysisComponent<CountedVariabilityVari
     @Override
     public void visitVariable(@NonNull Variable variable) {
         String varName = variable.getName();
-        CountedVariabilityVariable countedVar = countedVariables.get(varName);
+        ScatteringDegree countedVar = countedVariables.get(varName);
         if (countedVar != null) {
             
             if (!variablesSeenInCurrentIfdef.contains(varName)) {

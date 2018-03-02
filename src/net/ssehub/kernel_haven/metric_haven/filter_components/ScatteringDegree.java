@@ -4,11 +4,11 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
- * Contains a {@link VariabilityVariable} and in how many #ifdefs and files it is used.
+ * Stores for a {@link VariabilityVariable} in how many  variation points (&#35;ifdefs) and files it is used.
  * 
  * @author Adam
  */
-public class CountedVariabilityVariable {
+public class ScatteringDegree {
 
     private @NonNull VariabilityVariable variable;
     
@@ -21,7 +21,7 @@ public class CountedVariabilityVariable {
      * 
      * @param variable The variable.
      */
-    public CountedVariabilityVariable(@NonNull VariabilityVariable variable) {
+    public ScatteringDegree(@NonNull VariabilityVariable variable) {
         this.variable = variable;
     }
     
