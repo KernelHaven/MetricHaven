@@ -8,6 +8,9 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.SDType;
+import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -77,31 +80,75 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
     
     /**
      * Returns the number of variables used in the presence condition to include the complete function.
+     * @param sdConsideration The configured SD option.
+     * @param sdList Must not be <tt>null</tt> if SD shall be considered.
+     * 
      * @return The number of variables used in the presence condition to include the complete function (&gt; 0)
      */
-    public int externalVarsSize() {
-        return externalVars.size();
+    public int externalVarsSize(@NonNull SDType sdConsideration, ScatteringDegreeContainer sdList) {
+        return computeResult(externalVars, sdConsideration, sdList);
     }
     
     /**
      * Returns the number of variables used inside the function.
+     * @param sdConsideration The configured SD option.
+     * @param sdList Must not be <tt>null</tt> if SD shall be considered.
+     * 
      * @return The number of variables used inside the function (&gt; 0)
      */
-    public int internalVarsSize() {
-        return internalVars.size();
+    public int internalVarsSize(@NonNull SDType sdConsideration, ScatteringDegreeContainer sdList) {
+        return computeResult(internalVars, sdConsideration, sdList);
     }
     
     
     /**
      * Returns the number of the union of the external and external variables.
+     * @param sdConsideration The configured SD option.
+     * @param sdList Must not be <tt>null</tt> if SD shall be considered.
+     * 
      * @return The number of (external variables &cup; internal variables) (&gt; 0)
      */
-    public int allVarsSize() {
+    public int allVarsSize(@NonNull SDType sdConsideration, ScatteringDegreeContainer sdList) {
         Set<String> superSet = new HashSet<>();
         superSet.addAll(internalVars);
         superSet.addAll(externalVars);
         
-        return superSet.size();
+        return computeResult(superSet, sdConsideration, sdList);
+    }
+    
+    /**
+     * Computes the result depending on the selected scattering degree option.
+     * @param collectedVars The collected variables by this visitor.
+     * @param sdConsideration The configured SD option.
+     * @param sdList Must not be <tt>null</tt> if SD shall be considered.
+     * @return The number of counted variables multiplied with the selected SD option (will be &gt; 0).
+     */
+    private int computeResult(@NonNull Set<String> collectedVars, @NonNull SDType sdConsideration,
+        ScatteringDegreeContainer sdList) {
+        
+        int result = 0;
+        switch (sdConsideration) {
+        case NO_SCATTERING:
+            result = collectedVars.size();
+            break;
+        case SD_VP:
+            for (String variable : collectedVars) {
+                result += sdList.getSDVariationPoint(variable);
+            }
+            break;
+        case SD_FILE:
+            for (String variable : collectedVars) {
+                result += sdList.getSDFile(variable);
+            }
+            break;
+        default:
+            result = collectedVars.size();
+            Logger.get().logError("Unhandled scattering degree option passed to " + getClass().getSimpleName() + ": "
+                + sdConsideration.name());
+            break;
+        }
+        
+        return result;
     }
 
     @Override

@@ -6,6 +6,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.UsedVariabilityVarsVisitor;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -46,7 +47,7 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
      * @throws SetUpException If {@link #VARIABLE_TYPE_SETTING} was defined with an invalid option.
      */
     public VariablesPerFunctionMetric(@NonNull Configuration config,
-            @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder) throws SetUpException {
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder) throws SetUpException {
         
         this(config, codeFunctionFinder, null);
     }
@@ -66,7 +67,28 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        super(config, codeFunctionFinder, varModelComponent);
+        this(config, codeFunctionFinder, varModelComponent, null);
+    }
+    
+    /**
+     * Constructor to use scattering degree to weight the results.
+     * 
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
+     *     constant of a CPP expression belongs to a variable of the variability model, otherwise all constants
+     *     will be treated as feature constants.
+     * @param sdComponent Optional: If not <tt>null</tt> scattering degree of variables may be used to weight the
+     *     results.
+     * 
+     * @throws SetUpException If {@link #VARIABLE_TYPE_SETTING} was defined with an invalid option.
+     */
+    public VariablesPerFunctionMetric(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        
+        super(config, codeFunctionFinder, varModelComponent, sdComponent);
         
         config.registerSetting(VARIABLE_TYPE_SETTING);
         measuredVars = config.getValue(VARIABLE_TYPE_SETTING);
@@ -75,7 +97,7 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
     
     @Override
     public @NonNull String getResultName() {
-        return "Variables per Function (" + measuredVars.toString() + ")";
+        return "Variables per Function (" + measuredVars.toString() + ", " + getSDType().name() + ")";
     }
 
     @Override
@@ -88,13 +110,13 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
         int result;
         switch (measuredVars) {
         case EXTERNAL:
-            result = visitor.externalVarsSize();
+            result = visitor.externalVarsSize(getSDType(), getScatteringDegrees());
             break;
         case INTERNAL:
-            result = visitor.internalVarsSize();
+            result = visitor.internalVarsSize(getSDType(), getScatteringDegrees());
             break;
         case ALL:
-            result = visitor.allVarsSize();
+            result = visitor.allVarsSize(getSDType(), getScatteringDegrees());
             break;
         default:
             throw new IllegalArgumentException("Unsupported " + VarType.class.getSimpleName()

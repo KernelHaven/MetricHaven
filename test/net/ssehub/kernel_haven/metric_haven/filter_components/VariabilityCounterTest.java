@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -65,26 +64,15 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        List<ScatteringDegree> result = runComponent(varModel, Arrays.asList(file1));
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1));
         
-        ScatteringDegree varA = result.get(0);
-        ScatteringDegree varB = result.get(1);
-
-        if (!varA.getVariable().getName().equals("CONFIG_A")) {
-            varA = result.get(1);
-            varB = result.get(0);
-        }
+        assertThat(result.getSDVariationPoint("CONFIG_A"), is(2));
+        assertThat(result.getSDVariationPoint("CONFIG_B"), is(1));
         
-        assertThat(varA.getVariable().getName(), is("CONFIG_A"));
-        assertThat(varB.getVariable().getName(), is("CONFIG_B"));
+        assertThat(result.getSDFile("CONFIG_A"), is(1));
+        assertThat(result.getSDFile("CONFIG_B"), is(1));
         
-        assertThat(varA.getIfdefs(), is(2));
-        assertThat(varB.getIfdefs(), is(1));
-        
-        assertThat(varA.getFiles(), is(1));
-        assertThat(varB.getFiles(), is(1));
-        
-        assertThat(result.size(), is(2));
+        assertThat(result.getSize(), is(2));
     }
     
     /**
@@ -103,26 +91,15 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        List<ScatteringDegree> result = runComponent(varModel, Arrays.asList(file1));
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1));
         
-        ScatteringDegree varA = result.get(0);
-        ScatteringDegree varB = result.get(1);
-
-        if (!varA.getVariable().getName().equals("CONFIG_A")) {
-            varA = result.get(1);
-            varB = result.get(0);
-        }
+        assertThat(result.getSDVariationPoint("CONFIG_A"), is(1));
+        assertThat(result.getSDVariationPoint("CONFIG_B"), is(1));
         
-        assertThat(varA.getVariable().getName(), is("CONFIG_A"));
-        assertThat(varB.getVariable().getName(), is("CONFIG_B"));
+        assertThat(result.getSDFile("CONFIG_A"), is(1));
+        assertThat(result.getSDFile("CONFIG_B"), is(1));
         
-        assertThat(varA.getIfdefs(), is(1));
-        assertThat(varB.getIfdefs(), is(1));
-        
-        assertThat(varA.getFiles(), is(1));
-        assertThat(varB.getFiles(), is(1));
-        
-        assertThat(result.size(), is(2));
+        assertThat(result.getSize(), is(2));
     }
     
     /**
@@ -141,26 +118,15 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        List<ScatteringDegree> result = runComponent(varModel, Arrays.asList(file1));
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1));
         
-        ScatteringDegree varA = result.get(0);
-        ScatteringDegree varB = result.get(1);
-
-        if (!varA.getVariable().getName().equals("CONFIG_A")) {
-            varA = result.get(1);
-            varB = result.get(0);
-        }
+        assertThat(result.getSDVariationPoint("CONFIG_A"), is(1));
+        assertThat(result.getSDVariationPoint("CONFIG_B"), is(0));
         
-        assertThat(varA.getVariable().getName(), is("CONFIG_A"));
-        assertThat(varB.getVariable().getName(), is("CONFIG_B"));
+        assertThat(result.getSDFile("CONFIG_A"), is(1));
+        assertThat(result.getSDFile("CONFIG_B"), is(0));
         
-        assertThat(varA.getIfdefs(), is(1));
-        assertThat(varB.getIfdefs(), is(0));
-        
-        assertThat(varA.getFiles(), is(1));
-        assertThat(varB.getFiles(), is(0));
-        
-        assertThat(result.size(), is(2));
+        assertThat(result.getSize(), is(2));
     }
     
     /**
@@ -180,26 +146,15 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        List<ScatteringDegree> result = runComponent(varModel, Arrays.asList(file1, file2));
-        
-        ScatteringDegree varA = result.get(0);
-        ScatteringDegree varB = result.get(1);
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1, file2));
 
-        if (!varA.getVariable().getName().equals("CONFIG_A")) {
-            varA = result.get(1);
-            varB = result.get(0);
-        }
+        assertThat(result.getSDVariationPoint("CONFIG_A"), is(2));
+        assertThat(result.getSDVariationPoint("CONFIG_B"), is(1));
         
-        assertThat(varA.getVariable().getName(), is("CONFIG_A"));
-        assertThat(varB.getVariable().getName(), is("CONFIG_B"));
+        assertThat(result.getSDFile("CONFIG_A"), is(2));
+        assertThat(result.getSDFile("CONFIG_B"), is(1));
         
-        assertThat(varA.getIfdefs(), is(2));
-        assertThat(varB.getIfdefs(), is(1));
-        
-        assertThat(varA.getFiles(), is(2));
-        assertThat(varB.getFiles(), is(1));
-        
-        assertThat(result.size(), is(2));
+        assertThat(result.getSize(), is(2));
     }
     
     /**
@@ -210,8 +165,8 @@ public class VariabilityCounterTest {
      * 
      * @return The result of the component.
      */
-    private List<ScatteringDegree> runComponent(VariabilityModel varModel, List<SourceFile> sourceFiles) {
-        List<ScatteringDegree> result = new ArrayList<>();
+    private ScatteringDegreeContainer runComponent(VariabilityModel varModel, List<SourceFile> sourceFiles) {
+        ScatteringDegreeContainer result = null;
         try {
             Properties prop = new Properties();
             Configuration config = new TestConfiguration(prop);
@@ -220,11 +175,7 @@ public class VariabilityCounterTest {
             AnalysisComponent<VariabilityModel> vmComponent = new TestAnalysisComponentProvider<>(varModel);
             VariabilityCounter counter = new VariabilityCounter(config, vmComponent, cmComponent);
             
-            ScatteringDegree variable;
-            while ((variable = counter.getNextResult()) != null) {
-                result.add(variable);
-            }
-            
+            result = counter.getNextResult();
         } catch (SetUpException e) {
             e.printStackTrace();
             Assert.fail("Settings up component failed due: " + e.getMessage());

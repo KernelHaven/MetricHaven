@@ -1,5 +1,9 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.lang.reflect.Constructor;
+import java.util.LinkedList;
+import java.util.List;
+
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.analysis.ObservableAnalysis;
@@ -7,6 +11,7 @@ import net.ssehub.kernel_haven.analysis.PipelineAnalysis;
 import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
@@ -79,74 +84,129 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
         // inputs for multiple metrics after the split
         
-        // TODO @SE: use this as input for your new metrics
-//        AnalysisComponent<ScatteringDegree> countedVariabilityVariables
-//                = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+//        AnalysisComponent<ScatteringDegreeContainer> countedVariabilityVariables
+//            = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         
-        @SuppressWarnings("unchecked")
-        @NonNull AnalysisComponent<MetricResult>[] metrics = new @NonNull AnalysisComponent[19];
+        @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
         // All Cyclomatic complexity metrics
-        config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
-        config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.MCCABE);
-        metrics[0] = new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent());
-        config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.VARIATION_POINTS);
-        metrics[1] = new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent());
-        config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.ALL);
-        metrics[2] = new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent());
+        addMetric(CyclomaticComplexityMetric.class, CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING,
+            filteredFunctionSplitter, metrics, CCType.values());
+//        config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
+//        config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.MCCABE);
+//        metrics.add(new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent()));
+//        config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.VARIATION_POINTS);
+//        metrics.add(new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent()));
+//        config.setValue(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING, CCType.ALL);
+//        metrics.add(new CyclomaticComplexityMetric(config, filteredFunctionSplitter.createOutputComponent()));
 
         // All Variables per Function metrics
         config.registerSetting(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING);
         config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.EXTERNAL);
-        metrics[3] = new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.INTERNAL);
-        metrics[4] = new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING, VarType.ALL);
-        metrics[5] = new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new VariablesPerFunctionMetric(config, filteredFunctionSplitter.createOutputComponent()));
         
         // All dLoC per Function metrics
         config.registerSetting(DLoC.LOC_TYPE_SETTING);
         config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.DLOC);
-        metrics[6] = new DLoC(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new DLoC(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.LOF);
-        metrics[7] = new DLoC(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new DLoC(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(DLoC.LOC_TYPE_SETTING, LoFType.PLOF);
-        metrics[8] = new DLoC(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new DLoC(config, filteredFunctionSplitter.createOutputComponent()));
         
         // All Nesting Depth metrics
         config.registerSetting(NestingDepthMetric.ND_TYPE_SETTING);
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.CLASSIC_ND_MAX);
-        metrics[9] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.CLASSIC_ND_AVG);
-        metrics[10] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.VP_ND_MAX);
-        metrics[11] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.VP_ND_AVG);
-        metrics[12] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.COMBINED_ND_MAX);
-        metrics[13] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent()));
         config.setValue(NestingDepthMetric.ND_TYPE_SETTING, NDType.COMBINED_ND_AVG);
-        metrics[14] = new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent());
+        metrics.add(new NestingDepthMetric(config, filteredFunctionSplitter.createOutputComponent()));
         
         // Fan-in / Fan-out
         config.registerSetting(FanInOutMetric.FAN_TYPE_SETTING);
         config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_GLOBALLY);
-        metrics[15] = new FanInOutMetric(config, functionSplitter.createOutputComponent());
+        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
         config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_LOCALLY);
-        metrics[16] = new FanInOutMetric(config, functionSplitter.createOutputComponent());
+        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
         config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_GLOBALLY);
-        metrics[17] = new FanInOutMetric(config, functionSplitter.createOutputComponent());
+        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
         config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_LOCALLY);
-        metrics[18] = new FanInOutMetric(config, functionSplitter.createOutputComponent());
+        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
         
         // join the parallel metrics together
-        AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics", metrics);
+        @SuppressWarnings({ "null", "unchecked" })
+        AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics",
+            metrics.toArray(new AnalysisComponent[metrics.size()]));
         
         if (addObservable) {
             join = new ObservableAnalysis<>(config, join);
         }
         
         return join;
+    }
+
+
+    /**
+     * Adds multiple instances of the specified metric to the metric list, which is to be executed in parallel.
+     * @param metric The metric to executed (in different variations).
+     * @param setting The setting to be varied.
+     * @param filteredFunctionSplitter Needed to clone the code model in order to executed multiple metrics in parallel.
+     * @param metrics The list to where the metrics shall be added to (modified as side effect).
+     * @param settings The different setting values to be used (for each of this settings,
+     *     a metric instance will be created).
+     * @param <MT> The <b>M</b>etrics settings <b>T</b>ype
+     * @throws SetUpException If the metric could not be instantiated with the specified settings.
+     */
+    @SuppressWarnings({"unchecked"})
+    private <MT> void addMetric(Class<? extends AbstractFunctionVisitorBasedMetric<?>> metric,
+        @NonNull Setting<MT> setting,
+        SplitComponent<CodeFunction> filteredFunctionSplitter,
+        List<@NonNull AnalysisComponent<MetricResult>> metrics,
+        MT... settings) throws SetUpException {
+        
+        // Access constructor
+        Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
+        try {
+            metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
+        } catch (ReflectiveOperationException e) {
+            throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
+        } catch (SecurityException e) {
+            throw new SetUpException("Was not allowed to create instance of " + metric.getName() + "-metric.", e);
+        }
+        
+        // Abort if constructor could not be accessed
+        if (null == metricConstructor) {
+            throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.");
+        }
+        
+        // Register setting and create instances
+        config.registerSetting(setting);
+        for (int i = 0; i < settings.length; i++) {
+            config.setValue(setting, settings[i]);
+            try {
+                AbstractFunctionVisitorBasedMetric<?> metricInstance
+                    = metricConstructor.newInstance(config, filteredFunctionSplitter.createOutputComponent());
+                if (null != metricInstance) {
+                    metrics.add(metricInstance);
+                } else {
+                    LOGGER.logWarning("Could not create instance of " + metric.getName() + " with setting "
+                        + settings[i]);
+                }
+            } catch (ReflectiveOperationException e) {
+                throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
+            }
+        }
     }
     
     /**

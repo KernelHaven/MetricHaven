@@ -1,7 +1,5 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
-import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,7 +29,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  * 
  * @author Adam
  */
-public class VariabilityCounter extends AnalysisComponent<ScatteringDegree> implements ISyntaxElementVisitor,
+public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContainer> implements ISyntaxElementVisitor,
         IVoidFormulaVisitor {
 
     private @NonNull AnalysisComponent<VariabilityModel> vmProvider;
@@ -88,9 +86,7 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegree> impl
             variablesSeenInCurrentFile.clear();
         }
         
-        for (ScatteringDegree variable : countedVariables.values()) {
-            addResult(notNull(variable));
-        }
+        addResult(new ScatteringDegreeContainer(countedVariables.values()));
     }
 
     @Override

@@ -67,7 +67,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        super(config, codeFunctionFinder, varModelComponent);
+        super(config, codeFunctionFinder, varModelComponent, null);
         config.registerSetting(VARIABLE_TYPE_SETTING);
         measuredCode = config.getValue(VARIABLE_TYPE_SETTING);
     }
