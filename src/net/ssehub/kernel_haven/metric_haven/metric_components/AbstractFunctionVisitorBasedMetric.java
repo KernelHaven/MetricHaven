@@ -27,7 +27,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     extends AnalysisComponent<MetricResult> {
 
     public static final @NonNull Setting<@NonNull SDType> SCATTERING_DEGREE_USAGE_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_scattering_egree", SDType.class, true, 
+        = new EnumSetting<>("metric.function_measures.consider_scattering_degree", SDType.class, true, 
             SDType.NO_SCATTERING, "Defines whether and how to incorporate scattering degree values"
                 + "into measurement results.\n:"
                 + " - " + SDType.NO_SCATTERING.name() + ": Do not consider scattering degree (default).\n"
