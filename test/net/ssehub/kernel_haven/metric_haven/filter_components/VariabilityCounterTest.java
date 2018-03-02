@@ -158,6 +158,30 @@ public class VariabilityCounterTest {
     }
     
     /**
+     * Tests counting _MODULE variables.
+     */
+    @Test
+    public void testModuleVariables() {
+        SourceFile file1 = new SourceFile(new File("some/file.c"));
+        
+        file1.addElement(new CppBlock(True.INSTANCE, new Disjunction(new Variable("CONFIG_A"),
+                new Variable("CONFIG_A_MODULE")), Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A_MODULE"), Type.IF));
+        
+        Set<VariabilityVariable> variables = new HashSet<>();
+        variables.add(new VariabilityVariable("CONFIG_A", "tristate"));
+        VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
+        
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1));
+        
+        assertThat(result.getSDVariationPoint("CONFIG_A"), is(2));
+        
+        assertThat(result.getSDFile("CONFIG_A"), is(1));
+        
+        assertThat(result.getSize(), is(1));
+    }
+    
+    /**
      * Runs the {@link VariabilityCounter} on the given input and returns its output as a list.
      * 
      * @param varModel The variability model to run on.

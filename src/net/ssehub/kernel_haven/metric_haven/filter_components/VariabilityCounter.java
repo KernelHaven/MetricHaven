@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -128,6 +130,13 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
     public void visitVariable(@NonNull Variable variable) {
         String varName = variable.getName();
         ScatteringDegree countedVar = countedVariables.get(varName);
+        
+        // heuristically handle tristate (_MODULE) variables
+        if (countedVar == null && varName.endsWith("_MODULE")) {
+            varName = notNull(varName.substring(0, varName.length() - "_MODULE".length()));
+            countedVar = countedVariables.get(varName);
+        }
+        
         if (countedVar != null) {
             
             if (!variablesSeenInCurrentIfdef.contains(varName)) {
