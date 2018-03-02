@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -16,7 +15,6 @@ import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
-import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.io.csv.CsvWriter;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
@@ -26,16 +24,6 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  * @author Adam
  */
 public class MetricsAggregatorTest {
-    
-    /**
-     * Inits the logger.
-     */
-    @BeforeClass
-    public static void initLogger() {
-        if (Logger.get() == null) {
-            Logger.init();
-        }
-    }
     
     /**
      * Creates a {@link MetricsAggregator} for the given input metrics.

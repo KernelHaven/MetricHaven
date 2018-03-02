@@ -11,7 +11,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -22,7 +21,6 @@ import net.ssehub.kernel_haven.code_model.ast.CppBlock.Type;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
-import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.False;
@@ -39,14 +37,6 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  */
 public class VariabilityCounterTest {
     
-    /**
-     * Inits the logger.
-     */
-    @BeforeClass
-    public static void initLogger() {
-        Logger.init();
-    }
-
     /**
      * Tests counting in ifdefs in a single file with a variable that is not present in the variability model.
      */

@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Properties;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -18,7 +17,6 @@ import net.ssehub.kernel_haven.metric_haven.TestCaseGenerator;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
-import net.ssehub.kernel_haven.util.Logger;
 
 /**
  * Tests the {@link CyclomaticComplexityMetric}.
@@ -26,14 +24,6 @@ import net.ssehub.kernel_haven.util.Logger;
  *
  */
 public class CyclomaticComplexityMetricTest {
-    
-    /**
-     * Initializes the logger.
-     */
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        Logger.init();
-    }
     
     /**
      * Tests computation of classical McCabe.
