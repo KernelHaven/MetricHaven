@@ -86,8 +86,8 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
         // inputs for multiple metrics after the split
         
-        AnalysisComponent<ScatteringDegreeContainer> countedVariabilityVariables
-            = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+//        AnalysisComponent<ScatteringDegreeContainer> countedVariabilityVariables
+//            = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
