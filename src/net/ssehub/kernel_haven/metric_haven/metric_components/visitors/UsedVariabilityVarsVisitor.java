@@ -24,6 +24,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  *
  */
 public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
+    
+    private static final Logger LOGGER = Logger.get();
 
     private @NonNull Set<@NonNull String> externalVars = new HashSet<>();
     private @NonNull Set<@NonNull String> internalVars = new HashSet<>();
@@ -143,7 +145,7 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
             break;
         default:
             result = collectedVars.size();
-            Logger.get().logError("Unhandled scattering degree option passed to " + getClass().getSimpleName() + ": "
+            LOGGER.logError("Unhandled scattering degree option passed to " + getClass().getSimpleName() + ": "
                 + sdConsideration.name());
             break;
         }
