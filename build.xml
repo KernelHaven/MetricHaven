@@ -2,7 +2,7 @@
 
 <!-- author: moritz, kevin, Sascha El-Sharkawy -->
 <project name="MetricHaven" default="jenkins" basedir=".">
-	<description>Common infrastructure for variability-aware SPL metrics.</description>
+	<description>Analysis components for calculating metrics on software product lines</description>
 
 	<!-- Load Marcros on Jenkins -->
 	<include file="../../KernelHaven_Infrastructure/workspace/KernelHavenMacros.xml" as="KH_Common" optional="true" />
