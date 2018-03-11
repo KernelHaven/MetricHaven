@@ -1,7 +1,16 @@
 # MetricHaven
-Infrastructure for running (variability-aware) metrics on Software Product Lines.
 
-## Provided Metrics
+![Build Status](http://jenkins.sse.uni-hildesheim.de/buildStatus/icon?job=KernelHaven_MetricHaven)
+
+An analysis plugin for [KernelHaven](https://github.com/KernelHaven/KernelHaven).
+
+Contains analysis components for running (variability-aware) metrics on Software Product Lines.
+
+## Usage
+
+Place [`MetricHaven.jar`](https://jenkins.sse.uni-hildesheim.de/view/KernelHaven/job/KernelHaven_MetricHaven/lastSuccessfulBuild/artifact/build/jar/MetricHaven.jar) in the plugins folder of KernelHaven.
+
+### Provided Metrics
 For the sake of simplicity we omit the full qualified class names in the following table. All class names start with the
 prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
 
@@ -37,7 +46,11 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
   </tr>
 </table>
 
-### Dependencies
+## Dependencies
 
-This analysis requires:
+In addition to KernelHaven, this plugin has the following dependencies:
 * A code extractor, which extracts an AST (`SyntaxElement`s).
+
+## License
+
+This plugin is licensed under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html).
