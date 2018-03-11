@@ -15,7 +15,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * Visitor to measure for a given {@link Function} the cyclomatic complexity. This visitor supports the following
  * metrics:
  * <ul>
- *     <li><a href="http://ieeexplore.ieee.org/document/1702388">McCabe</a>'s complexity:
+ *     <li><a href="https://ieeexplore.ieee.org/document/1702388">McCabe</a>'s complexity:
  *         {@link #getClassicCyclomaticComplexity()}</li>
  *     <li><a href="https://pdfs.semanticscholar.org/d5ce/44ac8717a0f51bb869529398c9a20874ad0b.pdf">Lopez-Herrejon</a>'s
  *         complexity: {@link #getVariabilityCyclomaticComplexity()}</li>
@@ -78,7 +78,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     
     /**
      * Returns the classical cyclomatic complexity as defined by
-     * <a href="http://ieeexplore.ieee.org/document/1702388">McCabe</a>.
+     * <a href="https://ieeexplore.ieee.org/document/1702388">McCabe</a>.
      * @return McCabe's cyclomatic complexity (&ge; 0).
      */
     public int getClassicCyclomaticComplexity() {

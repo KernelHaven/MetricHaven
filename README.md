@@ -1,6 +1,6 @@
 # MetricHaven
 
-![Build Status](http://jenkins.sse.uni-hildesheim.de/buildStatus/icon?job=KernelHaven_MetricHaven)
+![Build Status](https://jenkins.sse.uni-hildesheim.de/buildStatus/icon?job=KernelHaven_MetricHaven)
 
 An analysis plugin for [KernelHaven](https://github.com/KernelHaven/KernelHaven).
 
@@ -53,4 +53,4 @@ In addition to KernelHaven, this plugin has the following dependencies:
 
 ## License
 
-This plugin is licensed under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html).
+This plugin is licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0.html).

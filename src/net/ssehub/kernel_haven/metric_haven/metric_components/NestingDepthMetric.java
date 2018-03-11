@@ -17,7 +17,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  *     <ul>Classical Nesting Depth as specified by <a href="https://dl.acm.org/citation.cfm?id=42168">[Conte et al.
  *         1986]</a></ul>
  *     <ul>Nesting Depth of Variation Points (e.g., used/specified by
- *         <a href="http://ieeexplore.ieee.org/abstract/document/6062078/">[Liebig et al. 2010]</a>, 
+ *         <a href="https://ieeexplore.ieee.org/abstract/document/6062078/">[Liebig et al. 2010]</a>, 
  *         <a href="https://link.springer.com/article/10.1007/s10664-015-9360-1">[Hunsen et al. 2016]</a>)</ul>
  * </ul>
  * However, we did a small variation as we count the nested statements instead of the branching elements itself. This is
