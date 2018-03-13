@@ -9,6 +9,7 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.UsedVariabilityVarsVisitor;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -97,7 +98,14 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
     
     @Override
     public @NonNull String getResultName() {
-        return "Variables per Function (" + measuredVars.toString() + ", " + getSDType().name() + ")";
+        StringBuffer resultName = new StringBuffer(measuredVars.toString());
+        resultName.append(" Vars per Func.");
+        if (getSDType() != SDType.NO_SCATTERING) {
+            resultName.append(" x ");            
+            resultName.append(getSDType().name());            
+        }
+        
+        return NullHelpers.notNull(resultName.toString());
     }
 
     @Override

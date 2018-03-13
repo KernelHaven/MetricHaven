@@ -16,6 +16,8 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
+import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.filter_components.VariabilityCounter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
@@ -84,24 +86,25 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
         // inputs for multiple metrics after the split
         
-//        AnalysisComponent<ScatteringDegreeContainer> countedVariabilityVariables
-//            = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+        config.registerSetting(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING);
+        AnalysisComponent<ScatteringDegreeContainer> countedVariabilityVariables
+            = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
         // All Cyclomatic complexity metrics
         addMetric(CyclomaticComplexityMetric.class, CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING,
-            filteredFunctionSplitter, metrics, CCType.values());
+            filteredFunctionSplitter, null, metrics, CCType.values());
 
         // All Variables per Function metrics
         addMetric(VariablesPerFunctionMetric.class, VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING,
-            filteredFunctionSplitter, metrics, VarType.values());
+            filteredFunctionSplitter, countedVariabilityVariables, metrics, VarType.values());
         
         // All dLoC per Function metrics
-        addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, metrics, LoFType.values());
+        addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());
         
         // All Nesting Depth metrics
-        addMetric(NestingDepthMetric.class, NestingDepthMetric.ND_TYPE_SETTING, filteredFunctionSplitter, metrics,
+        addMetric(NestingDepthMetric.class, NestingDepthMetric.ND_TYPE_SETTING, filteredFunctionSplitter, null, metrics,
             NDType.values());
         
         // Fan-in / Fan-out
@@ -126,13 +129,13 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         
         return join;
     }
-
-
+    
     /**
      * Adds multiple instances of the specified metric to the metric list, which is to be executed in parallel.
      * @param metric The metric to executed (in different variations).
      * @param setting The setting to be varied.
      * @param filteredFunctionSplitter Needed to clone the code model in order to executed multiple metrics in parallel.
+     * @param countedVariabilityVariables Optional if scattering degree should be considered in metric.
      * @param metrics The list to where the metrics shall be added to (modified as side effect).
      * @param settings The different setting values to be used (for each of this settings,
      *     a metric instance will be created).
@@ -140,16 +143,24 @@ public class AllFunctionMetrics extends PipelineAnalysis {
      * @throws SetUpException If the metric could not be instantiated with the specified settings.
      */
     @SuppressWarnings({"unchecked"})
+    // CHECKSTYLE:OFF
     private <MT> void addMetric(Class<? extends AbstractFunctionVisitorBasedMetric<?>> metric,
         @NonNull Setting<MT> setting,
         SplitComponent<CodeFunction> filteredFunctionSplitter,
+        AnalysisComponent<ScatteringDegreeContainer> countedVariabilityVariables,
         List<@NonNull AnalysisComponent<MetricResult>> metrics,
         MT... settings) throws SetUpException {
+     // CHECKSTYLE:ON
         
         // Access constructor
         Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
         try {
-            metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
+            if (null == countedVariabilityVariables) {
+                metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
+            } else {
+                metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
+                    AnalysisComponent.class);
+            }
         } catch (ReflectiveOperationException e) {
             throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
         } catch (SecurityException e) {
@@ -166,13 +177,33 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         for (int i = 0; i < settings.length; i++) {
             config.setValue(setting, settings[i]);
             try {
-                AbstractFunctionVisitorBasedMetric<?> metricInstance
-                    = metricConstructor.newInstance(config, filteredFunctionSplitter.createOutputComponent());
-                if (null != metricInstance) {
-                    metrics.add(metricInstance);
+                // Instantiate metric
+                AbstractFunctionVisitorBasedMetric<?> metricInstance = null;
+                if (null == countedVariabilityVariables) {
+                    metricInstance = metricConstructor.newInstance(config,
+                        filteredFunctionSplitter.createOutputComponent());
+                    
+                    // Add instance to list if instantiation was successful
+                    if (null != metricInstance) {
+                        metrics.add(metricInstance);
+                    } else {
+                        LOGGER.logWarning("Could not create instance of " + metric.getName() + " with setting "
+                            + settings[i]);
+                    }
                 } else {
-                    LOGGER.logWarning("Could not create instance of " + metric.getName() + " with setting "
-                        + settings[i]);
+                    for (SDType sdType : SDType.values()) {
+                        config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, sdType);
+                        metricInstance = metricConstructor.newInstance(config,
+                            filteredFunctionSplitter.createOutputComponent(), countedVariabilityVariables);
+                        
+                        // Add instance to list if instantiation was successful
+                        if (null != metricInstance) {
+                            metrics.add(metricInstance);
+                        } else {
+                            LOGGER.logWarning("Could not create instance of " + metric.getName() + " with setting "
+                                + settings[i] + " and " + sdType);
+                        }
+                    }
                 }
             } catch (ReflectiveOperationException e) {
                 throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
