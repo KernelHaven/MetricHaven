@@ -87,8 +87,10 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // inputs for multiple metrics after the split
         
         config.registerSetting(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING);
-        AnalysisComponent<ScatteringDegreeContainer> countedVariabilityVariables
+        AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+        SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
+        
         
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
@@ -98,7 +100,8 @@ public class AllFunctionMetrics extends PipelineAnalysis {
 
         // All Variables per Function metrics
         addMetric(VariablesPerFunctionMetric.class, VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING,
-            filteredFunctionSplitter, countedVariabilityVariables, metrics, VarType.values());
+            filteredFunctionSplitter, sdSplitter, metrics, VarType.values());
+        config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
         
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());
@@ -135,7 +138,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
      * @param metric The metric to executed (in different variations).
      * @param setting The setting to be varied.
      * @param filteredFunctionSplitter Needed to clone the code model in order to executed multiple metrics in parallel.
-     * @param countedVariabilityVariables Optional if scattering degree should be considered in metric.
+     * @param sdSplitter Optional if scattering degree should be considered in metric.
      * @param metrics The list to where the metrics shall be added to (modified as side effect).
      * @param settings The different setting values to be used (for each of this settings,
      *     a metric instance will be created).
@@ -147,7 +150,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
     private <MT> void addMetric(Class<? extends AbstractFunctionVisitorBasedMetric<?>> metric,
         @NonNull Setting<MT> setting,
         SplitComponent<CodeFunction> filteredFunctionSplitter,
-        AnalysisComponent<ScatteringDegreeContainer> countedVariabilityVariables,
+        SplitComponent<ScatteringDegreeContainer> sdSplitter,
         List<@NonNull AnalysisComponent<MetricResult>> metrics,
         MT... settings) throws SetUpException {
      // CHECKSTYLE:ON
@@ -155,7 +158,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // Access constructor
         Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
         try {
-            if (null == countedVariabilityVariables) {
+            if (null == sdSplitter) {
                 metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
             } else {
                 metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
@@ -179,7 +182,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
             try {
                 // Instantiate metric
                 AbstractFunctionVisitorBasedMetric<?> metricInstance = null;
-                if (null == countedVariabilityVariables) {
+                if (null == sdSplitter) {
                     metricInstance = metricConstructor.newInstance(config,
                         filteredFunctionSplitter.createOutputComponent());
                     
@@ -196,7 +199,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
                         metricInstance = metricConstructor.newInstance(config,
                             filteredFunctionSplitter.createOutputComponent(),
                             getVmComponent(),
-                            countedVariabilityVariables);
+                            sdSplitter.createOutputComponent());
                         
                         // Add instance to list if instantiation was successful
                         if (null != metricInstance) {
