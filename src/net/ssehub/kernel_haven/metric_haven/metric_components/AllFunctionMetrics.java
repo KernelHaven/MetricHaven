@@ -159,7 +159,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
                 metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
             } else {
                 metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
-                    AnalysisComponent.class);
+                    AnalysisComponent.class, AnalysisComponent.class);
             }
         } catch (ReflectiveOperationException e) {
             throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
@@ -194,7 +194,9 @@ public class AllFunctionMetrics extends PipelineAnalysis {
                     for (SDType sdType : SDType.values()) {
                         config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, sdType);
                         metricInstance = metricConstructor.newInstance(config,
-                            filteredFunctionSplitter.createOutputComponent(), countedVariabilityVariables);
+                            filteredFunctionSplitter.createOutputComponent(),
+                            getVmComponent(),
+                            countedVariabilityVariables);
                         
                         // Add instance to list if instantiation was successful
                         if (null != metricInstance) {
