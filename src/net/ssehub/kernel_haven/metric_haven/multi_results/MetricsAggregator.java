@@ -9,8 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -23,6 +26,10 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
  */
 public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     
+    public static final @NonNull Setting<@NonNull Boolean> ROUND_RESULTS = new Setting<>("metrics.round_results",
+        Type.BOOLEAN, true, "false", "If turned on, results will be limited to 2 digits after the comma (0.005 will be "
+        + "rounded up). This is maybe neccessary to limit the disk usage.");
+    
     private @NonNull AnalysisComponent<MetricResult> @NonNull [] metrics;
     
     private @NonNull Map<String, ValueRow> valueTable = new HashMap<>();
@@ -30,6 +37,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     private @NonNull Map<String, MeasuredItem> ids = new HashMap<>();
     private boolean hasIncludedFiles = false;
     private @NonNull String resultName;
+    private boolean round = false;
 
     /**
      * Creates a {@link MetricsAggregator} for the given metric components, with a fixed name for the results.
@@ -56,6 +64,14 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             @NonNull AnalysisComponent<MetricResult> /*@NonNull*/ ... metrics) {
         // TODO: commented out @NonNull annotation because checkstyle can't parse it
         super(config);
+        
+        try {
+            config.registerSetting(ROUND_RESULTS);
+            round = config.getValue(ROUND_RESULTS);
+        } catch (SetUpException exc) {
+            LOGGER.logException("Could not load configuration setting " + ROUND_RESULTS, exc);
+        }
+        
         this.metrics = notNull(metrics);
         this.resultName =  resultName;
         
@@ -96,6 +112,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         
         // Add the value
         ValueRow column = getRow(id);
+        if (round) {
+            value = Math.floor(value * 100) / 100;
+        }
         column.addValue(metricName, value);
     }
     

@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
@@ -33,7 +34,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  * @author Adam
  */
 public class AllFunctionMetrics extends PipelineAnalysis {
-
+    
     /**
      * Whether this pipeline should add an {@link ObservableAnalysis} at the end or not.
      */
@@ -82,7 +83,6 @@ public class AllFunctionMetrics extends PipelineAnalysis {
             filteredFunctionSplitter = new SplitComponent<>(config, filteredFunctionFilter);
         }
 
-        
         // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
         // inputs for multiple metrics after the split
         
