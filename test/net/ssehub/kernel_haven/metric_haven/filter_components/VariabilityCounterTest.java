@@ -1,5 +1,8 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
+import static net.ssehub.kernel_haven.util.logic.FormulaBuilder.and;
+import static net.ssehub.kernel_haven.util.logic.FormulaBuilder.not;
+import static net.ssehub.kernel_haven.util.logic.FormulaBuilder.or;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -21,10 +24,7 @@ import net.ssehub.kernel_haven.code_model.ast.CppBlock.Type;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
-import net.ssehub.kernel_haven.util.logic.Conjunction;
-import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.False;
-import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.True;
 import net.ssehub.kernel_haven.util.logic.Variable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -44,10 +44,8 @@ public class VariabilityCounterTest {
     public void testNonVariabilityVariable() {
         SourceFile file1 = new SourceFile(new File("some/file.c"));
         
-        file1.addElement(new CppBlock(True.INSTANCE,
-                new Conjunction(new Variable("CONFIG_A"), new Variable("CONFIG_B")), Type.IF));
-        file1.addElement(new CppBlock(True.INSTANCE,
-                new Conjunction(new Variable("NOT_A_CONFIG"), new Variable("CONFIG_A")), Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, and("CONFIG_A", "CONFIG_B"), Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, and("NOT_A_CONFIG", "CONFIG_A"), Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "bool"));
@@ -72,9 +70,7 @@ public class VariabilityCounterTest {
     public void testComplexCondition() {
         SourceFile file1 = new SourceFile(new File("some/file.c"));
         
-        file1.addElement(new CppBlock(True.INSTANCE,
-                new Conjunction(new Disjunction(True.INSTANCE, new Negation(new Variable("CONFIG_A"))),
-                        new Variable("CONFIG_B")), Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, and(or(True.INSTANCE, not("CONFIG_A")), "CONFIG_B"), Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "bool"));
@@ -99,9 +95,7 @@ public class VariabilityCounterTest {
     public void testMultipleTimesInSameCondition() {
         SourceFile file1 = new SourceFile(new File("some/file.c"));
         
-        file1.addElement(new CppBlock(True.INSTANCE,
-                new Conjunction(new Disjunction(False.INSTANCE, new Negation(new Variable("CONFIG_A"))),
-                        new Variable("CONFIG_A")), Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, and(or(False.INSTANCE, not("CONFIG_A")), "CONFIG_A"), Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "bool"));
@@ -154,8 +148,7 @@ public class VariabilityCounterTest {
     public void testModuleVariables() {
         SourceFile file1 = new SourceFile(new File("some/file.c"));
         
-        file1.addElement(new CppBlock(True.INSTANCE, new Disjunction(new Variable("CONFIG_A"),
-                new Variable("CONFIG_A_MODULE")), Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, or("CONFIG_A", "CONFIG_A_MODULE"), Type.IF));
         file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A_MODULE"), Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
