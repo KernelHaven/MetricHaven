@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.ssehub.kernel_haven.PipelineConfigurator;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.analysis.ObservableAnalysis;
@@ -26,6 +27,8 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFuncti
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.variability_model.VariabilityModel;
+import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
  * Runs all function metrics in parallel.
@@ -89,6 +92,8 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
+        
+        //VariabilityModel varModel = getVmComponent().getNextResult();
         
         
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();

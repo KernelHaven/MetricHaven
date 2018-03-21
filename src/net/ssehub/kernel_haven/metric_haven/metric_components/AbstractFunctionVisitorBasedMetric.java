@@ -12,6 +12,8 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -40,6 +42,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     
     private @NonNull SDType sdType;
     private @Nullable ScatteringDegreeContainer sdList;
+    private @NonNull IVariableWeight weighter;
     
     /**
      * Sole constructor for this class.
@@ -101,6 +104,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             sdList = sdComponent.getNextResult();
         }
         
+        weighter = new ScatteringWeight(sdList, sdType);
+        
         CodeFunction function;
         V visitor = createVisitor(varModel);
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
@@ -121,18 +126,18 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     }
     
     /**
-     * Returns information about all computed scattering degree values for all variables of the variability model.
-     * @return The scattering degree values if available or <tt>null</tt>.
-     */
-    protected @Nullable ScatteringDegreeContainer getScatteringDegrees() {
-        return sdList;
-    }
-    
-    /**
      * Returns the {@link SCATTERING_DEGREE_USAGE_SETTING} setting.
      * @return The configured {@link SDType}.
      */
     protected @NonNull SDType getSDType() {
         return sdType;
+    }
+    
+    /**
+     * Returns a weighting function to be used for all detected variables.
+     * @return The weighting function to be used for variables of the variability model.
+     */
+    protected @NonNull IVariableWeight getWeighter() {
+        return weighter;
     }
 }

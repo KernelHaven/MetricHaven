@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.util.Set;
+
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
@@ -115,20 +117,26 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
 
     @Override
     protected double computeResult(@NonNull UsedVariabilityVarsVisitor visitor) {
-        int result;
+        Set<String> variables;
         switch (measuredVars) {
         case EXTERNAL:
-            result = visitor.externalVarsSize(getSDType(), getScatteringDegrees());
+            variables = visitor.externalVars();
             break;
         case INTERNAL:
-            result = visitor.internalVarsSize(getSDType(), getScatteringDegrees());
+            variables = visitor.internalVars();
             break;
         case ALL:
-            result = visitor.allVarsSize(getSDType(), getScatteringDegrees());
+            variables = visitor.allVars();
             break;
         default:
+            variables = visitor.allVars();
             throw new IllegalArgumentException("Unsupported " + VarType.class.getSimpleName()
                 + " property = " + measuredVars.name());
+        }
+        
+        int result = 0;
+        for (String variable : variables) {
+            result += getWeighter().getWeight(variable);
         }
         
         return result;
