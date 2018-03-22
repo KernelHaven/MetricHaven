@@ -1,6 +1,8 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -13,6 +15,8 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -36,13 +40,23 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 + " - " + SDType.SD_VP.name() + ": Use variation point scattering.\n"
                 + " - " + SDType.SD_FILE.name() + ": Use filet scattering.");
     
+    public static final @NonNull Setting<@NonNull CTCRType> CTCR_USAGE_SETTING
+        = new EnumSetting<>("metric.function_measures.consider_ctcr", CTCRType.class, true, 
+            CTCRType.NO_CTCR, "Defines whether and how to incorporate cross-tree constraint ratios from the variability"
+                    + " model into measurement results.\n:"
+                    + " - " + CTCRType.NO_CTCR.name() + ": Do not consider any cross-tree constraint ratios (default)."
+                    + "\n"
+//                    + " - " + SDType.SD_VP.name() + ": Use variation point scattering.\n"
+//                    + " - " + SDType.SD_FILE.name() + ": Use filet scattering."
+                    );
+    
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     
     private @NonNull SDType sdType;
-    private @Nullable ScatteringDegreeContainer sdList;
-    private @NonNull IVariableWeight weighter;
+    private @NonNull CTCRType ctcrType;
+    private IVariableWeight weighter;
     
     /**
      * Sole constructor for this class.
@@ -71,8 +85,14 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         config.registerSetting(SCATTERING_DEGREE_USAGE_SETTING);
         sdType = config.getValue(SCATTERING_DEGREE_USAGE_SETTING);
         if (sdType != SDType.NO_SCATTERING && null == sdComponent) {
-            throw new SetUpException("Use of scatterind degree was configured (" + sdType.name() + "), but no "
+            throw new SetUpException("Use of scattering degree was configured (" + sdType.name() + "), but no "
                 + "SD analysis component was passed to " + this.getClass().getName());
+        }
+        
+        ctcrType = config.getValue(CTCR_USAGE_SETTING);
+        if (ctcrType != CTCRType.NO_CTCR && null == varModelComponent) {
+            throw new SetUpException("Use of cross-tree constraint ratio was configured (" + ctcrType.name() + "), but "
+                + "no variability model was passed to " + this.getClass().getName());
         }
     }
     
@@ -100,11 +120,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             varModel = varModelComponent.getNextResult();
         }
         
-        if (null != sdComponent) {
-            sdList = sdComponent.getNextResult();
-        }
-        
-        weighter = new ScatteringWeight(sdList, sdType);
+        createWeight(varModel);
         
         CodeFunction function;
         V visitor = createVisitor(varModel);
@@ -124,6 +140,36 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
         }
     }
+
+    /**
+     * Part of {@link #execute()}: Create the weight instance based on the given settings.
+     * @param varModel The variability model (may be <tt>null</tt>).
+     */
+    private void createWeight(@Nullable VariabilityModel varModel) {
+        // Scattering degree
+        List<IVariableWeight> weights = new ArrayList<>();
+        if (sdType != SDType.NO_SCATTERING && null != sdComponent) {
+            ScatteringDegreeContainer sdList = sdComponent.getNextResult();
+            weights.add(new ScatteringWeight(sdList, sdType));
+            
+        }
+        
+        // Cross-tree constraint ratio
+        if (ctcrType != CTCRType.NO_CTCR && null != varModel) {
+            // TODO SE: Missing
+            System.out.println(varModel);            
+        }
+        
+        
+        // Create final weighting function with as less objects as necessary
+        if (weights.isEmpty()) {
+            weighter = NoWeight.INSTANCE;
+        } else if (weights.size() == 1) {
+            weighter = weights.get(0);
+        } else {
+            weighter = new MultiWeight(weights);
+        }
+    }
     
     /**
      * Returns the {@link SCATTERING_DEGREE_USAGE_SETTING} setting.
@@ -135,9 +181,10 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     
     /**
      * Returns a weighting function to be used for all detected variables.
-     * @return The weighting function to be used for variables of the variability model.
+     * @return The weighting function to be used for variables of the variability model (won't be <tt>null</tt>
+     *     during the execution).
      */
-    protected @NonNull IVariableWeight getWeighter() {
+    protected IVariableWeight getWeighter() {
         return weighter;
     }
 }
