@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -40,6 +41,7 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
      */
     private static Map<String, List<CodeFunction>> functionMap;
     private static int instanceCounter = 0;
+    private static boolean mapCreationComplete = false;
     
     private @Nullable Function currentFunction;
 
@@ -74,6 +76,7 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
                         }
                         sameFunctions.add(function);
                     }
+                    mapCreationComplete = true;
                 }
             }
         }
@@ -107,6 +110,17 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitFunction(@NonNull Function function) {
+        while (!mapCreationComplete) {
+            Logger.get().logWarning2("Map creation not complete wait for 400ms...");
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Logger.get().logException("InterruptedException in " + getClass().getName(), e);
+            }
+        }
+        
+        
         Function previousFunction = this.currentFunction;
         this.currentFunction = function;
         
@@ -145,20 +159,21 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
      */
     public abstract int getResult(@NonNull String functionName);
     
-//    @Override
-//    protected void finalize() throws Throwable {
-//        try {
-//            instanceCounter--;
-//            
-//            if (instanceCounter <= 0 && null != allFunctionNames) {
-//                // Clear memory after last visitor was closed (if required, the maps will be re-build)
-//                synchronized (AbstractFanInOutVisitor.class) {
-//                    allFunctionNames = null;
-//                    functionMap = null;
-//                }
-//            }
-//        } finally {
-//            super.finalize();
-//        }
-//    }
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            instanceCounter--;
+            
+            if (instanceCounter <= 0 && null != allFunctionNames) {
+                // Clear memory after last visitor was closed (if required, the maps will be re-build)
+                synchronized (AbstractFanInOutVisitor.class) {
+                    allFunctionNames = null;
+                    functionMap = null;
+                    mapCreationComplete = false;
+                }
+            }
+        } finally {
+            super.finalize();
+        }
+    }
 }
