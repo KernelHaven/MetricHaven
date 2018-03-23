@@ -49,7 +49,7 @@ public class CtcrWeight implements IVariableWeight {
                 if (null != var) {
                     Set<VariabilityVariable> otherVars = var.getUsedInConstraintsOfOtherVariables();
                     if (null != otherVars) {
-                        weight = otherVars.size();
+                        weight = otherVars.size() + 1;
                     }
                 } else {
                     LOGGER.logWarning2("Could not compute incomming constraint relations in ", getClass().getName(),
@@ -60,7 +60,7 @@ public class CtcrWeight implements IVariableWeight {
                 if (null != var) {
                     Set<VariabilityVariable> otherVars = var.getVariablesUsedInConstraints();
                     if (null != otherVars) {
-                        weight = otherVars.size();
+                        weight = otherVars.size() + 1;
                     }
                 } else {
                     LOGGER.logWarning2("Could not compute outgoing constraint relations in ", getClass().getName(),
@@ -72,7 +72,7 @@ public class CtcrWeight implements IVariableWeight {
                     Set<VariabilityVariable> inVars = var.getVariablesUsedInConstraints();
                     Set<VariabilityVariable> outVars = var.getVariablesUsedInConstraints();
                     if (null != inVars && null != outVars) {
-                        weight = inVars.size() + outVars.size();
+                        weight = inVars.size() + outVars.size() + 1;
                     }
                 } else {
                     LOGGER.logWarning2("Could not compute full ctcr in ", getClass().getName(),
