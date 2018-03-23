@@ -105,7 +105,7 @@ public class ClassicalFanInOutVisitor extends AbstractFanInOutVisitor {
             }
             break;
         default:
-            LOGGER.logError("Unsupported operation " + type.name() + " for visitor " + getClass().getName());
+            LOGGER.logError2("Unsupported operation ", type.name(), " for visitor ", getClass().getName());
             break;
         }
     }

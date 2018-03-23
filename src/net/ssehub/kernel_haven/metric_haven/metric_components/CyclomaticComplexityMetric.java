@@ -114,7 +114,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
         default:
             // Indicate that something went wrong.
             result = Double.NaN;
-            LOGGER.logError("Unknown code type specified for " + getClass().getName());
+            LOGGER.logError("Unknown code type specified for ", getClass().getName());
             break;
         }
         

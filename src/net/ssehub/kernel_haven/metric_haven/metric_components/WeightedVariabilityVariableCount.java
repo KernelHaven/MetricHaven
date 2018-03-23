@@ -98,7 +98,7 @@ public class WeightedVariabilityVariableCount extends AnalysisComponent<MetricRe
     private double getWeight(@NonNull String variable) {
         Double result = variableWeights.get(variable);
         if (result == null) {
-            LOGGER.logWarning("Returning weight 0 for unknown variable " + variable);
+            LOGGER.logWarning2("Returning weight 0 for unknown variable ", variable);
             result = 0.0;
         }
         return result;

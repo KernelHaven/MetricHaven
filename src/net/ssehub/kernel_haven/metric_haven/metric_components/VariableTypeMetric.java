@@ -42,7 +42,7 @@ public class VariableTypeMetric extends AbstractVariabilityVariableRatingCompone
             result = 15;
             break;
         default:
-            LOGGER.logWarning("Unknown type: " + variable.getType());
+            LOGGER.logWarning2("Unknown type: ", variable.getType());
             break;
         }
         

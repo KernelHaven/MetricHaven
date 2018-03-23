@@ -95,14 +95,14 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
             visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_OUT_LOCALLY);
             break;
         default:
-            LOGGER.logError("Unsupported metric variation " + type.name() + " for metric "
-                + getClass().getName());
+            LOGGER.logError2("Unsupported metric variation ", type.name(), " for metric ",
+                getClass().getName());
             break;
         }
         
         if (null == visitor) {
-            LOGGER.logError("No strategy was instantiated for " + getClass().getName() + " loaded default one "
-                + ClassicalFanInOutVisitor.class.getName());
+            LOGGER.logError2("No strategy was instantiated for ", getClass().getName(), " loaded default one ",
+                ClassicalFanInOutVisitor.class.getName());
             visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_IN_GLOBALLY);
         }
         

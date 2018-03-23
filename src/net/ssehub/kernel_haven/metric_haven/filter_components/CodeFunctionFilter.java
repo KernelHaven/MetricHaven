@@ -39,7 +39,7 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
     protected void execute() {
         SourceFile file;
         while ((file = codeModelProvider.getNextResult()) != null) {
-            LOGGER.logInfo("Running metric for functions in " + file.getPath().getPath());
+            LOGGER.logInfo2("Running metric for functions in ", file.getPath().getPath());
             currentFile = file;
             for (CodeElement b : file) {
                 if (!(b instanceof ISyntaxElement)) {

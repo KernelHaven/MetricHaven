@@ -111,8 +111,8 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
             result = visitor.getClassicalNestingDepth(false) + visitor.getVariationPointNestingDepth(false);
             break;
         default:
-            LOGGER.logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
-                + ND_TYPE_SETTING.getKey() + "=" + type.name());
+            LOGGER.logError2("Unsupported value setting for ", getClass().getName(), "-alysis: ",
+                ND_TYPE_SETTING.getKey(), "=" + type.name());
             result = Double.NaN;
             break;
         }
@@ -144,8 +144,8 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
             break;
         default:
             resultName = "Unsupported metric specified";
-            LOGGER.logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
-                + ND_TYPE_SETTING.getKey() + "=" + type.name());
+            LOGGER.logError2("Unsupported value setting for ", getClass().getName(), "-alysis: ",
+                ND_TYPE_SETTING.getKey(), "=", type.name());
             break;
         }
         

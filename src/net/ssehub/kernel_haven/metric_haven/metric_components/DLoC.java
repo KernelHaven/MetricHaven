@@ -86,8 +86,8 @@ public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
             result = visitor.getPLoF();
             break;
         default:
-            LOGGER.logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
-                + LOC_TYPE_SETTING.getKey() + "=" + type.name());
+            LOGGER.logError("Unsupported value setting for ", getClass().getName(), "-alysis: ",
+                LOC_TYPE_SETTING.getKey(), "=", type.name());
             result = Double.NaN;
             break;
         }
@@ -110,8 +110,8 @@ public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
             break;
         default:
             resultName = "Unsupported metric specified";
-            LOGGER.logError("Unsupported value setting for " + getClass().getName() + "-alysis: "
-                + LOC_TYPE_SETTING.getKey() + "=" + type.name());
+            LOGGER.logError("Unsupported value setting for ", getClass().getName(), "-alysis: ",
+                LOC_TYPE_SETTING.getKey(), "=", type.name());
             break;
         }
         
