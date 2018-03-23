@@ -1,11 +1,15 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
+import net.ssehub.kernel_haven.util.Logger;
+
 /**
- * Specifies a weight for a variable of the variabiltiy model.
+ * Specifies a weight for a variable of the variability model.
  * @author El-Sharkawy
  *
  */
 public interface IVariableWeight {
+    
+    public static final Logger LOGGER = Logger.get();
 
     /**
      * Returns the weight for the specified variable.

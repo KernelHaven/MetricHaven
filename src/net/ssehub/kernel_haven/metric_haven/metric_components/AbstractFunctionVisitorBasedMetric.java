@@ -14,6 +14,7 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CtcrWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
@@ -45,10 +46,13 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             CTCRType.NO_CTCR, "Defines whether and how to incorporate cross-tree constraint ratios from the variability"
                     + " model into measurement results.\n:"
                     + " - " + CTCRType.NO_CTCR.name() + ": Do not consider any cross-tree constraint ratios (default)."
-                    + "\n"
-//                    + " - " + SDType.SD_VP.name() + ": Use variation point scattering.\n"
-//                    + " - " + SDType.SD_FILE.name() + ": Use filet scattering."
-                    );
+                    + "\n - " + CTCRType.INCOMIG_CONNECTIONS.name() + ": Count number of distinct variables, specifying"
+                    + " a constraint TO a measured/detected variable.\n"
+                    + " - " + CTCRType.OUTGOING_CONNECTIONS.name() + ": Count number of distinct variables, referenced"
+                    + " in constraints defined by the measured/detected variable.\n"
+                    + " - " + CTCRType.ALL_CTCR.name() + ": Count number of distinct variables in all constraints "
+                    + "connected with the measured/detected variable (intersection of "
+                    + CTCRType.INCOMIG_CONNECTIONS.name() + " and " + CTCRType.OUTGOING_CONNECTIONS.name() + ".");
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -89,6 +93,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 + "SD analysis component was passed to " + this.getClass().getName());
         }
         
+        config.registerSetting(CTCR_USAGE_SETTING);
         ctcrType = config.getValue(CTCR_USAGE_SETTING);
         if (ctcrType != CTCRType.NO_CTCR && null == varModelComponent) {
             throw new SetUpException("Use of cross-tree constraint ratio was configured (" + ctcrType.name() + "), but "
@@ -156,10 +161,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         
         // Cross-tree constraint ratio
         if (ctcrType != CTCRType.NO_CTCR && null != varModel) {
-            // TODO SE: Missing
-            System.out.println(varModel);            
+            weights.add(new CtcrWeight(varModel, ctcrType)); 
         }
-        
         
         // Create final weighting function with as less objects as necessary
         if (weights.isEmpty()) {
