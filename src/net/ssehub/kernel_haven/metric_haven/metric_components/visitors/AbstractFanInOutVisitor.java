@@ -145,20 +145,20 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
      */
     public abstract int getResult(@NonNull String functionName);
     
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            instanceCounter--;
-            
-            if (instanceCounter <= 0 && null != allFunctionNames) {
-                // Clear memory after last visitor was closed (if required, the maps will be re-build)
-                synchronized (AbstractFanInOutVisitor.class) {
-                    allFunctionNames = null;
-                    functionMap = null;
-                }
-            }
-        } finally {
-            super.finalize();
-        }
-    }
+//    @Override
+//    protected void finalize() throws Throwable {
+//        try {
+//            instanceCounter--;
+//            
+//            if (instanceCounter <= 0 && null != allFunctionNames) {
+//                // Clear memory after last visitor was closed (if required, the maps will be re-build)
+//                synchronized (AbstractFanInOutVisitor.class) {
+//                    allFunctionNames = null;
+//                    functionMap = null;
+//                }
+//            }
+//        } finally {
+//            super.finalize();
+//        }
+//    }
 }
