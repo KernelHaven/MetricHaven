@@ -89,6 +89,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         // inputs for multiple metrics after the split
         
         config.registerSetting(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING);
+        config.registerSetting(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING);
         AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
@@ -106,6 +107,7 @@ public class AllFunctionMetrics extends PipelineAnalysis {
         addMetric(VariablesPerFunctionMetric.class, VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING,
             filteredFunctionSplitter, sdSplitter, metrics, VarType.values());
         config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
+        config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
         
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());
@@ -194,23 +196,27 @@ public class AllFunctionMetrics extends PipelineAnalysis {
                     if (null != metricInstance) {
                         metrics.add(metricInstance);
                     } else {
-                        LOGGER.logWarning("Could not create instance of " + metric.getName() + " with setting "
-                            + settings[i]);
+                        LOGGER.logWarning2("Could not create instance of ", metric.getName(), " with setting ",
+                            settings[i]);
                     }
                 } else {
-                    for (SDType sdType : SDType.values()) {
-                        config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, sdType);
-                        metricInstance = metricConstructor.newInstance(config,
-                            filteredFunctionSplitter.createOutputComponent(),
-                            getVmComponent(),
-                            sdSplitter.createOutputComponent());
-                        
-                        // Add instance to list if instantiation was successful
-                        if (null != metricInstance) {
-                            metrics.add(metricInstance);
-                        } else {
-                            LOGGER.logWarning("Could not create instance of " + metric.getName() + " with setting "
-                                + settings[i] + " and " + sdType);
+                    // These metrics support scattering degree AND CTCR ratio
+                    for (CTCRType ctcrType : CTCRType.values()) {
+                        config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, ctcrType);
+                        for (SDType sdType : SDType.values()) {
+                            config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, sdType);
+                            metricInstance = metricConstructor.newInstance(config,
+                                filteredFunctionSplitter.createOutputComponent(),
+                                getVmComponent(),
+                                sdSplitter.createOutputComponent());
+                            
+                            // Add instance to list if instantiation was successful
+                            if (null != metricInstance) {
+                                metrics.add(metricInstance);
+                            } else {
+                                LOGGER.logWarning2("Could not create instance of ", metric.getName(), " with setting ",
+                                    settings[i], " and ", sdType);
+                            }
                         }
                     }
                 }

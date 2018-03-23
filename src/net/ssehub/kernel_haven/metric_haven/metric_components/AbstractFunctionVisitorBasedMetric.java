@@ -175,11 +175,19 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     }
     
     /**
-     * Returns the {@link SCATTERING_DEGREE_USAGE_SETTING} setting.
+     * Returns the {@link #SCATTERING_DEGREE_USAGE_SETTING} setting.
      * @return The configured {@link SDType}.
      */
     protected @NonNull SDType getSDType() {
         return sdType;
+    }
+    
+    /**
+     * Returns the {@link #CTCR_USAGE_SETTING} setting.
+     * @return The configured {@link CTCRType}.
+     */
+    protected @NonNull CTCRType getCTCRType() {
+        return ctcrType;
     }
     
     /**
