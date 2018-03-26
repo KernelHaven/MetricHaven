@@ -149,19 +149,29 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
 
     @Override
     protected @NonNull UsedVariabilityVarsVisitor createVisitor(@Nullable VariabilityModel varModel) {
-        return new UsedVariabilityVarsVisitor(varModel);
+        UsedVariabilityVarsVisitor visitor;
+        if (measuredVars == VarType.INTERNAL || measuredVars == VarType.EXTERNAL || measuredVars == VarType.ALL) {
+            visitor = new UsedVariabilityVarsVisitor(varModel);
+        } else {
+            visitor = new UsedVariabilityVarsVisitor(varModel, getBuildModel());
+        }
+        return visitor;
     }
 
     @Override
     protected double computeResult(@NonNull UsedVariabilityVarsVisitor visitor) {
         Set<String> variables;
         switch (measuredVars) {
-        case EXTERNAL:
-            variables = visitor.externalVars();
-            break;
         case INTERNAL:
             variables = visitor.internalVars();
             break;
+        case EXTERNAL_WITH_BUILD_VARS:
+            // Falls through
+        case EXTERNAL:
+            variables = visitor.externalVars();
+            break;
+        case ALL_WITH_BUILD_VARS:
+            // Falls through
         case ALL:
             variables = visitor.allVars();
             break;

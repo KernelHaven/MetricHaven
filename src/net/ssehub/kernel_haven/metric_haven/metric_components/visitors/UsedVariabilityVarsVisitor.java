@@ -6,10 +6,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -25,29 +28,60 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
     private @NonNull Set<@NonNull String> externalVars = new HashSet<>();
     private @NonNull Set<@NonNull String> internalVars = new HashSet<>();
     private @Nullable Set<@NonNull String> varModelVars;
+    private @Nullable BuildModel bm;
     
     /**
-     * Sole constructor.
+     * Default constructor, won't consider a {@link BuildModel}.
      * @param varModel Optional, if not <tt>null</tt> for each variable used in a
      *     {@link net.ssehub.kernel_haven.code_model.ast.ISyntaxElement#getPresenceCondition()},
      *     whether it is defined in the variability model.
      */
     public UsedVariabilityVarsVisitor(@Nullable VariabilityModel varModel) {
+        this(varModel, null);
+    }
+    
+    /**
+     * Default constructor, considering a {@link BuildModel} for external variables.
+     * @param varModel Optional, if not <tt>null</tt> for each variable used in a
+     *     {@link net.ssehub.kernel_haven.code_model.ast.ISyntaxElement#getPresenceCondition()},
+     *     whether it is defined in the variability model.
+     * @param bm The {@link BuildModel}, if not <tt>null</tt> variables of the file presence condition will be
+     *     considered for computing the number of external variables.
+     */
+    public UsedVariabilityVarsVisitor(@Nullable VariabilityModel varModel, @Nullable BuildModel bm) {
         super(varModel);
         varModelVars = (null != varModel) ? Collections.unmodifiableSet(varModel.getVariableMap().keySet()) : null;
+        this.bm = bm;
     }
 
     @Override
     public void visitFunction(@NonNull Function function) {
         VariableFinder varFinder = new VariableFinder();
         varFinder.visit(function.getPresenceCondition());
-        for (int i = varFinder.getVariableNames().size() - 1; i >= 0; i--) {
-            String symbolName = notNull(varFinder.getVariableNames().get(i));
-            if (isVarModelVariable(symbolName)) {
-                externalVars.add(symbolName);
+        
+        // Compute external variables
+        for (String symbolName : varFinder.getVariableNames()) {
+            String canditate = NullHelpers.notNull(symbolName);
+            if (isVarModelVariable(canditate)) {
+                externalVars.add(canditate);
+            }
+        }
+        if (null != bm && bm.contains(function.getSourceFile())) {
+            Formula filePC = bm.getPc(function.getSourceFile());
+            if (null != filePC) {
+                varFinder.clear();
+                varFinder.visit(filePC);
+                
+                for (String symbolName : varFinder.getVariableNames()) {
+                    String canditate = NullHelpers.notNull(symbolName);
+                    if (isVarModelVariable(canditate)) {
+                        externalVars.add(canditate);
+                    }
+                }
             }
         }
         
+        // Compute internal variables
         super.visitFunction(function);
     }
     
