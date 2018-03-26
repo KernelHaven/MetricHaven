@@ -57,10 +57,12 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
         Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
         try {
             if (null == sdSplitter) {
+                // Default constructor
                 metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
             } else {
+                // Constructor with VarModel, BuildModel, and Scattering Degree container
                 metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
-                    AnalysisComponent.class, AnalysisComponent.class);
+                    AnalysisComponent.class, AnalysisComponent.class, AnalysisComponent.class);
             }
         } catch (ReflectiveOperationException e) {
             throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
@@ -100,6 +102,7 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
                             metricInstance = metricConstructor.newInstance(config,
                                 filteredFunctionSplitter.createOutputComponent(),
                                 getVmComponent(),
+                                getBmComponent(),
                                 sdSplitter.createOutputComponent());
                             
                             // Add instance to list if instantiation was successful

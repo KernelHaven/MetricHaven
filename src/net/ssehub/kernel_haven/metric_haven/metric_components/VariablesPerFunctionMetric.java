@@ -4,6 +4,7 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
@@ -30,7 +31,9 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
      *
      */
     static enum VarType {
-        INTERNAL, EXTERNAL, ALL;
+        INTERNAL,
+        EXTERNAL, EXTERNAL_WITH_BUILD_VARS,
+        ALL, ALL_WITH_BUILD_VARS;
     }
     
     public static final @NonNull Setting<@NonNull VarType> VARIABLE_TYPE_SETTING
@@ -91,10 +94,42 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
         @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
         
-        super(config, codeFunctionFinder, varModelComponent, sdComponent);
+        this(config, codeFunctionFinder, varModelComponent, null, sdComponent);
+    }
+    
+    /**
+     * Constructor to use scattering degree to weight the results.
+     * 
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
+     *     constant of a CPP expression belongs to a variable of the variability model, otherwise all constants
+     *     will be treated as feature constants.
+     * @param bmComponent Optional: Allows to incorporate variables of the file presence conditions into the
+     *     external variables list.
+     * @param sdComponent Optional: If not <tt>null</tt> scattering degree of variables may be used to weight the
+     *     results.
+     * 
+     * @throws SetUpException If {@link #VARIABLE_TYPE_SETTING} was defined with an invalid option.
+     */
+    public VariablesPerFunctionMetric(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<BuildModel> bmComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        
+        super(config, codeFunctionFinder, varModelComponent, bmComponent, sdComponent);
         
         config.registerSetting(VARIABLE_TYPE_SETTING);
         measuredVars = config.getValue(VARIABLE_TYPE_SETTING);
+        
+        if ((measuredVars == VarType.EXTERNAL_WITH_BUILD_VARS || measuredVars == VarType.ALL_WITH_BUILD_VARS)
+            && null == bmComponent) {
+            
+            throw new SetUpException("Variables of file presence conditions shall be considered, but no build model "
+                + "specified in class" + this.getClass().getName() + " with setting: "
+                + VARIABLE_TYPE_SETTING.getKey() + " = " + measuredVars.name());
+        }
     }
 
     

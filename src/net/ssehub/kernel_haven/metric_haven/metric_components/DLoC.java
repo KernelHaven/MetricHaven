@@ -62,7 +62,7 @@ public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
     public DLoC(@NonNull Configuration config, @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        super(config, codeFunctionFinder, varModelComponent, null);
+        super(config, codeFunctionFinder, varModelComponent, null, null);
         config.registerSetting(LOC_TYPE_SETTING);
         type = config.getValue(LOC_TYPE_SETTING);
     }

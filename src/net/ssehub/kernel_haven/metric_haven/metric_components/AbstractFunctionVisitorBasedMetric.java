@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
@@ -56,6 +57,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
+    private @Nullable AnalysisComponent<BuildModel> bmComponent;
+    private @Nullable BuildModel bm;
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     
     private @NonNull SDType sdType;
@@ -70,6 +73,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      * @param varModelComponent Optional: If a {@link VariabilityModel} is passed via this component, the
      *     {@link AbstractFunctionVisitor} may use this to identify variable parts depending on variables defined in
      *     the {@link VariabilityModel}.
+     * @param bmComponent Optional: If a {@link BuildModel} is passed via this component, variables of the presence
+     *     condition of the selected code file may be incorporated into the metric computation.
      * @param sdComponent Optional: If not <tt>null</tt> scattering degree of variables may be used to weight the
      *     results.
      *     
@@ -79,6 +84,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     AbstractFunctionVisitorBasedMetric(@NonNull Configuration config,
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<BuildModel> bmComponent,
         @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
         
         super(config);
@@ -120,10 +126,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     
     @Override
     protected final void execute() {
-        VariabilityModel varModel = null;
-        if (null != varModelComponent) {
-            varModel = varModelComponent.getNextResult();
-        }
+        VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
+        bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         
         createWeight(varModel);
         
@@ -144,6 +148,15 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
             addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
         }
+    }
+    
+    /**
+     * Returns the {@link BuildModel} during the {@link #execute()}-method, if a <tt>bmComponent</tt> was passed to
+     * the constructor.
+     * @return The {@link BuildModel} or <tt>null</tt>.
+     */
+    protected final BuildModel getBuildModel() {
+        return bm;
     }
 
     /**

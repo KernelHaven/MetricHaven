@@ -78,7 +78,7 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        super(config, codeFunctionFinder, varModelComponent, null);
+        super(config, codeFunctionFinder, varModelComponent, null, null);
         config.registerSetting(ND_TYPE_SETTING);
         type = config.getValue(ND_TYPE_SETTING);
     }
