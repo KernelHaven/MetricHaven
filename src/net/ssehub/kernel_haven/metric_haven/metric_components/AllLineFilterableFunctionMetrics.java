@@ -55,7 +55,6 @@ public class AllLineFilterableFunctionMetrics extends AbstractMultiFunctionMetri
         
         // All Cyclomatic complexity metrics
         config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
-        @SuppressWarnings("unchecked")
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
         // All Cyclomatic complexity metrics

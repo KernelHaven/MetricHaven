@@ -16,6 +16,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  */
 public class CtcrWeight implements IVariableWeight {
     
+    @SuppressWarnings("unused")
     private @Nullable VariabilityModel varModel = null;
     private @Nullable Map<String, VariabilityVariable> varMapping = null;
     private @NonNull CTCRType ctcrType;

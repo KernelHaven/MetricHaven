@@ -59,7 +59,6 @@ public class AllNonLineFilterableFunctionMetrics extends AbstractMultiFunctionMe
         
         // use functionSplitter.createOutputComponent() to create inputs for multiple metrics after the split
         
-        @SuppressWarnings("unchecked")
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
         // Fan-in / Fan-out
@@ -80,6 +79,7 @@ public class AllNonLineFilterableFunctionMetrics extends AbstractMultiFunctionMe
         config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
         
         // join the parallel metrics together
+        @SuppressWarnings({ "null", "unchecked" })
         AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics",
             metrics.toArray(new AnalysisComponent[metrics.size()]));
         
