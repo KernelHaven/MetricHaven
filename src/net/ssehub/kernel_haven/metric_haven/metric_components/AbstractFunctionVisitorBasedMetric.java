@@ -50,9 +50,9 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                     + "\n - " + CTCRType.INCOMIG_CONNECTIONS.name() + ": Count number of distinct variables, specifying"
                     + " a\n   constraint TO a measured/detected variable.\n"
                     + " - " + CTCRType.OUTGOING_CONNECTIONS.name() + ": Count number of distinct variables, referenced"
-                    + " in constraints defined by the measured/detected variable.\n"
+                    + " in\n   constraints defined by the measured/detected variable.\n"
                     + " - " + CTCRType.ALL_CTCR.name() + ": Count number of distinct variables in all constraints "
-                    + "connected with\n   the measured/detected variable (intersection of "
+                    + "connected\n   with the measured/detected variable (intersection of "
                     + CTCRType.INCOMIG_CONNECTIONS.name() + "\n   and " + CTCRType.OUTGOING_CONNECTIONS.name() + ".");
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;

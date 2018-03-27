@@ -42,13 +42,17 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
     public static final @NonNull Setting<@NonNull NDType> ND_TYPE_SETTING
         = new EnumSetting<>("metric.nesting_depth.measured_type", NDType.class, true, 
             NDType.CLASSIC_ND_MAX, "Defines what should be counteded as the nesting depth:\n"
-                + NDType.CLASSIC_ND_MAX.name() + ": Counts the max. nesting depth w.r.t classical control structures.\n"
-                + NDType.CLASSIC_ND_AVG.name() + ": Counts the avg. nesting depth w.r.t classical control structures.\n"
-                + NDType.VP_ND_MAX.name() + ": Counts the max. nesting depth w.r.t variation points (CPP-blocks).\n"
-                + NDType.VP_ND_AVG.name() + ": Counts the avg. nesting depth w.r.t variation points (CPP-blocks).\n"
-                + NDType.COMBINED_ND_MAX.name() + ": " + NDType.CLASSIC_ND_MAX.name() + " + "
+                + " - " + NDType.CLASSIC_ND_MAX.name() + ": Counts the max. nesting depth w.r.t classical\n"
+                + "   control structures."
+                + " - " + NDType.CLASSIC_ND_AVG.name() + ": Counts the avg. nesting depth w.r.t classical\n"
+                + "   control structures.\n"
+                + " - " + NDType.VP_ND_MAX.name() + ": Counts the max. nesting depth w.r.t variation points\n"
+                + "   (CPP-blocks).\n"
+                + " - " + NDType.VP_ND_AVG.name() + ": Counts the avg. nesting depth w.r.t variation points\n"
+                + "   (CPP-blocks).\n"
+                + " - " + NDType.COMBINED_ND_MAX.name() + ": " + NDType.CLASSIC_ND_MAX.name() + " + "
                     + NDType.VP_ND_MAX.name() + "\n"
-                + NDType.COMBINED_ND_AVG.name() + ": " + NDType.CLASSIC_ND_AVG.name() + " + "
+                + " - " + NDType.COMBINED_ND_AVG.name() + ": " + NDType.CLASSIC_ND_AVG.name() + " + "
                     + NDType.VP_ND_AVG.name());
     
     private @NonNull NDType type;
