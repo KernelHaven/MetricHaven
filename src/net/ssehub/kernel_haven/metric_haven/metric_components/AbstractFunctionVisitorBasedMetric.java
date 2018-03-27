@@ -37,7 +37,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     public static final @NonNull Setting<@NonNull SDType> SCATTERING_DEGREE_USAGE_SETTING
         = new EnumSetting<>("metric.function_measures.consider_scattering_degree", SDType.class, true, 
             SDType.NO_SCATTERING, "Defines whether and how to incorporate scattering degree values"
-                + "into measurement results.\n:"
+                + "into measurement results.\n"
                 + " - " + SDType.NO_SCATTERING.name() + ": Do not consider scattering degree (default).\n"
                 + " - " + SDType.SD_VP.name() + ": Use variation point scattering.\n"
                 + " - " + SDType.SD_FILE.name() + ": Use filet scattering.");
@@ -45,15 +45,15 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     public static final @NonNull Setting<@NonNull CTCRType> CTCR_USAGE_SETTING
         = new EnumSetting<>("metric.function_measures.consider_ctcr", CTCRType.class, true, 
             CTCRType.NO_CTCR, "Defines whether and how to incorporate cross-tree constraint ratios from the variability"
-                    + " model into measurement results.\n:"
+                    + " model into measurement results.\n"
                     + " - " + CTCRType.NO_CTCR.name() + ": Do not consider any cross-tree constraint ratios (default)."
                     + "\n - " + CTCRType.INCOMIG_CONNECTIONS.name() + ": Count number of distinct variables, specifying"
-                    + " a constraint TO a measured/detected variable.\n"
+                    + " a\n   constraint TO a measured/detected variable.\n"
                     + " - " + CTCRType.OUTGOING_CONNECTIONS.name() + ": Count number of distinct variables, referenced"
                     + " in constraints defined by the measured/detected variable.\n"
                     + " - " + CTCRType.ALL_CTCR.name() + ": Count number of distinct variables in all constraints "
-                    + "connected with the measured/detected variable (intersection of "
-                    + CTCRType.INCOMIG_CONNECTIONS.name() + " and " + CTCRType.OUTGOING_CONNECTIONS.name() + ".");
+                    + "connected with\n   the measured/detected variable (intersection of "
+                    + CTCRType.INCOMIG_CONNECTIONS.name() + "\n   and " + CTCRType.OUTGOING_CONNECTIONS.name() + ".");
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
