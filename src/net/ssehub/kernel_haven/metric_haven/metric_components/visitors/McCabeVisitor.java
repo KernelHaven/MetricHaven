@@ -9,6 +9,8 @@ import net.ssehub.kernel_haven.code_model.ast.CaseStatement.CaseType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
+import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
+import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -28,6 +30,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
 
     private int classicCC;
     private int variabilityCC;
+    private boolean visitedStatement;
     
     /**
      * Sole constructor for this class.
@@ -69,11 +72,19 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitCaseStatement(@NonNull CaseStatement caseStatement) {
-        if (isInFunction() && caseStatement.getType() != CaseType.DEFAULT) {
+        // Do not count default blocks or empty case statements as they do not add a new edge to the graph
+        boolean caseStementFound = (isInFunction() && caseStatement.getType() != CaseType.DEFAULT) ? true : false;
+
+        boolean tmpState = visitedStatement;
+        visitedStatement = false;
+        super.visitCaseStatement(caseStatement);
+        boolean nonEmptyCase = visitedStatement;
+        visitedStatement = tmpState;
+        
+        
+        if (caseStementFound && nonEmptyCase) {
             classicCC++;
         }
-        
-        super.visitCaseStatement(caseStatement);
     }
     
     /**
@@ -101,11 +112,24 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     public int getCombinedCyclomaticComplexity() {
         return getClassicCyclomaticComplexity() + getVariabilityCyclomaticComplexity();
     }
+    
+    @Override
+    public void visitSingleStatement(@NonNull SingleStatement statement) {
+        visitedStatement = isInFunction();
+        super.visitSingleStatement(statement);
+    }
+    
+    @Override
+    public void visitTypeDefinition(@NonNull TypeDefinition typeDef) {
+        visitedStatement = isInFunction();
+        super.visitTypeDefinition(typeDef);
+    }
 
     @Override
     public void reset() {
         super.reset();
         classicCC = 1;
         variabilityCC = 1;
+        visitedStatement = false;
     }
 }
