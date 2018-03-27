@@ -24,7 +24,7 @@ public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
      * @author El-Sharkawy
      *
      */
-    static enum LoFType {
+    public static enum LoFType {
         DLOC, LOF, PLOF;
     }
     
