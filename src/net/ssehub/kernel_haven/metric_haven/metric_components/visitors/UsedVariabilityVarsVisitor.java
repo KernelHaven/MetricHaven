@@ -87,12 +87,16 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
-        VariableFinder varFinder = new VariableFinder();
-        varFinder.visit(block.getPresenceCondition());
-        for (int i = varFinder.getVariableNames().size() - 1; i >= 0; i--) {
-            String symbolName = notNull(varFinder.getVariableNames().get(i));
-            if (isVarModelVariable(symbolName)) {
-                internalVars.add(symbolName);
+        Formula condition = block.getCondition();
+        
+        if (null != condition) {
+            VariableFinder varFinder = new VariableFinder();
+            varFinder.visit(condition);
+            for (String symbolName : varFinder.getVariableNames()) {
+                symbolName = notNull(symbolName);
+                if (isVarModelVariable(symbolName)) {
+                    internalVars.add(symbolName);
+                }
             }
         }
         
