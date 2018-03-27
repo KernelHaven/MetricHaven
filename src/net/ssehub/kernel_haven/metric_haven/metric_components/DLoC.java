@@ -31,10 +31,11 @@ public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
     public static final @NonNull Setting<@NonNull LoFType> LOC_TYPE_SETTING
         = new EnumSetting<>("metric.loc.measured_type", LoFType.class, true, 
             LoFType.DLOC, "Defines which lines of code should be counted for a function:\n"
-                + LoFType.DLOC.name() + ": Counts all statements, i.e., all delivered Lines of Code (dLoC).\n"
-                + LoFType.LOF.name() + ": Counts all variable statements, sometimes refereed to as Lines of "
-                + "Feature code (LoF).\n"
-                + LoFType.PLOF.name() + ": Computes the fraction of LoF/dLoC.\n");
+                + " - " + LoFType.DLOC.name() + ": Counts all statements, i.e., all delivered Lines of Code\n"
+                + "   (dLoC).\n"
+                + " - " + LoFType.LOF.name() + ": Counts all variable statements, sometimes refereed to as Lines\n"
+                + "   of Feature code (LoF).\n"
+                + " - " + LoFType.PLOF.name() + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
     
     private @NonNull LoFType type;
     
