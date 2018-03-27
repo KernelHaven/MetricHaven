@@ -31,7 +31,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
      * @author El-Sharkawy
      *
      */
-    static enum CCType {
+    public static enum CCType {
         MCCABE, VARIATION_POINTS, ALL;
     }
     
