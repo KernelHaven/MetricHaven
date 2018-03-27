@@ -30,7 +30,7 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
      * @author El-Sharkawy
      *
      */
-    static enum VarType {
+    public static enum VarType {
         INTERNAL,
         EXTERNAL, EXTERNAL_WITH_BUILD_VARS,
         ALL, ALL_WITH_BUILD_VARS;
