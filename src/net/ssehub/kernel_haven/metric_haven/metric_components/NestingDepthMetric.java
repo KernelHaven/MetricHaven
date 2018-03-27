@@ -43,7 +43,7 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
         = new EnumSetting<>("metric.nesting_depth.measured_type", NDType.class, true, 
             NDType.CLASSIC_ND_MAX, "Defines what should be counteded as the nesting depth:\n"
                 + " - " + NDType.CLASSIC_ND_MAX.name() + ": Counts the max. nesting depth w.r.t classical\n"
-                + "   control structures."
+                + "   control structures.\n"
                 + " - " + NDType.CLASSIC_ND_AVG.name() + ": Counts the avg. nesting depth w.r.t classical\n"
                 + "   control structures.\n"
                 + " - " + NDType.VP_ND_MAX.name() + ": Counts the max. nesting depth w.r.t variation points\n"
