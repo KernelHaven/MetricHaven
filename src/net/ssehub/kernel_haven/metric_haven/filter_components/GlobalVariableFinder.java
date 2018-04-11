@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.filter_components;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.CodeElement;
@@ -78,6 +79,9 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
     
     private SourceFile currentFile;
     
+    // From {*}, but no inner }, e.g. int[] a = {1, 2, 3}, b = {4, 5, 6}; -> int[] a = , b = ;
+    private Pattern arrayInitializer = Pattern.compile("\\{[^\\}]*\\}");
+    
     /**
      * Creates this component.
      * 
@@ -117,13 +121,7 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
         if (typeDef.getType() == TypeDefType.STRUCT && typeDef.getDeclaration() instanceof Code) {
             // Approximation of name
             Code declaration = (Code) typeDef.getDeclaration();
-            String[] code = declaration.getText().split(" ");
-            if (code.length > 2) {
-                String name = code[code.length - 2];
-                if (!KEYWORDS.contains(name)) {
-                    addResult(new GlobalVariable(currentFile, name));
-                }
-            }
+            extractVariables(declaration.getText());
         }
     }
     
@@ -132,32 +130,38 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
         if (declaration.getCode() instanceof Code) {
             // Approximation of name
             Code declarationCode = (Code) declaration.getCode();
-            String codeAsText = declarationCode.getText().replace(" , ", ",");
-            String[] code = codeAsText.split(" ");
+            extractVariables(declarationCode.getText());
+        }
+    }
+    
+    /**
+     * Heuristically extracts all variable declarations from the given code.
+     * @param codeString An expression of a struct declaration or a single line statement.
+     */
+    private void extractVariables(String codeString) {
+        // Remove array initializations
+        codeString = arrayInitializer.matcher(codeString).replaceAll("");
+        
+        // Merge multi declarations and instantiations
+        codeString = codeString.replace(" = ", "=").replace(" , ", ",");
+        
+        // Keep only declaration and initialization part
+        String[] tmp = codeString.split(" ");
+        if (tmp.length > 1) {
+            codeString = tmp[tmp.length - 2];
             
-            int offSet = 2;
-            if (codeAsText.contains("=")) {
-                // declaration and assignment
-                offSet = -1;
-                for (int i = code.length - 1; i >= 0 && offSet == -1; i--) {
-                    if ("=".equals(code[i])) {
-                        offSet = code.length - i - 2;
-                    }
+            // Split per declaration
+            String[] declarations = codeString.split(",");
+            for (String declaration : declarations) {
+                int endIndex = declaration.indexOf('=');
+                if (endIndex != -1) {
+                    declaration = declaration.substring(0, endIndex);
                 }
-            }
-            String relevantPart = null;
-            if (code.length > offSet && offSet >= 0) {
-                relevantPart = code[code.length - offSet];
-            }
-            
-            if (null != relevantPart) {
-                // Maybe there are multiple declarations in one line separated by a comma
-                String[] variableNames = relevantPart.split(",");
+                declaration = declaration.trim();
                 
-                for (String varName : variableNames) {
-                    if (!KEYWORDS.contains(varName)) {
-                        addResult(new GlobalVariable(currentFile, varName));
-                    }
+                // Check that we did not accidentally extracted a keyword, parenthesis or other language elements.
+                if (!KEYWORDS.contains(declaration)) {
+                    addResult(new GlobalVariable(currentFile, declaration));
                 }
             }
         }
