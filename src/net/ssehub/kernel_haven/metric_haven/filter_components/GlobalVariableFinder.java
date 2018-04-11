@@ -70,6 +70,8 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
         KEYWORDS.add("typedef");
         KEYWORDS.add("union");
         KEYWORDS.add(";");
+        KEYWORDS.add("}");
+        KEYWORDS.add("{");
     }
     
     private @NonNull AnalysisComponent<SourceFile> codeModelProvider;
@@ -133,15 +135,18 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
             String codeAsText = declarationCode.getText().replace(" , ", ",");
             String[] code = codeAsText.split(" ");
             
-            int offSet;
+            int offSet = 2;
             if (codeAsText.contains("=")) {
                 // declaration and assignment
-                offSet = 4;
-            } else {
-                offSet = 2;
+                offSet = -1;
+                for (int i = code.length - 1; i >= 0 && offSet == -1; i--) {
+                    if ("=".equals(code[i])) {
+                        offSet = code.length - i - 2;
+                    }
+                }
             }
             String relevantPart = null;
-            if (code.length > offSet) {
+            if (code.length > offSet && offSet >= 0) {
                 relevantPart = code[code.length - offSet];
             }
             
