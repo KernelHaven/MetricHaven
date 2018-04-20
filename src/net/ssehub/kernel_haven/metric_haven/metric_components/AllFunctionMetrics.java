@@ -95,7 +95,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         
         // All Cyclomatic complexity metrics
         addMetric(CyclomaticComplexityMetric.class, CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING,
-            filteredFunctionSplitter, null, metrics, CCType.values());
+            filteredFunctionSplitter, sdSplitter, metrics, CCType.values());
 
         // All Variables per Function metrics
         addMetric(VariablesPerFunctionMetric.class, VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING,

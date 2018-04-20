@@ -9,6 +9,7 @@ import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.McCabeVisitor;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -95,7 +96,9 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
 
     @Override
     protected @NonNull McCabeVisitor createVisitor(@Nullable VariabilityModel varModel) {
-        return new McCabeVisitor(varModel);
+        return (measuredCode == CCType.MCCABE) ? new McCabeVisitor(varModel)
+            // getWeighter won't be null when the visitor is created
+            : new McCabeVisitor(varModel, NullHelpers.notNull(getWeighter()));
     }
 
     @Override

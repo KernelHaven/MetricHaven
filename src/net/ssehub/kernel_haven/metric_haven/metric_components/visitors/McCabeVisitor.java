@@ -1,16 +1,22 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import java.util.Set;
+
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement.Type;
 import net.ssehub.kernel_haven.code_model.ast.CaseStatement;
+import net.ssehub.kernel_haven.code_model.ast.CaseStatement.CaseType;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
-import net.ssehub.kernel_haven.code_model.ast.CaseStatement.CaseType;
-import net.ssehub.kernel_haven.util.null_checks.NonNull;
-import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
 import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
+import net.ssehub.kernel_haven.util.logic.Variable;
+import net.ssehub.kernel_haven.util.logic.VariableFinder;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -31,6 +37,8 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     private int classicCC;
     private int variabilityCC;
     private boolean visitedStatement;
+    private IVariableWeight weight;
+    private VariableFinder varFinder;
     
     /**
      * Sole constructor for this class.
@@ -41,12 +49,37 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
         super(varModel);
         classicCC = 1;
         variabilityCC = 1;
+        varFinder = null;
+    }
+    
+    /**
+     * Should only be used if variation points shall be considered.
+     * @param varModel  Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
+     *     model is involved in {@link CppBlock#getCondition()} expressions.
+     * @param weight A {@link IVariableWeight}to weight/measure the complexity of variation points.
+     */
+    public McCabeVisitor(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight) {
+        this(varModel);
+        // Small  optimization, do not discover variables if they are not required
+        if (weight != NoWeight.INSTANCE) {
+            this.weight = weight;
+            varFinder = new VariableFinder();
+        }
     }
     
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
-        if (isFeatureDependentBlock(block)) {
-            variabilityCC++;
+        if (isFeatureDependentBlock(block) && block.getType() != CppBlock.Type.ELSE) {
+            if (null != varFinder) {
+                Set<Variable> usedVars = block.getCondition().accept(varFinder);
+                varFinder.clear();
+                // Won't count blocks containing no variables
+                for (Variable variable : usedVars) {
+                    variabilityCC += weight.getWeight(variable.getName());
+                }
+            } else {
+                variabilityCC++;
+            }
         }
         
         super.visitCppBlock(block);

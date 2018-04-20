@@ -57,10 +57,6 @@ public class AllLineFilterableFunctionMetrics extends AbstractMultiFunctionMetri
         config.registerSetting(CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING);
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
-        // All Cyclomatic complexity metrics
-        addMetric(CyclomaticComplexityMetric.class, CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING,
-            functionSplitter, null, metrics, CCType.values());
-
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, functionSplitter, null, metrics, LoFType.values());
         
