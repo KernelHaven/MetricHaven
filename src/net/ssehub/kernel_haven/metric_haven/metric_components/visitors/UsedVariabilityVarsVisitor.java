@@ -82,9 +82,6 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
                 }
             }
         }
-        else if (null != bm) {
-            Logger.get().logError2("Could not find ", function.getSourceFile(), " in build model");
-        }
         
         // Compute internal variables
         super.visitFunction(function);
