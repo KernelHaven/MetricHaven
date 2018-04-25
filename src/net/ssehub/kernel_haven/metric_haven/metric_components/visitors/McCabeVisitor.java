@@ -72,11 +72,15 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
         if (isFeatureDependentBlock(block) && block.getType() != CppBlock.Type.ELSE) {
             if (null != varFinder) {
                 Set<Variable> usedVars = block.getCondition().accept(varFinder);
-                varFinder.clear();
                 // Won't count blocks containing no variables
                 for (Variable variable : usedVars) {
                     variabilityCC += weight.getWeight(variable.getName());
                 }
+                /*
+                 * VarFinder returns internal set, clear method will also clear the external set as side-effect.
+                 * Thus, arFinder.clear(); must be called AFTER the loop!
+                 */
+                varFinder.clear();
             } else {
                 variabilityCC++;
             }
