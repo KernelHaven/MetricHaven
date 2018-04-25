@@ -9,6 +9,7 @@ import java.util.Set;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -66,7 +67,7 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
                 externalVars.add(canditate);
             }
         }
-        BuildModel bm = this.bm;
+        
         if (null != bm && bm.contains(function.getSourceFile())) {
             Formula filePC = bm.getPc(function.getSourceFile());
             if (null != filePC) {
@@ -80,6 +81,9 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
                     }
                 }
             }
+        }
+        else if (null != bm) {
+            Logger.get().logError2("Could not find ", function.getSourceFile(), " in build model");
         }
         
         // Compute internal variables
