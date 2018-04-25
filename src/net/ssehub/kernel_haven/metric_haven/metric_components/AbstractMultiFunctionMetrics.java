@@ -1,6 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -31,6 +32,7 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
         super(config);
     }
 
+    // CHECKSTYLE:OFF
     /**
      * Adds multiple instances of the specified metric to the metric list, which is to be executed in parallel.
      * @param metric The metric to executed (in different variations).
@@ -44,14 +46,12 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
      * @throws SetUpException If the metric could not be instantiated with the specified settings.
      */
     @SuppressWarnings({"unchecked"})
-    // CHECKSTYLE:OFF
     protected <MT> void addMetric(Class<? extends AbstractFunctionVisitorBasedMetric<?>> metric,
         @NonNull Setting<MT> setting,
         SplitComponent<CodeFunction> filteredFunctionSplitter,
         SplitComponent<ScatteringDegreeContainer> sdSplitter,
         List<@NonNull AnalysisComponent<MetricResult>> metrics,
         MT... settings) throws SetUpException {
-     // CHECKSTYLE:ON
         
         // Access constructor
         Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
@@ -99,18 +99,31 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
                         config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, ctcrType);
                         for (SDType sdType : SDType.values()) {
                             config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, sdType);
-                            metricInstance = metricConstructor.newInstance(config,
-                                filteredFunctionSplitter.createOutputComponent(),
-                                getVmComponent(),
-                                getBmComponent(),
-                                sdSplitter.createOutputComponent());
                             
-                            // Add instance to list if instantiation was successful
-                            if (null != metricInstance) {
-                                metrics.add(metricInstance);
-                            } else {
-                                LOGGER.logWarning2("Could not create instance of ", metric.getName(), " with setting ",
-                                    settings[i], " and ", sdType);
+                            try {
+                                metricInstance = metricConstructor.newInstance(config,
+                                    filteredFunctionSplitter.createOutputComponent(),
+                                    getVmComponent(),
+                                    getBmComponent(),
+                                    sdSplitter.createOutputComponent());
+                                
+                                // Add instance to list if instantiation was successful
+                                if (null != metricInstance) {
+                                    metrics.add(metricInstance);
+                                } else {
+                                    LOGGER.logWarning2("Could not create instance of ", metric.getName(),
+                                        " with setting ", settings[i], " and ", sdType);
+                                }
+                            } catch (InvocationTargetException exc) {
+                                Throwable orignException = exc.getTargetException();
+                                if (orignException instanceof SetUpException && orignException.getMessage()
+                                    .startsWith("Cannot apply variability weights on non variability metric.")) {
+                                    
+                                    // Drop silently illegal combinations
+                                    LOGGER.logDebug2("Discarded metric:\n", orignException.getMessage());
+                                } else {
+                                    LOGGER.logException("Metric could not be instantiated.", orignException);
+                                }
                             }
                         }
                     }
@@ -120,4 +133,6 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
             }
         }
     }
+    
+    // CHECKSTYLE:ON
 }

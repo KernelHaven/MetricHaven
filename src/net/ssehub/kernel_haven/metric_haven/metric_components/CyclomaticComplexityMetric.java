@@ -119,27 +119,59 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
 
         config.registerSetting(VARIABLE_TYPE_SETTING);
         measuredCode = config.getValue(VARIABLE_TYPE_SETTING);
+        
+        if (measuredCode == CCType.MCCABE
+            && (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR)) {
+            
+            StringBuffer errMsg = new StringBuffer("Cannot apply variability weights on non variability metric. "
+                + "Setting was:\n - Metric: ");
+            errMsg.append(this.getClass().getName());
+            // Variability type
+            errMsg.append("\n - ");
+            errMsg.append(CCType.class.getSimpleName());
+            errMsg.append(": ");
+            errMsg.append(measuredCode.name());
+            // Scattering Degree
+            errMsg.append("\n - ");
+            errMsg.append(SDType.class.getSimpleName());
+            errMsg.append(": ");
+            errMsg.append(getSDType().name());
+            // Cross-Tree Constraint Ratio
+            errMsg.append("\n - ");
+            errMsg.append(CTCRType.class.getSimpleName());
+            errMsg.append(": ");
+            errMsg.append(getCTCRType().name());
+
+            throw new SetUpException(errMsg.toString());
+        }
     }
 
     @Override
     public @NonNull String getResultName() {
-        String result;
+        StringBuffer resultName;
         switch (measuredCode) {
         case MCCABE:
-            result = "McCabe's Cyclomatic Complexity";
+            resultName = new StringBuffer("McCabe");
             break;
         case VARIATION_POINTS:
-            result = "Cyclomatic Complexity of Variation Points";
+            resultName = new StringBuffer("CC on VPs");
             break;
         case ALL:
-            result = "Cyclomatic Complexity of Code + VPs";
+            resultName = new StringBuffer("McCabe + CC on VPs");
             break;
         default:
-            result = "Unknown Cyclomatic Complexity";
+            resultName = new StringBuffer("Unknown Cyclomatic Complexity");
             break;
         }
         
-        return result;
+        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR) {
+            resultName.append(" x ");            
+            resultName.append(getSDType().name());            
+            resultName.append(" x ");            
+            resultName.append(getCTCRType().name());            
+        }
+        
+        return NullHelpers.notNull(resultName.toString());
     }
 
     @Override
