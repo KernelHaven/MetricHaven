@@ -70,6 +70,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
         if (isFeatureDependentBlock(block) && block.getType() != CppBlock.Type.ELSE) {
+            VariableFinder varFinder = this.varFinder;
             if (null != varFinder) {
                 Set<Variable> usedVars = block.getCondition().accept(varFinder);
                 // Won't count blocks containing no variables
