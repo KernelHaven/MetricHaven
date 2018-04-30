@@ -53,7 +53,7 @@ public class CtcrWeight implements IVariableWeight {
                         weight = otherVars.size() + 1;
                     }
                 } else {
-                    LOGGER.logWarning2("Could not compute incomming constraint relations in ", getClass().getName(),
+                    LOGGER.logWarning2("Could not compute incoming constraint relations in ", getClass().getName(),
                         ", because " , variable , " was not found in variability model.");
                 }
                 break;
