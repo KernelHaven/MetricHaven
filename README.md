@@ -67,18 +67,18 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
         <li><code>ALL</code>: <code>MCCABE + VARIATION_POINTS</code></li>
       </ul>
       <code>metric.function_measures.consider_scattering_degree</code> (not applyable to <code>MCCABE</code>):
-    <ul>
-      <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
-      <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
-      <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
-    </ul>
-    <code>metric.function_measures.consider_ctcr</code> (requires an extracted variability model, not applyable to <code>MCCABE</code>):
-    <ul>
-      <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
-      <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
-      <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
-      <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
-    </ul>
+      <ul>
+        <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
+        <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
+        <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
+      </ul>
+      <code>metric.function_measures.consider_ctcr</code> (requires an extracted variability model, not applyable to <code>MCCABE</code>):
+      <ul>
+        <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
+        <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
+        <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
+        <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
+      </ul>
     </td>
   </tr>
   <!-- DLoC -->
@@ -115,7 +115,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
   <!-- FanInOutMetric -->
   <tr>
     <td><code>FanInOutMetric</code></td>
-    <td>4</td>
+    <td>56</td>
     <td>Measures the number of incoming/outgoing function calls per function</td>
     <td>
       <code>metric.fan_in_out.type</code>:
@@ -124,12 +124,33 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
         <li><code>CLASSICAL_FAN_IN_LOCALLY</code>: Measures how often a function is called from inside the same file (independently of CPP-blocks).</li>
         <li><code>CLASSICAL_FAN_OUT_GLOBALLY</code>: Measures how many other functions (from anywhere in the code) a function is calling (independently of CPP-blocks).</li>
         <li><code>CLASSICAL_FAN_OUT_LOCALLY</code>: Measures how many other functions (in the same file) a function is calling (independently of CPP-blocks).</li>
+        <li><code>VP_FAN_IN_GLOBALLY</code>: Measures how often a function is called from anywhere in the code (only if nested in CPP-Blocks).</li>
+        <li><code>VP_FAN_IN_LOCALLY</code>: Measures how often a function is called from inside the same file (only if nested in CPP-Blocks).</li>
+        <li><code>VP_FAN_OUT_GLOBALLY</code>: Measures how many other functions (from anywhere in the code) a function is calling (only in CPP-blocks).</li>
+        <li><code>VP_FAN_OUT_LOCALLY</code>: Measures how many other functions (in the same file) a function is calling (only in CPP-blocks).</li>
+        <li><code>DEGREE_CENTRALITY_IN_GLOBALLY</code>: Measures <code>No. of features + 1</code> when function is called from anywhere in the code.</li>
+        <li><code>DEGREE_CENTRALITY_IN_LOCALLY</code>: Measures <code>No. of features + 1</code> when function is called from the same file.</li>
+        <li><code>DEGREE_CENTRALITY_OUT_GLOBALLY</code>: Measures <code>No. of features + 1</code> for function calls to other functions to anywhere in code.</li>
+        <li><code>DEGREE_CENTRALITY_OUT_LOCALLY</code>: Measures <code>No. of features + 1</code> for function calls to other functions in the same file.</li>
+      </ul>
+      <code>metric.function_measures.consider_scattering_degree</code> (only applyable to <code>DEGREE_CENTRALITY</code>):
+      <ul>
+        <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
+        <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
+        <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
+      </ul>
+      <code>metric.function_measures.consider_ctcr</code> (requires an extracted variability model, only applyable to <code>DEGREE_CENTRALITY</code>):
+      <ul>
+        <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
+        <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
+        <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
+        <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
       </ul>
     </td>
   </tr>
   <tr>
     <th>Total</th>
-    <td>98</td>
+    <td>150</td>
     <td></td>
     <td></td>
   </tr>
