@@ -81,9 +81,55 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
     </ul>
     </td>
   </tr>
+  <!-- DLoC -->
+  <tr>
+    <td><code>DLoC</code></td>
+    <td>3</td>
+    <td>Measures the number of statements (single line statement, loop, ..) as approximation of delivered lines of code.</td>
+    <td>
+      <code>metric.loc.measured_type</code>:
+      <ul>
+        <li><code>DLOC</code>: Measures the non-CPP code elements (also of they are surrounded by an CPP-block).</li>
+        <li><code>LOF</code>: Measures the lines of feature code (only elements surrounded by CPP-blocks, if a variability model is passed, it checks if at least one variable of the variability model is used in the CPP-block)</li>
+        <li><code>PLOF</code>: <code>LOF / DLOC</code></li>
+      </ul>
+    </td>
+  </tr>
+  <!-- NestingDepthMetric -->
+  <tr>
+    <td><code>NestingDepthMetric</code></td>
+    <td>6</td>
+    <td>Measures the number of nested constroll structures.</td>
+    <td>
+      <code>metric.nesting_depth.measured_type</code>:
+      <ul>
+        <li><code>CLASSIC_ND_MAX</code>: Maximum depth (within a function) of non-CPP structures.</li>
+        <li><code>CLASSIC_ND_AVG</code>: Average depth (within a function) of non-CPP structures.</li>
+        <li><code>VP_ND_MAX</code>: Maximum depth (within a function) only of CPP structures.</li>
+        <li><code>VP_ND_AVG</code>: Average depth (within a function) only of CPP structures.</li>
+        <li><code>COMBINED_ND_MAX</code>: Maximum depth (within a function) of non-CPP and CPP structures.</li>
+        <li><code>COMBINED_ND_AVG</code>: Average depth (within a function) of non-CPP and CPP structures.</li>
+      </ul>
+    </td>
+  </tr>
+  <!-- FanInOutMetric -->
+  <tr>
+    <td><code>FanInOutMetric</code></td>
+    <td>4</td>
+    <td>Measures the number of incoming/outgoing function calls per function</td>
+    <td>
+      <code>metric.fan_in_out.type</code>:
+      <ul>
+        <li><code>CLASSICAL_FAN_IN_GLOBALLY</code>: Measures how often a function is called from anywhere in the code (independently of CPP-blocks).</li>
+        <li><code>CLASSICAL_FAN_IN_LOCALLY</code>: Measures how often a function is called from inside the same file (independently of CPP-blocks).</li>
+        <li><code>CLASSICAL_FAN_OUT_GLOBALLY</code>: Measures how many other functions (from anywhere in the code) a function is calling (independently of CPP-blocks).</li>
+        <li><code>CLASSICAL_FAN_OUT_LOCALLY</code>: Measures how many other functions (in the same file) a function is calling (independently of CPP-blocks).</li>
+      </ul>
+    </td>
+  </tr>
   <tr>
     <th>Total</th>
-    <td>75</td>
+    <td>98</td>
     <td></td>
     <td></td>
   </tr>
