@@ -100,6 +100,19 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         // All Variables per Function metrics
         addMetric(VariablesPerFunctionMetric.class, VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING,
             filteredFunctionSplitter, sdSplitter, metrics, VarType.values());
+        
+        // Fan-in / Fan-out
+        config.registerSetting(FanInOutMetric.FAN_TYPE_SETTING);
+        addMetric(FanInOutMetric.class, FanInOutMetric.FAN_TYPE_SETTING, functionSplitter, sdSplitter,
+            metrics, FanType.values());
+//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_GLOBALLY);
+//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
+//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_LOCALLY);
+//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
+//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_GLOBALLY);
+//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
+//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_LOCALLY);
+//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
         config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
         config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
         
@@ -109,17 +122,6 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         // All Nesting Depth metrics
         addMetric(NestingDepthMetric.class, NestingDepthMetric.ND_TYPE_SETTING, filteredFunctionSplitter, null, metrics,
             NDType.values());
-        
-        // Fan-in / Fan-out
-        config.registerSetting(FanInOutMetric.FAN_TYPE_SETTING);
-        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_GLOBALLY);
-        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_LOCALLY);
-        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_GLOBALLY);
-        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_LOCALLY);
-        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
         
         // join the parallel metrics together
         @SuppressWarnings({ "null", "unchecked" })
