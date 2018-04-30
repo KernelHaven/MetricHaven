@@ -62,16 +62,18 @@ public class AllNonLineFilterableFunctionMetrics extends AbstractMultiFunctionMe
         
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
-        // Fan-in / Fan-out
+     // Fan-in / Fan-out
         config.registerSetting(FanInOutMetric.FAN_TYPE_SETTING);
-        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_GLOBALLY);
-        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_LOCALLY);
-        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_GLOBALLY);
-        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_LOCALLY);
-        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
+        addMetric(FanInOutMetric.class, FanInOutMetric.FAN_TYPE_SETTING, functionSplitter, sdSplitter,
+            metrics, FanType.values());
+//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_GLOBALLY);
+//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
+//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_LOCALLY);
+//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
+//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_GLOBALLY);
+//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
+//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_LOCALLY);
+//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
         
         // All Cyclomatic complexity metrics
         addMetric(CyclomaticComplexityMetric.class, CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING,
