@@ -6,11 +6,13 @@ import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -28,7 +30,7 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     
     /**
-     * Sole constructor for this class.
+     * Simple constructor for this class, won't consider scattering degree.
      * @param config The pipeline configuration.
      * @param codeFunctionFinder The component to get the code functions from
      *     (the metric will be computed for each function).
@@ -43,6 +45,31 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
         super(config, codeFunctionFinder, varModelComponent, null, null);
+    }
+    
+    /**
+     * Constructor for the automatic instantiation inside the {@link AllFunctionMetrics} component, provides
+     * scattering degree.
+     * 
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
+     *     constant of a CPP expression belongs to a variable of the variability model, otherwise all constants
+     *     will be treated as feature constants.
+     * @param bmComponent Will be ignored.
+     * @param sdComponent Optional: If not <tt>null</tt> scattering degree of variables may be used to weight the
+     *     results.
+     * 
+     * @throws SetUpException If {@link #VARIABLE_TYPE_SETTING} was defined with an invalid option.
+     */
+    @SuppressWarnings("null")
+    public AbstractFanInOutMetric(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<BuildModel> bmComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        
+        super(config, codeFunctionFinder, varModelComponent, bmComponent, sdComponent);
     }
     
     @Override

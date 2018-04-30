@@ -4,10 +4,13 @@ import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -71,7 +74,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
     private @NonNull FanType type;
     
     /**
-     * Creates this metric.
+     * Creates this metric, won't provide scattering degree, no check if a feature is defined in the variability model.
      * @param config The global configuration.
      * @param codeFunctionFinder The component to get the code functions from.
      * @throws SetUpException if {@link #ND_TYPE_SETTING} is misconfigured.
@@ -83,7 +86,8 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
     }
     
     /**
-     * Creates this metric.
+     * Creates this metric, won't provide scattering degree, but checks if a feature is defined
+     *     in the variability model.
      * @param config The global configuration.
      * @param codeFunctionFinder The component to get the code functions from.
      * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
@@ -95,9 +99,59 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        super(config, codeFunctionFinder, varModelComponent);
+        this(config, codeFunctionFinder, varModelComponent, null, null);
+    }
+    
+    /**
+     * Constructor to consider scattering degree of variables when degree centrality is measured.
+     * 
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
+     *     constant of a CPP expression belongs to a variable of the variability model, otherwise all constants
+     *     will be treated as feature constants.
+
+     * @param sdComponent Optional: If not <tt>null</tt> scattering degree of variables may be used to weight the
+     *     results.
+     * 
+     * @throws SetUpException If {@link #VARIABLE_TYPE_SETTING} was defined with an invalid option.
+     */
+    public FanInOutMetric(@NonNull Configuration config,
+            @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+            @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+            @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        
+        this(config, codeFunctionFinder, varModelComponent, null, sdComponent);
+    }
+    
+    /**
+     * Constructor for the automatic instantiation inside the {@link AllFunctionMetrics} component.
+     * 
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
+     *     constant of a CPP expression belongs to a variable of the variability model, otherwise all constants
+     *     will be treated as feature constants.
+     * @param bmComponent Will be ignored.
+     * @param sdComponent Optional: If not <tt>null</tt> scattering degree of variables may be used to weight the
+     *     results.
+     * 
+     * @throws SetUpException If {@link #VARIABLE_TYPE_SETTING} was defined with an invalid option.
+     */
+    public FanInOutMetric(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<BuildModel> bmComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        
+        super(config, codeFunctionFinder, varModelComponent, bmComponent, sdComponent);
+        
         config.registerSetting(FAN_TYPE_SETTING);
         type = config.getValue(FAN_TYPE_SETTING);
+        
+        if (!type.isDegreeCentrality && (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR)) {
+            throw new UnsupportedMetricVariationException(getClass(), type, getSDType(), getCTCRType());
+        }
     }
 
     @Override
