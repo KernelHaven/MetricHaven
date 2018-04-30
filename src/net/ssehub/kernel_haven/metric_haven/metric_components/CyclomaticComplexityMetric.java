@@ -122,26 +122,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
         if (measuredCode == CCType.MCCABE
             && (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR)) {
             
-            StringBuffer errMsg = new StringBuffer("Cannot apply variability weights on non variability metric. "
-                + "Setting was:\n - Metric: ");
-            errMsg.append(this.getClass().getName());
-            // Variability type
-            errMsg.append("\n - ");
-            errMsg.append(CCType.class.getSimpleName());
-            errMsg.append(": ");
-            errMsg.append(measuredCode.name());
-            // Scattering Degree
-            errMsg.append("\n - ");
-            errMsg.append(SDType.class.getSimpleName());
-            errMsg.append(": ");
-            errMsg.append(getSDType().name());
-            // Cross-Tree Constraint Ratio
-            errMsg.append("\n - ");
-            errMsg.append(CTCRType.class.getSimpleName());
-            errMsg.append(": ");
-            errMsg.append(getCTCRType().name());
-
-            throw new SetUpException(errMsg.toString());
+            throw new UnsupportedMetricVariationException(getClass(), measuredCode, getSDType(), getCTCRType());
         }
     }
 

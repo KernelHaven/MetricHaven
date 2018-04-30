@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
@@ -11,6 +12,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFanInOutVisitor;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -20,7 +22,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricResult> {
+abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric<AbstractFanInOutVisitor> {
 
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -32,22 +34,21 @@ abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricResult> {
      *     (the metric will be computed for each function).
      * @param varModelComponent Optional: If a {@link VariabilityModel} is passed via this component, visitors may use
      *     this to identify variable parts depending on variables defined in the {@link VariabilityModel}.
+     * @throws SetUpException If {@link #SCATTERING_DEGREE_USAGE_SETTING} is used, but <tt>sdComponent</tt> is
+     *     <tt>null</tt>.
      */
+    @SuppressWarnings("null")
     AbstractFanInOutMetric(@NonNull Configuration config,
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
-        @Nullable AnalysisComponent<VariabilityModel> varModelComponent) {
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        super(config);
-        this.codeFunctionFinder = codeFunctionFinder;
-        this.varModelComponent = varModelComponent;
+        super(config, codeFunctionFinder, varModelComponent, null, null);
     }
     
     @Override
     protected final void execute() {
-        VariabilityModel varModel = null;
-        if (null != varModelComponent) {
-            varModel = varModelComponent.getNextResult();
-        }
+        VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
+        createWeight(varModel);
         
         CodeFunction function;
         List<CodeFunction> functions = new LinkedList<>();
@@ -57,7 +58,7 @@ abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricResult> {
         // Looses threading for sub analyses, but should not be a big issue
         
         // Gather function calls for all functions
-        AbstractFanInOutVisitor visitor = createVisitor(functions, varModel);
+        AbstractFanInOutVisitor visitor = createVisitor(functions, varModel, getWeighter());
         for (CodeFunction func : functions) {
             func.getFunction().accept(visitor);
         }
@@ -76,6 +77,18 @@ abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricResult> {
         }
     }
     
+    @Override
+    protected final @NonNull AbstractFanInOutVisitor createVisitor(@Nullable VariabilityModel varModel) {
+        throw new IllegalArgumentException("Wrong factory for visitor creation called: createVisitor(VariabilityModel),"
+            + " but should be createVisitor(List<CodeFunction>, VariabilityModel, IVariableWeight)");
+    }
+    
+    @Override
+    protected final double computeResult(@NonNull AbstractFanInOutVisitor visitor) {
+        throw new IllegalArgumentException("Wrong computation method called: computeResult(VariabilityModel),"
+            + " but should be computeResult(List<CodeFunction>, VariabilityModel)");
+    }
+    
     /**
      * This method will compute the result based on the results of the visitor created by
      *     {@link #createVisitor(List, VariabilityModel)}.
@@ -91,8 +104,9 @@ abstract class AbstractFanInOutMetric extends AnalysisComponent<MetricResult> {
      * @param functions All gathered functions.
      * @param varModel Optional, if not <tt>null</tt> this visitor should use the variability model to check if at least
      *     one variable of the variability model is involved in {@link CppBlock#getCondition()} expressions.
+     * @param weight {@link #getWeighter()}
      * @return The visitor to compute the fan-in fan-out metric by the inherited metric analysis.
      */
     protected abstract @NonNull AbstractFanInOutVisitor createVisitor(@NonNull List<CodeFunction> functions,
-        @Nullable VariabilityModel varModel);
+        @Nullable VariabilityModel varModel, IVariableWeight weight);
 }

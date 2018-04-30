@@ -116,8 +116,7 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
                                 }
                             } catch (InvocationTargetException exc) {
                                 Throwable orignException = exc.getTargetException();
-                                if (orignException instanceof SetUpException && orignException.getMessage()
-                                    .startsWith("Cannot apply variability weights on non variability metric.")) {
+                                if (orignException instanceof UnsupportedMetricVariationException) {
                                     
                                     // Drop silently illegal combinations
                                     LOGGER.logDebug2("Discarded metric:\n", orignException.getMessage());

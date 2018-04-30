@@ -7,6 +7,7 @@ import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -20,9 +21,6 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     
 
     private FunctionMap allFunctions;
-
-//    private static int instanceCounter = 0;
-//    private static boolean mapCreationComplete = false;
     
     private @Nullable Function currentFunction;
 
@@ -38,19 +36,6 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
         
         super(varModel);
         allFunctions = new FunctionMap(functions);
-//        instanceCounter++;
-//        if (null == allFunctions) {
-//            synchronized (AbstractFanInOutVisitor.class) {
-//                /*
-//                 * Not 100% thread safe, on the other hand we want to fill the set with the same data,
-//                 * so it should not be a big issue
-//                 * See for more details: https://www.javaworld.com/article/2073352/?page=2
-//                 */
-//                if (null == allFunctions) {
-//                    mapCreationComplete = true;
-//                }
-//            }
-//        }
     }
     
     /**
@@ -81,17 +66,6 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitFunction(@NonNull Function function) {
-//        while (!mapCreationComplete) {
-//            Logger.get().logWarning2("Map creation not complete wait for 400ms...");
-//            try {
-//                Thread.sleep(400);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//                Logger.get().logException("InterruptedException in " + getClass().getName(), e);
-//            }
-//        }
-        
-        
         Function previousFunction = this.currentFunction;
         this.currentFunction = function;
         
@@ -110,7 +84,7 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
             if (null != unparsedCode && isFunction(unparsedCode) && null != currentFunction
                 && !unparsedCode.equals(currentFunction.getName())) {
                 
-                functionCall(currentFunction, unparsedCode);
+                functionCall(currentFunction, unparsedCode, code.getPresenceCondition());
             }            
         }
     }
@@ -119,8 +93,9 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
      * Informs an inherited visitors about the detection of a function call.
      * @param caller The calling function.
      * @param callee The called function (name).
+     * @param pc The presence condition of the function call.
      */
-    protected abstract void functionCall(@NonNull Function caller, @NonNull String callee);
+    protected abstract void functionCall(@NonNull Function caller, @NonNull String callee, Formula pc);
     
     /**
      * Returns the result for the specified function, may only be called after the visitor was applied to <b>all</b>
@@ -130,19 +105,4 @@ public abstract class AbstractFanInOutVisitor extends AbstractFunctionVisitor {
      */
     public abstract int getResult(@NonNull String functionName);
     
-//    @Override
-//    protected void finalize() throws Throwable {
-//        try {
-//            instanceCounter--;
-//            
-//            if (instanceCounter <= 0 && null != allFunctions) {
-//                // Clear memory after last visitor was closed (if required, the maps will be re-build)
-//                synchronized (AbstractFanInOutVisitor.class) {
-//                    allFunctions = null;
-//                }
-//            }
-//        } finally {
-//            super.finalize();
-//        }
-//    }
 }

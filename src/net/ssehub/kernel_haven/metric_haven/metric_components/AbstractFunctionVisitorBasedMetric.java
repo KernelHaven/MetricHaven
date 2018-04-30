@@ -125,7 +125,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     protected abstract double computeResult(@NonNull V visitor);
     
     @Override
-    protected final void execute() {
+    protected void execute() {
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
         bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         
@@ -163,7 +163,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      * Part of {@link #execute()}: Create the weight instance based on the given settings.
      * @param varModel The variability model (may be <tt>null</tt>).
      */
-    private void createWeight(@Nullable VariabilityModel varModel) {
+    protected void createWeight(@Nullable VariabilityModel varModel) {
         // Scattering degree
         List<IVariableWeight> weights = new ArrayList<>();
         if (sdType != SDType.NO_SCATTERING && null != sdComponent) {

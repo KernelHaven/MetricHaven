@@ -9,9 +9,10 @@ import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFanInOutVisitor;
-import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.ClassicalFanInOutVisitor;
-import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.ClassicalFanInOutVisitor.MeasurementType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FanInOutVisitor;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -28,8 +29,38 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
      *
      */
     public static enum FanType {
-        CLASSICAL_FAN_IN_GLOBALLY, CLASSICAL_FAN_IN_LOCALLY,
-        CLASSICAL_FAN_OUT_GLOBALLY, CLASSICAL_FAN_OUT_LOCALLY;
+        // Classical parameters
+        CLASSICAL_FAN_IN_GLOBALLY(false, false), CLASSICAL_FAN_IN_LOCALLY(true, false),
+        CLASSICAL_FAN_OUT_GLOBALLY(false, false), CLASSICAL_FAN_OUT_LOCALLY(true, false),
+        
+        // Only feature code
+        VP_FAN_IN_GLOBALLY(false, false), VP_FAN_IN_LOCALLY(true, false),
+        VP_FAN_OUT_GLOBALLY(false, false), VP_FAN_OUT_LOCALLY(true, false),
+        
+        // Classical + feature code: DegreeCentrality Metric
+        DEGREE_CENTRALITY_IN_GLOBALLY(false, true), DEGREE_CENTRALITY_IN_LOCALLY(true, true),
+        DEGREE_CENTRALITY_OUT_GLOBALLY(false, true), DEGREE_CENTRALITY_OUT_LOCALLY(true, true);
+        
+        private boolean isLocal;
+        private boolean isDegreeCentrality;
+        
+        /**
+         * Sole constructor.
+         * @param isLocal <tt>true</tt> if the metric measures fan-in/out only on the same file.
+         * @param isDegreeCentrality <tt>true</tt> if this metric measures degree centrality.
+         */
+        private FanType(boolean isLocal, boolean isDegreeCentrality) {
+            this.isLocal = isLocal;
+            this.isDegreeCentrality = isDegreeCentrality;
+        }
+        
+        /**
+         * Returns whether degree centrality shall be measured.
+         * @return <tt>true</tt> if degree centrality shall be measured.
+         */
+        public boolean isDegreeCentrality() {
+            return isDegreeCentrality;
+        }
     }
     
     public static final @NonNull Setting<@NonNull FanType> FAN_TYPE_SETTING
@@ -77,59 +108,67 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
     @Override
     // CHECKSTYLE:OFF checkstyle can't parse the annotations properly...
     protected @NonNull AbstractFanInOutVisitor createVisitor(@NonNull List<CodeFunction> functions,
-        @Nullable VariabilityModel varModel) {
+        @Nullable VariabilityModel varModel, IVariableWeight weight) {
     // CHECKSTYLE:ON
         
-        AbstractFanInOutVisitor visitor = null;
-        switch (type) {
-        case CLASSICAL_FAN_IN_GLOBALLY:
-            visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_IN_GLOBALLY);
-            break;
-        case CLASSICAL_FAN_IN_LOCALLY:
-            visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_IN_LOCALLY);
-            break;
-        case CLASSICAL_FAN_OUT_GLOBALLY:
-            visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_OUT_GLOBALLY);
-            break;
-        case CLASSICAL_FAN_OUT_LOCALLY:
-            visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_OUT_LOCALLY);
-            break;
-        default:
-            LOGGER.logError2("Unsupported metric variation ", type.name(), " for metric ",
-                getClass().getName());
-            break;
-        }
-        
-        if (null == visitor) {
-            LOGGER.logError2("No strategy was instantiated for ", getClass().getName(), " loaded default one ",
-                ClassicalFanInOutVisitor.class.getName());
-            visitor = new ClassicalFanInOutVisitor(functions, varModel, MeasurementType.FAN_IN_GLOBALLY);
-        }
-        
-        return visitor;
+        return new FanInOutVisitor(functions, varModel, type, weight);
     }
 
     @Override
     public @NonNull String getResultName() {
-        String resultName;
+        StringBuffer resultName = new StringBuffer();
         switch (type) {
+        // Classical
         case CLASSICAL_FAN_IN_GLOBALLY:
-            resultName = "Classical Fan-In (globally)";
-            break;
+            // falls through
         case CLASSICAL_FAN_IN_LOCALLY:
-            resultName = "Classical Fan-In (locally)";
+            resultName.append("Classical Fan-In");
             break;
         case CLASSICAL_FAN_OUT_GLOBALLY:
-            resultName = "Classical Fan-Out (globally)";
-            break;
+            // falls through
         case CLASSICAL_FAN_OUT_LOCALLY:
-            resultName = "Classical Fan-Out (locally)";
+            resultName.append("Classical Fan-Out");
+            break;
+       
+        // Variation point
+        case VP_FAN_IN_GLOBALLY:
+            // falls through
+        case VP_FAN_IN_LOCALLY:
+            resultName.append("VP Fan-In");
+            break;
+        case VP_FAN_OUT_GLOBALLY:
+            // falls through
+        case VP_FAN_OUT_LOCALLY:
+            resultName.append("VP Fan-Out");
+            break;
+        
+        // Variation point
+        case DEGREE_CENTRALITY_IN_GLOBALLY:
+            // falls through
+        case DEGREE_CENTRALITY_IN_LOCALLY:
+            resultName.append("DC Fan-In");
+            break;
+        case DEGREE_CENTRALITY_OUT_GLOBALLY:
+            // falls through
+        case DEGREE_CENTRALITY_OUT_LOCALLY:
+            resultName.append("DC Fan-Out");
             break;
         default:
-            resultName = "Unspecified Fan-In/Out metric";
+            resultName.append("Unspecified Fan-In/Out metric");
             break;
         }
         
-        return resultName;
+        resultName.append("(");
+        resultName.append((type.isLocal) ? "local" : "global");
+        resultName.append(")");
+        
+        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR) {
+            resultName.append(" x ");
+            resultName.append(getSDType().name());
+            resultName.append(" x ");
+            resultName.append(getCTCRType().name());
+        }
+        
+        return NullHelpers.notNull(resultName.toString());
     }
 }
