@@ -69,25 +69,6 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
         }
     }
     
-//    /**
-//     * Specification which kind of fan-in/fan-out shall be measured.
-//     * @author El-Sharkawy
-//     *
-//     */
-//    public static enum MeasurementType {
-//        // Classical parameters
-//        FAN_OUT_LOCALLY, FAN_OUT_GLOBALLY,
-//        FAN_IN_LOCALLY, FAN_IN_GLOBALLY,
-//        
-//        // Only feature code
-//        VP_FAN_OUT_LOCALLY, VP_FAN_OUT_GLOBALLY,
-//        VP_FAN_IN_LOCALLY, VP_FAN_IN_GLOBALLY,
-//        
-//        // Classical + feature code: DegreeCentrality Metric
-//        DEGREE_CENTRALITY_OUT_LOCALLY, DEGREE_CENTRALITY_OUT_GLOBALLY,
-//        DEGREE_CENTRALITY_IN_LOCALLY, DEGREE_CENTRALITY_IN_GLOBALLY;
-//    }
-    
     private FanType type;
     private Map<String, Set<FunctionCall>> functionCalls;
     private @NonNull VariableFinder varFinder;
