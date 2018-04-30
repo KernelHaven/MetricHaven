@@ -72,10 +72,17 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
         if (isFeatureDependentBlock(block) && block.getType() != CppBlock.Type.ELSE) {
             VariableFinder varFinder = this.varFinder;
             if (null != varFinder) {
+                /* 
+                 * If we use a varFinder, we are interested only in feature dependent code, i.e., check if symbols are
+                 * defined in variability model.
+                 */
                 Set<Variable> usedVars = block.getCondition().accept(varFinder);
                 // Won't count blocks containing no variables
                 for (Variable variable : usedVars) {
-                    variabilityCC += weight.getWeight(variable.getName());
+                    String varName = variable.getName();
+                    if (isFeature(varName)) {
+                        variabilityCC += weight.getWeight(varName);
+                    }
                 }
                 /*
                  * VarFinder returns internal set, clear method will also clear the external set as side-effect.
