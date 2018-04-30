@@ -70,6 +70,7 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
         @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
         
         super(config, codeFunctionFinder, varModelComponent, bmComponent, sdComponent);
+        this.codeFunctionFinder = codeFunctionFinder;
     }
     
     @Override
