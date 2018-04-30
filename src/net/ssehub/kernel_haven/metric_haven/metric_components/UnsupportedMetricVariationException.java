@@ -24,6 +24,7 @@ public class UnsupportedMetricVariationException extends SetUpException {
      * @param selectedOptions The selected options, which lead to this exception.
      */
     public UnsupportedMetricVariationException(Class<?> metricClass, Enum<?>... selectedOptions) {
+        this.metricClass = metricClass;
         this.selectedOptions = selectedOptions;
     }
 

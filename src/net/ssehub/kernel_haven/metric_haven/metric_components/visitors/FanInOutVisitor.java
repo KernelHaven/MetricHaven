@@ -208,10 +208,20 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
             // Compute the DC value for each connection
             result = 0;
             for (FunctionCall call : getFunctionCalls(functionName)) {
-                result += 1;
                 call.pc.accept(varFinder);
+                boolean containsFeature = false;
                 for (Variable variable : varFinder.getVariables()) {
-                    result += weight.getWeight(variable.getName());
+                    String varName = variable.getName();
+                    /* By default weight will count unknown elements with 1, but this is already counted by 
+                     * non-DegreeCentrality-metrics. Therefore, ensure that we count only feature of the varModel.
+                     */
+                    if (isFeature(varName)) {
+                        result += weight.getWeight(variable.getName());
+                        containsFeature = true;
+                    }
+                }
+                if (containsFeature) {
+                    result += 1;
                 }
                 varFinder.clear();
             }

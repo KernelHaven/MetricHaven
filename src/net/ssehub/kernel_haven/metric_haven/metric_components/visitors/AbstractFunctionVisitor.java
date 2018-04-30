@@ -70,6 +70,16 @@ public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     }
     
     /**
+     * Checks if the given name is defined in the variability model.
+     * @param variableName The CPP element to check.
+     * @return <tt>true</tt> if no variability model was passed to this visitor or if the element is defined in the
+     *     variability model.
+     */
+    protected boolean isFeature(String variableName) {
+        return (null == varModel || varModel.getVariableMap().containsKey(variableName));
+    }
+    
+    /**
      * Returns if the visitor is currently inside a function.
      * @return <tt>true</tt> if inside a function, <tt>false</tt> otherwise
      */
