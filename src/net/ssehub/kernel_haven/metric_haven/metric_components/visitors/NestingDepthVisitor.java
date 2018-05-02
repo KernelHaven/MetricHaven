@@ -11,6 +11,10 @@ import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
 import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.SwitchStatement;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
+import net.ssehub.kernel_haven.util.logic.Variable;
+import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -34,6 +38,10 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
     private int maxVPDepth;
     private int allVPDepth;
     
+    // Support for variability weights
+    private @Nullable IVariableWeight weight;
+    private @Nullable VariableFinder varFinder;
+    
     /**
      * Sole constructor for this class.
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
@@ -41,6 +49,24 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
      */
     public NestingDepthVisitor(@Nullable VariabilityModel varModel) {
         super(varModel);
+        reset();
+    }
+    
+    /**
+     * Sole constructor for this class.
+     * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
+     *     model is involved in {@link CppBlock#getCondition()} expressions.
+     * @param weight A {@link IVariableWeight}to weight/measure the complexity of variation point nestings.
+     */
+    public NestingDepthVisitor(@Nullable VariabilityModel varModel, @Nullable IVariableWeight weight) {
+        super(varModel);
+        
+        // Small  optimization, do not discover variables if they are not required
+        if (weight != NoWeight.INSTANCE) {
+            this.weight = weight;
+            varFinder = new VariableFinder();
+        }
+        
         reset();
     }
 
@@ -108,18 +134,36 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         // Do not visit comments!
     }
     
+    @SuppressWarnings("null")
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
         // Compute only once (in this child class)
         boolean isVariationPoint = isFeatureDependentBlock(block); 
+        
+        int nestingComplexity = 1;
+        if (null != varFinder && block.getCondition() != null) {
+            /* 
+             * If a weight is defined and if we are not in a condition-less else-part,
+             * add the complexity of the expression.
+             */
+            block.getCondition().accept(varFinder);
+            for (Variable var : varFinder.getVariables()) {
+                String varName = var.getName();
+                if (isFeature(varName)) {
+                    nestingComplexity += weight.getWeight(varName);
+                }
+            }
+            varFinder.clear();
+        }
+        
         if (isVariationPoint) {
-            currentVPDepth++;
+            currentNestingDepth += nestingComplexity;
         }
         
         super.visitCppBlock(block);
         
         if (isVariationPoint) {
-            currentVPDepth--;
+            currentVPDepth -= nestingComplexity;
         }
     }
     

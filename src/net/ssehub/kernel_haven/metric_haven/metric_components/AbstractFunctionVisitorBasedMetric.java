@@ -211,4 +211,28 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     protected IVariableWeight getWeighter() {
         return weighter;
     }
+    
+    /**
+     * Returns the name of the selected weights as part of the {@link #getResultName()}.
+     * @return The name of the selected weights or an empty string if no weight was selected.
+     */
+    protected String getWeightsName() {
+        String name;
+        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR) {
+            name = " x " + getSDType().name() + " x " + getCTCRType().name();      
+        } else {
+            name = "";
+        }
+        
+        return name;
+    }
+    
+    /**
+     * Returns whether this metric has at least one variability weight defined.
+     * @return <tt>true</tt> if at least one variability weight is defined, <tt>false</tt> if no variability weight is
+     *     defined.
+     */
+    protected final boolean hasVariabilityWeight() {
+        return getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR;
+    }
 }

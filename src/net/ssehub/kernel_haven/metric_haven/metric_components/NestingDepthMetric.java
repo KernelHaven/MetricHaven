@@ -2,10 +2,13 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.NestingDepthVisitor;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -34,9 +37,19 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
      *
      */
     public static enum NDType {
-        CLASSIC_ND_MAX, CLASSIC_ND_AVG,
-        VP_ND_MAX, VP_ND_AVG,
-        COMBINED_ND_MAX, COMBINED_ND_AVG;
+        CLASSIC_ND_MAX(false), CLASSIC_ND_AVG(false),
+        VP_ND_MAX(true), VP_ND_AVG(true),
+        COMBINED_ND_MAX(true), COMBINED_ND_AVG(true);
+        
+        private boolean isVariabilityMetric;
+        
+        /**
+         * Private constructor to specify whether this enums denotes a metric operating on variability information.
+         * @param isVariabilityMetric <tt>true</tt> operates on variability, <tt>false</tt> classical code metric
+         */
+        private NDType(Boolean isVariabilityMetric) {
+            this.isVariabilityMetric = isVariabilityMetric;
+        }
     }
     
     public static final @NonNull Setting<@NonNull NDType> ND_TYPE_SETTING
@@ -70,7 +83,7 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
     }
     
     /**
-     * Creates this metric.
+     * Creates this metric (won't be able to use scattering degree).
      * @param config The global configuration.
      * @param codeFunctionFinder The component to get the code functions from.
      * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
@@ -82,14 +95,66 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        super(config, codeFunctionFinder, varModelComponent, null, null);
+        this(config, codeFunctionFinder, varModelComponent, null, null);
+    }
+    
+    /**
+     * Constructor to use scattering degree to weight the results.
+     * 
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
+     *     constant of a CPP expression belongs to a variable of the variability model, otherwise all constants
+     *     will be treated as feature constants.
+     * @param sdComponent Optional: If not <tt>null</tt> scattering degree of variables may be used to weight the
+     *     results.
+     * 
+     * @throws SetUpException If {@link #ND_TYPE_SETTING} was defined with an invalid option.
+     */
+    public NestingDepthMetric(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        
+        this(config, codeFunctionFinder, varModelComponent, null, sdComponent);
+    }
+    
+    /**
+     * Constructor for the automatic instantiation inside the {@link AllFunctionMetrics} component..
+     * 
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
+     *     constant of a CPP expression belongs to a variable of the variability model, otherwise all constants
+     *     will be treated as feature constants.
+     * @param bmComponent Optional: Allows to incorporate variables of the file presence conditions into the
+     *     external variables list.
+     * @param sdComponent Optional: If not <tt>null</tt> scattering degree of variables may be used to weight the
+     *     results.
+     * 
+     * @throws SetUpException If {@link #ND_TYPE_SETTING} was defined with an invalid option.
+     */
+    public NestingDepthMetric(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<BuildModel> bmComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        
+        super(config, codeFunctionFinder, varModelComponent, bmComponent, sdComponent);
+        
         config.registerSetting(ND_TYPE_SETTING);
         type = config.getValue(ND_TYPE_SETTING);
+        
+        if (!type.isVariabilityMetric && hasVariabilityWeight()) {
+            
+            throw new UnsupportedMetricVariationException(getClass(), type, getSDType(), getCTCRType());
+        }
     }
     
     @Override
     protected NestingDepthVisitor createVisitor(@Nullable VariabilityModel varModel) {
-        return new NestingDepthVisitor(varModel);
+        return hasVariabilityWeight() ? new NestingDepthVisitor(varModel, getWeighter())
+            : new NestingDepthVisitor(varModel);
     }
     
     @Override
@@ -152,6 +217,8 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
                 ND_TYPE_SETTING.getKey(), "=", type.name());
             break;
         }
+        
+        resultName += getWeightsName();
         
         return resultName;
     }

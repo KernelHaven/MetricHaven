@@ -137,12 +137,7 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
     public @NonNull String getResultName() {
         StringBuffer resultName = new StringBuffer(measuredVars.toString());
         resultName.append(" Vars per Func.");
-        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR) {
-            resultName.append(" x ");            
-            resultName.append(getSDType().name());            
-            resultName.append(" x ");            
-            resultName.append(getCTCRType().name());            
-        }
+        resultName.append(getWeightsName());
         
         return NullHelpers.notNull(resultName.toString());
     }
