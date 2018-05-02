@@ -141,23 +141,24 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         boolean isVariationPoint = isFeatureDependentBlock(block); 
         
         int nestingComplexity = 1;
-        if (null != varFinder && block.getCondition() != null) {
-            /* 
-             * If a weight is defined and if we are not in a condition-less else-part,
-             * add the complexity of the expression.
-             */
-            block.getCondition().accept(varFinder);
-            for (Variable var : varFinder.getVariables()) {
-                String varName = var.getName();
-                if (isFeature(varName)) {
-                    nestingComplexity += weight.getWeight(varName);
-                }
-            }
-            varFinder.clear();
-        }
         
         if (isVariationPoint) {
-            currentNestingDepth += nestingComplexity;
+            nestingComplexity = 1;
+            if (null != varFinder && block.getCondition() != null) {
+                /* 
+                 * If a weight is defined and if we are not in a condition-less else-part,
+                 * add the complexity of the expression.
+                 */
+                block.getCondition().accept(varFinder);
+                for (Variable var : varFinder.getVariables()) {
+                    String varName = var.getName();
+                    if (isFeature(varName)) {
+                        nestingComplexity += weight.getWeight(varName);
+                    }
+                }
+                varFinder.clear();
+            }
+            currentVPDepth += nestingComplexity;
         }
         
         super.visitCppBlock(block);
