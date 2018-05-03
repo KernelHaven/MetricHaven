@@ -98,7 +98,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
   <!-- NestingDepthMetric -->
   <tr>
     <td><code>NestingDepthMetric</code></td>
-    <td>6</td>
+    <td>50</td>
     <td>Measures the number of nested constroll structures.</td>
     <td>
       <code>metric.nesting_depth.measured_type</code>:
@@ -109,6 +109,19 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
         <li><code>VP_ND_AVG</code>: Average depth (within a function) only of CPP structures.</li>
         <li><code>COMBINED_ND_MAX</code>: Maximum depth (within a function) of non-CPP and CPP structures.</li>
         <li><code>COMBINED_ND_AVG</code>: Average depth (within a function) of non-CPP and CPP structures.</li>
+      </ul>
+      <code>metric.function_measures.consider_scattering_degree</code> (not applyable to <code>CLASSIC_ND</code>):
+      <ul>
+        <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
+        <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
+        <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
+      </ul>
+      <code>metric.function_measures.consider_ctcr</code> (requires an extracted variability model, not applyable to <code>CLASSIC_ND</code>):
+      <ul>
+        <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
+        <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
+        <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
+        <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
       </ul>
     </td>
   </tr>
@@ -150,7 +163,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
   </tr>
   <tr>
     <th>Total</th>
-    <td>150</td>
+    <td>194</td>
     <td></td>
     <td></td>
   </tr>
