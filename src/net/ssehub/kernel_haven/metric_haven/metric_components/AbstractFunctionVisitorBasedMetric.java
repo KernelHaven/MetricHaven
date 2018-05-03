@@ -20,7 +20,6 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
-import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
