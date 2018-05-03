@@ -105,23 +105,17 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         config.registerSetting(FanInOutMetric.FAN_TYPE_SETTING);
         addMetric(FanInOutMetric.class, FanInOutMetric.FAN_TYPE_SETTING, functionSplitter, sdSplitter,
             metrics, FanType.values());
-//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_GLOBALLY);
-//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_IN_LOCALLY);
-//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_GLOBALLY);
-//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
-//        config.setValue(FanInOutMetric.FAN_TYPE_SETTING, FanType.CLASSICAL_FAN_OUT_LOCALLY);
-//        metrics.add(new FanInOutMetric(config, functionSplitter.createOutputComponent()));
+        
+        // All Nesting Depth metrics
+        addMetric(NestingDepthMetric.class, NestingDepthMetric.ND_TYPE_SETTING, filteredFunctionSplitter, sdSplitter,
+            metrics, NDType.values());
+        
+        // Disable variability weights
         config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
         config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
         
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());
-        
-        // All Nesting Depth metrics
-        addMetric(NestingDepthMetric.class, NestingDepthMetric.ND_TYPE_SETTING, filteredFunctionSplitter, null, metrics,
-            NDType.values());
         
         // join the parallel metrics together
         @SuppressWarnings({ "null", "unchecked" })

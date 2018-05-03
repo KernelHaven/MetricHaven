@@ -8,7 +8,6 @@ import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
-import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.NestingDepthVisitor;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;

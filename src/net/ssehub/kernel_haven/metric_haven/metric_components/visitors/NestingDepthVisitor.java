@@ -35,6 +35,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
     
     // Variability dependent code
     private int currentVPDepth;
+    private int currentVPComplexity;
     private int maxVPDepth;
     private int allVPDepth;
     
@@ -139,7 +140,6 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
     public void visitCppBlock(@NonNull CppBlock block) {
         // Compute only once (in this child class)
         boolean isVariationPoint = isFeatureDependentBlock(block); 
-        
         int nestingComplexity = 1;
         
         if (isVariationPoint) {
@@ -158,13 +158,20 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
                 }
                 varFinder.clear();
             }
-            currentVPDepth += nestingComplexity;
+            
+            /*
+             * If a weight is specified: Conditions are more complex if they are deeper nested: +(depth * complexity)
+             * If there is no weight: Each nesting is increased by 1
+             */
+            nestingComplexity *= ++currentVPDepth;
+            currentVPComplexity += nestingComplexity;
         }
         
         super.visitCppBlock(block);
         
         if (isVariationPoint) {
-            currentVPDepth -= nestingComplexity;
+            currentVPComplexity -= nestingComplexity;
+            --currentVPDepth;
         }
     }
     
@@ -180,8 +187,9 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         allDepth = 0;
         
         // Variation Points
-        currentVPDepth = 0; // Consider code not be dependent of variability
-        maxVPDepth = currentVPDepth;
+        currentVPDepth = 0;         // Consider code not be dependent of variability
+        currentVPComplexity = 0;    // Consider code not be dependent of variability
+        maxVPDepth = currentVPComplexity;
         allVPDepth = 0;
     }
     
@@ -197,8 +205,8 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
             
             // Count statements of conditional code (only if current statement is conditional)
             if (isInConditionalCode()) {
-                maxVPDepth = Math.max(maxVPDepth, currentVPDepth);
-                allVPDepth += currentVPDepth;
+                maxVPDepth = Math.max(maxVPDepth, currentVPComplexity);
+                allVPDepth += currentVPComplexity;
             }
         }
     }
