@@ -216,6 +216,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             }
         }
         
+        LOGGER.logInfo2("All metrics done, merging ", threads.size(), " results.");
         for (MultiMetricResult result : createTable()) {
             addResult(result);
         }
