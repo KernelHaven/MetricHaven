@@ -20,6 +20,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
+import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -126,6 +127,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     
     @Override
     protected void execute() {
+        long time = System.currentTimeMillis();
+        
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
         bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         
@@ -148,6 +151,11 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
             addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
         }
+        
+        time = System.currentTimeMillis() - time;
+        // See: https://stackoverflow.com/a/14081915
+        String text = String.format("%02d:%02d", time / 60000, time / 1000 % 60);
+        LOGGER.logInfo2("Analysis of ", getResultName(), " finished in ", text, " Min.");
     }
     
     /**
