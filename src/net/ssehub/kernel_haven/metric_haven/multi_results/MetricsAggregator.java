@@ -134,11 +134,10 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     }
     
     /**
-     * Creates and returns a table of {@link MultiMetricResult}s based on the passed data of
+     * Creates and sends a table of {@link MultiMetricResult}s based on the passed data of
      * {@link #addValue(String, String, int, String, String, double)}.
-     * @return An ordered list of {@link MultiMetricResult}s.
      */
-    private @NonNull MultiMetricResult @NonNull [] createTable() {
+    private void createTable() {
         // Create header/columns
         int nColumns = hasIncludedFiles ? metricNames.length + 4 : metricNames.length + 3;
         String[] header = new String[nColumns];
@@ -156,7 +155,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         Arrays.sort(columnIDs);
         
         // Create Values
-        @NonNull MultiMetricResult[] result = new @NonNull MultiMetricResult[columnIDs.length];
+//        @NonNull MultiMetricResult[] result = new @NonNull MultiMetricResult[columnIDs.length];
         for (int i = 0; i < columnIDs.length; i++) {
             String id = columnIDs[i];
             ValueRow column = getRow(id);
@@ -176,10 +175,8 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 values[index++] = column.getValue(metricNames[j]);
             }
             
-            result[i] = new MultiMetricResult(header, values);
+            addResult(new MultiMetricResult(header, values));
         }
-        
-        return result;
     }
 
     @Override
@@ -217,9 +214,10 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         }
         
         LOGGER.logInfo2("All metrics done, merging ", threads.size(), " results.");
-        for (MultiMetricResult result : createTable()) {
-            addResult(result);
-        }
+        createTable();
+//        for (MultiMetricResult result : createTable()) {
+//            addResult(result);
+//        }
     }
 
     @Override
