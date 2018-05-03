@@ -143,6 +143,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         int nestingComplexity = 1;
         
         if (isVariationPoint) {
+            currentVPDepth++;
             nestingComplexity = 1;
             if (null != varFinder && block.getCondition() != null) {
                 /* 
@@ -157,13 +158,13 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
                     }
                 }
                 varFinder.clear();
+                nestingComplexity *= currentVPDepth;
             }
             
             /*
              * If a weight is specified: Conditions are more complex if they are deeper nested: +(depth * complexity)
              * If there is no weight: Each nesting is increased by 1
              */
-            nestingComplexity *= ++currentVPDepth;
             currentVPComplexity += nestingComplexity;
         }
         
@@ -171,7 +172,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         
         if (isVariationPoint) {
             currentVPComplexity -= nestingComplexity;
-            --currentVPDepth;
+            currentVPDepth--;
         }
     }
     
