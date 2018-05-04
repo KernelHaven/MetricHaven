@@ -39,16 +39,19 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
     private class FunctionCall {
         private String functionName;
         private Formula pc;
+        private File codeFile;
         
         /**
          * Sole constructor.
          * @param functionName The calling/called function name.
          * @param pc The presence condition of the call (use {@link True#INSTANCE} if conditions should
          *     not be considered.
+         * @param codefile The location of the function call.
          */
-        private FunctionCall(String functionName, Formula pc) {
+        private FunctionCall(String functionName, Formula pc, File codefile) {
             this.functionName = functionName;
             this.pc = pc;
+            this.codeFile = codeFile;
         }
         
         @Override
@@ -63,6 +66,7 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
                 FunctionCall otherCall = (FunctionCall) other;
                 isEqual &= functionName.equals(otherCall.functionName);
                 isEqual &= pc.equals(otherCall.pc);
+                isEqual &= codeFile.equals(otherCall.codeFile);
             }
             
             return isEqual;
@@ -116,10 +120,12 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
         List<CodeFunction> others = getFunction(callee);
         boolean isSameFile = false;
         
+        File calleFile = null;
+        File callerFile = caller.getSourceFile();
         if (null != others) {
             for (CodeFunction otherFunction : others) {
-                File calleFile = otherFunction != null ? otherFunction.getSourceFile().getPath() : null;
-                isSameFile = (null != calleFile && calleFile.equals(caller.getSourceFile()));
+                calleFile = otherFunction != null ? otherFunction.getSourceFile().getPath() : null;
+                isSameFile = (null != calleFile && calleFile.equals(callerFile));
                 if (isSameFile) {
                     break;
                 }
@@ -130,68 +136,68 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
         // CALLED functions for a specified function
         case CLASSICAL_FAN_OUT_GLOBALLY:
             // Measures (globally) the number of CALLED functions for a specified function
-            getFunctionCalls(caller.getName()).add(new FunctionCall(callee, True.INSTANCE));
+            getFunctionCalls(caller.getName()).add(new FunctionCall(callee, True.INSTANCE, calleFile));
             break;
         case CLASSICAL_FAN_OUT_LOCALLY:
             // Measures (locally) the number of CALLED functions for a specified function
             if (isSameFile) {
-                getFunctionCalls(caller.getName()).add(new FunctionCall(callee, True.INSTANCE));
+                getFunctionCalls(caller.getName()).add(new FunctionCall(callee, True.INSTANCE, calleFile));
             }
             break;
         case VP_FAN_OUT_GLOBALLY:
             if (!getCurrentfunction().getPresenceCondition().equals(pc)) {
                 // Measures (globally) the number of CALLED functions for a specified function
-                getFunctionCalls(caller.getName()).add(new FunctionCall(callee, True.INSTANCE));
+                getFunctionCalls(caller.getName()).add(new FunctionCall(callee, True.INSTANCE, calleFile));
             }
             break;
         case VP_FAN_OUT_LOCALLY:
             if (!getCurrentfunction().getPresenceCondition().equals(pc) && isSameFile) {
                 // Measures (locally) the number of CALLED functions for a specified function
-                getFunctionCalls(caller.getName()).add(new FunctionCall(callee, True.INSTANCE));
+                getFunctionCalls(caller.getName()).add(new FunctionCall(callee, True.INSTANCE, calleFile));
             }
             break;
         case DEGREE_CENTRALITY_OUT_GLOBALLY:
             // Measures (globally) the number of CALLED functions for a specified function
-            getFunctionCalls(caller.getName()).add(new FunctionCall(callee, pc));
+            getFunctionCalls(caller.getName()).add(new FunctionCall(callee, pc, calleFile));
             break;
         case DEGREE_CENTRALITY_OUT_LOCALLY:
             // Measures (locally) the number of CALLED functions for a specified function
             if (isSameFile) {
-                getFunctionCalls(caller.getName()).add(new FunctionCall(callee, pc));
+                getFunctionCalls(caller.getName()).add(new FunctionCall(callee, pc, calleFile));
             }
             break;
             
         // Functions CALLING the specified function
         case CLASSICAL_FAN_IN_GLOBALLY:
             // Measures (globally) the number of functions CALLING the specified function
-            getFunctionCalls(callee).add(new FunctionCall(caller.getName(), True.INSTANCE));
+            getFunctionCalls(callee).add(new FunctionCall(caller.getName(), True.INSTANCE, callerFile));
             break;
         case CLASSICAL_FAN_IN_LOCALLY:
             // Measures (locally) the number of functions CALLING the specified function
             if (isSameFile) {
-                getFunctionCalls(callee).add(new FunctionCall(caller.getName(), True.INSTANCE));
+                getFunctionCalls(callee).add(new FunctionCall(caller.getName(), True.INSTANCE, callerFile));
             }
             break;
         case VP_FAN_IN_GLOBALLY:
             if (!getCurrentfunction().getPresenceCondition().equals(pc)) {
                 // Measures (globally) the number of functions CALLING the specified function
-                getFunctionCalls(callee).add(new FunctionCall(caller.getName(), True.INSTANCE));
+                getFunctionCalls(callee).add(new FunctionCall(caller.getName(), True.INSTANCE, callerFile));
             }
             break;
         case VP_FAN_IN_LOCALLY:
             if (!getCurrentfunction().getPresenceCondition().equals(pc) && isSameFile) {
                 // Measures (locally) the number of functions CALLING the specified function
-                getFunctionCalls(callee).add(new FunctionCall(caller.getName(), True.INSTANCE));
+                getFunctionCalls(callee).add(new FunctionCall(caller.getName(), True.INSTANCE, callerFile));
             }
             break;
         case DEGREE_CENTRALITY_IN_GLOBALLY:
             // Measures (globally) the number of functions CALLING the specified function
-            getFunctionCalls(callee).add(new FunctionCall(caller.getName(), pc));
+            getFunctionCalls(callee).add(new FunctionCall(caller.getName(), pc, callerFile));
             break;
         case DEGREE_CENTRALITY_IN_LOCALLY:
             // Measures (locally) the number of functions CALLING the specified function
             if (isSameFile) {
-                getFunctionCalls(callee).add(new FunctionCall(caller.getName(), pc));
+                getFunctionCalls(callee).add(new FunctionCall(caller.getName(), pc, callerFile));
             }
             break;
         
@@ -216,7 +222,11 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
                      * non-DegreeCentrality-metrics. Therefore, ensure that we count only feature of the varModel.
                      */
                     if (isFeature(varName)) {
-                        result += weight.getWeight(variable.getName(), getCurrentfunction().getSourceFile());
+                        if (null != call.codeFile) {
+                            result += weight.getWeight(variable.getName(), call.codeFile);
+                        } else {
+                            result += weight.getWeight(variable.getName());
+                        }
                         containsFeature = true;
                     }
                 }
