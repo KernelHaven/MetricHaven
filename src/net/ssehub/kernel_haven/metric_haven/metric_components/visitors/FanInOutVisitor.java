@@ -216,7 +216,7 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
                      * non-DegreeCentrality-metrics. Therefore, ensure that we count only feature of the varModel.
                      */
                     if (isFeature(varName)) {
-                        result += weight.getWeight(variable.getName());
+                        result += weight.getWeight(variable.getName(), getCurrentfunction().getSourceFile());
                         containsFeature = true;
                     }
                 }

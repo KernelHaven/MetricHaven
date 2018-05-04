@@ -16,6 +16,7 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CtcrWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureDistanceWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
@@ -55,6 +56,15 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                     + "connected\n   with the measured/detected variable (intersection of "
                     + CTCRType.INCOMIG_CONNECTIONS.name() + "\n   and " + CTCRType.OUTGOING_CONNECTIONS.name() + ".");
     
+    public static final @NonNull Setting<@NonNull FeatureDistanceType> LOCATION_DISTANCE_SETTING
+        = new EnumSetting<>("metric.function_measures.consider_feature_definition_distance", FeatureDistanceType.class,
+            true, FeatureDistanceType.NO_DISTANCE, "Defines whether and how to incorporate distance between used "
+                + "feature (location of measured code file) and definition of feature "
+                + "(defining file of variability model):\n"
+                + " - " + FeatureDistanceType.NO_DISTANCE.name() + ": Do not consider any distances (default)."
+                + "\n - " + FeatureDistanceType.SHORTEST_DISTANCE.name() + ": Count the minimum number of required"
+                + " folder changes to traverse to the defining file.\n");
+    
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @Nullable AnalysisComponent<BuildModel> bmComponent;
@@ -63,7 +73,9 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     
     private @NonNull SDType sdType;
     private @NonNull CTCRType ctcrType;
+    private @NonNull FeatureDistanceType locationType;
     private IVariableWeight weighter;
+    private File currentCodefile;
     
     /**
      * Sole constructor for this class.
@@ -105,6 +117,13 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             throw new SetUpException("Use of cross-tree constraint ratio was configured (" + ctcrType.name() + "), but "
                 + "no variability model was passed to " + this.getClass().getName());
         }
+        
+        config.registerSetting(LOCATION_DISTANCE_SETTING);
+        locationType = config.getValue(LOCATION_DISTANCE_SETTING);
+        if (locationType != FeatureDistanceType.NO_DISTANCE && null == varModelComponent) {
+            throw new SetUpException("Use of feature distance was configured (" + locationType.name() + "), but "
+                    + "no variability model was passed to " + this.getClass().getName());
+        }
     }
     
     /**
@@ -136,6 +155,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         CodeFunction function;
         V visitor = createVisitor(varModel);
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
+            currentCodefile = function.getSourceFile().getPath();
             Function astRoot = function.getFunction();
             visitor.reset();
             astRoot.accept(visitor);
@@ -146,9 +166,10 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             }
             
             Function functionAST = function.getFunction();
-            File cFile = function.getSourceFile().getPath();
-            File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
-            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), function.getName(), result));
+            File includedFile = currentCodefile.equals(functionAST.getSourceFile())
+                ? null : functionAST.getSourceFile();
+            addResult(new MetricResult(currentCodefile, includedFile, functionAST.getLineStart(), function.getName(),
+                result));
         }
         
         time = System.currentTimeMillis() - time;
@@ -167,6 +188,13 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     }
 
     /**
+     * Returns the code file, which is currently measured.
+     * @return The code file, which is currently measured, won't <tt>null</tt> during the analysis.
+     */
+    protected final File getCodeFile() {
+        return currentCodefile;
+    }
+    /**
      * Part of {@link #execute()}: Create the weight instance based on the given settings.
      * @param varModel The variability model (may be <tt>null</tt>).
      */
@@ -182,6 +210,11 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         // Cross-tree constraint ratio
         if (ctcrType != CTCRType.NO_CTCR && null != varModel) {
             weights.add(new CtcrWeight(varModel, ctcrType)); 
+        }
+        
+        // Cross-tree constraint ratio
+        if (locationType != FeatureDistanceType.NO_DISTANCE && null != varModel) {
+            weights.add(new FeatureDistanceWeight(varModel)); 
         }
         
         // Create final weighting function with as less objects as necessary
@@ -211,6 +244,14 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     }
     
     /**
+     * Returns the {@link #LOCATION_DISTANCE_SETTING} setting.
+     * @return The configured {@link FeatureDistanceType}.
+     */
+    protected @NonNull FeatureDistanceType getDistanceType() {
+        return locationType;
+    }
+    
+    /**
      * Returns a weighting function to be used for all detected variables.
      * @return The weighting function to be used for variables of the variability model (won't be <tt>null</tt>
      *     during the execution).
@@ -225,8 +266,10 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      */
     protected String getWeightsName() {
         String name;
-        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR) {
-            name = " x " + getSDType().name() + " x " + getCTCRType().name();      
+        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR
+            || getDistanceType() != FeatureDistanceType.NO_DISTANCE) {
+            
+            name = " x " + getSDType().name() + " x " + getCTCRType().name() + " x " + getDistanceType().name();      
         } else {
             name = "";
         }
@@ -240,6 +283,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      *     defined.
      */
     protected final boolean hasVariabilityWeight() {
-        return getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR;
+        return getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR
+            || getDistanceType() != FeatureDistanceType.NO_DISTANCE;
     }
 }

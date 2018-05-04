@@ -178,7 +178,7 @@ public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetr
         
         int result = 0;
         for (String variable : variables) {
-            result += getWeighter().getWeight(variable);
+            result += getWeighter().getWeight(variable, getCodeFile());
         }
         
         return result;

@@ -119,10 +119,9 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
         config.registerSetting(VARIABLE_TYPE_SETTING);
         measuredCode = config.getValue(VARIABLE_TYPE_SETTING);
         
-        if (measuredCode == CCType.MCCABE
-            && (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR)) {
-            
-            throw new UnsupportedMetricVariationException(getClass(), measuredCode, getSDType(), getCTCRType());
+        if (measuredCode == CCType.MCCABE && hasVariabilityWeight()) {
+            throw new UnsupportedMetricVariationException(getClass(), measuredCode, getSDType(), getCTCRType(),
+                getDistanceType());
         }
     }
 
@@ -143,13 +142,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
             resultName = new StringBuffer("Unknown Cyclomatic Complexity");
             break;
         }
-        
-        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR) {
-            resultName.append(" x ");            
-            resultName.append(getSDType().name());            
-            resultName.append(" x ");            
-            resultName.append(getCTCRType().name());            
-        }
+        resultName.append(getWeightsName());
         
         return NullHelpers.notNull(resultName.toString());
     }

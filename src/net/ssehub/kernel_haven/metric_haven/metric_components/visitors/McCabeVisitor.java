@@ -81,7 +81,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
                 for (Variable variable : usedVars) {
                     String varName = variable.getName();
                     if (isFeature(varName)) {
-                        variabilityCC += weight.getWeight(varName);
+                        variabilityCC += weight.getWeight(varName, block.getSourceFile());
                     }
                 }
                 /*

@@ -154,7 +154,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
                 for (Variable var : varFinder.getVariables()) {
                     String varName = var.getName();
                     if (isFeature(varName)) {
-                        nestingComplexity += weight.getWeight(varName);
+                        nestingComplexity += weight.getWeight(varName, block.getSourceFile());
                     }
                 }
                 varFinder.clear();

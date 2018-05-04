@@ -148,8 +148,9 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
         config.registerSetting(FAN_TYPE_SETTING);
         type = config.getValue(FAN_TYPE_SETTING);
         
-        if (!type.isDegreeCentrality && (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR)) {
-            throw new UnsupportedMetricVariationException(getClass(), type, getSDType(), getCTCRType());
+        if (!type.isDegreeCentrality && hasVariabilityWeight()) {
+            throw new UnsupportedMetricVariationException(getClass(), type, getSDType(), getCTCRType(),
+                getDistanceType());
         }
     }
 
@@ -214,13 +215,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
         resultName.append("(");
         resultName.append((type.isLocal) ? "local" : "global");
         resultName.append(")");
-        
-        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR) {
-            resultName.append(" x ");
-            resultName.append(getSDType().name());
-            resultName.append(" x ");
-            resultName.append(getCTCRType().name());
-        }
+        resultName.append(getWeightsName());
         
         return NullHelpers.notNull(resultName.toString());
     }
