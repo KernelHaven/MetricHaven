@@ -51,7 +51,7 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
         private FunctionCall(String functionName, Formula pc, File codefile) {
             this.functionName = functionName;
             this.pc = pc;
-            this.codeFile = codeFile;
+            this.codeFile = codefile;
         }
         
         @Override
