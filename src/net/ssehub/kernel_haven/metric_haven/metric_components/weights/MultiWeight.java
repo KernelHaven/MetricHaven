@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
+import java.io.File;
 import java.util.List;
 
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -35,6 +36,16 @@ public class MultiWeight implements IVariableWeight {
         int weight = 1;
         for (int i = 0; i < weights.length; i++) {
             weight *= weights[i].getWeight(variable);
+        }
+        
+        return weight;
+    }
+    
+    @Override
+    public synchronized int getWeight(String variable, File codefile) {
+        int weight = 1;
+        for (int i = 0; i < weights.length; i++) {
+            weight *= weights[i].getWeight(variable, codefile);
         }
         
         return weight;
