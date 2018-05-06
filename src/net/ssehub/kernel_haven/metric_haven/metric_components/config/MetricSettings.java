@@ -1,7 +1,10 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.config;
 
+import java.util.List;
+
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
@@ -48,6 +51,26 @@ public class MetricSettings {
                 + "(defining file of variability model):\n"
                 + " - " + FeatureDistanceType.NO_DISTANCE.name() + ": Do not consider any distances (default)."
                 + "\n - " + FeatureDistanceType.SHORTEST_DISTANCE.name() + ": Count the minimum number of required"
-                + " folder changes to traverse to the defining file.\n");
+                + " folder changes to traverse to the defining file.");
+    
+    /**
+     * Configuration of variability weight (for features): <b>Type of features</b>.
+     */
+    public static final @NonNull Setting<VariabilityTypeMeasureType> TYPE_MEASURING_SETTING
+        = new EnumSetting<>("metric.function_measures.consider_feature_types", VariabilityTypeMeasureType.class,
+            true, VariabilityTypeMeasureType.NO_TYPE_MEASURING, "Defines whether and how to incorporate types of used "
+                + "features:\n"
+                + " - " + VariabilityTypeMeasureType.NO_TYPE_MEASURING.name() + ": Do not consider any types (default)."
+                + "\n - " + VariabilityTypeMeasureType.TYPE_WEIGHTS_BY_FILE.name() + ": Weights are defined in the "
+                + "configuration file.");
+    
+    /**
+     * Configuration of variability weight (for features): Definitions of weights for {@value #TYPE_MEASURING_SETTING}.
+     */
+    public static final @NonNull Setting<List<String>> TYPE_WEIGHTS_SETTING
+        = new Setting<List<String>>("metric.function_measures.weight_definitions", Type.STRING_LIST,
+            false, "", "Defines the weights to be used if " + TYPE_MEASURING_SETTING.getKey() + " is set to "
+                + VariabilityTypeMeasureType.TYPE_WEIGHTS_BY_FILE.name() + "\n"
+                + "Define the weights in form of (separated by a comma): type:weight");
 
 }

@@ -2,7 +2,9 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -16,6 +18,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CtcrWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureDistanceWeight;
@@ -23,6 +26,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.TypeWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -46,6 +50,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     private @NonNull SDType sdType;
     private @NonNull CTCRType ctcrType;
     private @NonNull FeatureDistanceType locationType;
+    private @NonNull VariabilityTypeMeasureType varTypeWeightType;
+    private @Nullable Map<String, Integer> typeWeights;
     private IVariableWeight weighter;
     private File currentCodefile;
     
@@ -95,6 +101,36 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         if (locationType != FeatureDistanceType.NO_DISTANCE && null == varModelComponent) {
             throw new SetUpException("Use of feature distance was configured (" + locationType.name() + "), but "
                     + "no variability model was passed to " + this.getClass().getName());
+        }
+        
+        config.registerSetting(MetricSettings.TYPE_MEASURING_SETTING);
+        varTypeWeightType = config.getValue(MetricSettings.TYPE_MEASURING_SETTING);
+        if (varTypeWeightType != VariabilityTypeMeasureType.NO_TYPE_MEASURING) {
+            if (null == varModelComponent) {
+                throw new SetUpException("Use of feature type weights was configured (" + varTypeWeightType.name()
+                    + "), but no variability model was passed to " + this.getClass().getName());
+            }
+            config.registerSetting(MetricSettings.TYPE_WEIGHTS_SETTING);
+            List<String> weights = config.getValue(MetricSettings.TYPE_WEIGHTS_SETTING);
+            if (null == weights) {
+                throw new SetUpException("Use of feature type weights was configured (" + varTypeWeightType.name()
+                    + "), but no weights are defined via " + MetricSettings.TYPE_WEIGHTS_SETTING.getKey());
+            }
+            
+            typeWeights = new HashMap<>();
+            for (String weightDef : weights) {
+                String[] setting = weightDef.split(":");
+                if (setting.length != 2) {
+                    throw new SetUpException("Weight definition in unexpected format: " + weightDef);
+                }
+                Integer weight = 0;
+                try {
+                    weight = Integer.valueOf(setting[1]);
+                } catch (NumberFormatException exc) {
+                    throw new SetUpException("Weight of " + setting[0] + " is not an Integer: " + setting[1]);
+                }
+                typeWeights.put(setting[0], weight);
+            }
         }
     }
     
@@ -187,6 +223,12 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         // Cross-tree constraint ratio
         if (locationType != FeatureDistanceType.NO_DISTANCE && null != varModel) {
             weights.add(new FeatureDistanceWeight(varModel)); 
+        }
+        
+        // Weights for the type of a feature
+        if (varTypeWeightType != VariabilityTypeMeasureType.NO_TYPE_MEASURING && null != varModel
+                && null != typeWeights) {
+            weights.add(new TypeWeight(varModel, typeWeights));
         }
         
         // Create final weighting function with as less objects as necessary
