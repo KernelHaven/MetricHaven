@@ -18,6 +18,9 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.VariabilityCounter
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -52,8 +55,8 @@ public class AllNonLineFilterableFunctionMetrics extends AbstractMultiFunctionMe
         // add a split component after the function filter
         SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
         
-        config.registerSetting(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING);
-        config.registerSetting(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING);
+        config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
+        config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
         AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
@@ -82,8 +85,8 @@ public class AllNonLineFilterableFunctionMetrics extends AbstractMultiFunctionMe
         // All Variables per Function metrics
         addMetric(VariablesPerFunctionMetric.class, VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING,
             functionSplitter, sdSplitter, metrics, VarType.values());
-        config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
-        config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
+        config.setValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
+        config.setValue(MetricSettings.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
         
         // join the parallel metrics together
         @SuppressWarnings({ "null", "unchecked" })

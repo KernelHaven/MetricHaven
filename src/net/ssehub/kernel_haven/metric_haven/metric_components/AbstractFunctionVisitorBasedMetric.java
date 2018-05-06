@@ -9,11 +9,12 @@ import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.config.EnumSetting;
-import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CtcrWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureDistanceWeight;
@@ -35,36 +36,6 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisitor>
     extends AnalysisComponent<MetricResult> {
 
-    public static final @NonNull Setting<@NonNull SDType> SCATTERING_DEGREE_USAGE_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_scattering_degree", SDType.class, true, 
-            SDType.NO_SCATTERING, "Defines whether and how to incorporate scattering degree values"
-                + "into measurement results.\n"
-                + " - " + SDType.NO_SCATTERING.name() + ": Do not consider scattering degree (default).\n"
-                + " - " + SDType.SD_VP.name() + ": Use variation point scattering.\n"
-                + " - " + SDType.SD_FILE.name() + ": Use filet scattering.");
-    
-    public static final @NonNull Setting<@NonNull CTCRType> CTCR_USAGE_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_ctcr", CTCRType.class, true, 
-            CTCRType.NO_CTCR, "Defines whether and how to incorporate cross-tree constraint ratios from the variability"
-                    + " model into measurement results.\n"
-                    + " - " + CTCRType.NO_CTCR.name() + ": Do not consider any cross-tree constraint ratios (default)."
-                    + "\n - " + CTCRType.INCOMIG_CONNECTIONS.name() + ": Count number of distinct variables, specifying"
-                    + " a\n   constraint TO a measured/detected variable.\n"
-                    + " - " + CTCRType.OUTGOING_CONNECTIONS.name() + ": Count number of distinct variables, referenced"
-                    + " in\n   constraints defined by the measured/detected variable.\n"
-                    + " - " + CTCRType.ALL_CTCR.name() + ": Count number of distinct variables in all constraints "
-                    + "connected\n   with the measured/detected variable (intersection of "
-                    + CTCRType.INCOMIG_CONNECTIONS.name() + "\n   and " + CTCRType.OUTGOING_CONNECTIONS.name() + ".");
-    
-    public static final @NonNull Setting<@NonNull FeatureDistanceType> LOCATION_DISTANCE_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_feature_definition_distance", FeatureDistanceType.class,
-            true, FeatureDistanceType.NO_DISTANCE, "Defines whether and how to incorporate distance between used "
-                + "feature (location of measured code file) and definition of feature "
-                + "(defining file of variability model):\n"
-                + " - " + FeatureDistanceType.NO_DISTANCE.name() + ": Do not consider any distances (default)."
-                + "\n - " + FeatureDistanceType.SHORTEST_DISTANCE.name() + ": Count the minimum number of required"
-                + " folder changes to traverse to the defining file.\n");
-    
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @Nullable AnalysisComponent<BuildModel> bmComponent;
@@ -104,22 +75,22 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         this.varModelComponent = varModelComponent;
         this.sdComponent = sdComponent;
         
-        config.registerSetting(SCATTERING_DEGREE_USAGE_SETTING);
-        sdType = config.getValue(SCATTERING_DEGREE_USAGE_SETTING);
+        config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
+        sdType = config.getValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
         if (sdType != SDType.NO_SCATTERING && null == sdComponent) {
             throw new SetUpException("Use of scattering degree was configured (" + sdType.name() + "), but no "
                 + "SD analysis component was passed to " + this.getClass().getName());
         }
         
-        config.registerSetting(CTCR_USAGE_SETTING);
-        ctcrType = config.getValue(CTCR_USAGE_SETTING);
+        config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
+        ctcrType = config.getValue(MetricSettings.CTCR_USAGE_SETTING);
         if (ctcrType != CTCRType.NO_CTCR && null == varModelComponent) {
             throw new SetUpException("Use of cross-tree constraint ratio was configured (" + ctcrType.name() + "), but "
                 + "no variability model was passed to " + this.getClass().getName());
         }
         
-        config.registerSetting(LOCATION_DISTANCE_SETTING);
-        locationType = config.getValue(LOCATION_DISTANCE_SETTING);
+        config.registerSetting(MetricSettings.LOCATION_DISTANCE_SETTING);
+        locationType = config.getValue(MetricSettings.LOCATION_DISTANCE_SETTING);
         if (locationType != FeatureDistanceType.NO_DISTANCE && null == varModelComponent) {
             throw new SetUpException("Use of feature distance was configured (" + locationType.name() + "), but "
                     + "no variability model was passed to " + this.getClass().getName());

@@ -20,6 +20,9 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric.NDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -82,9 +85,9 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
         // inputs for multiple metrics after the split
         
-        config.registerSetting(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING);
-        config.registerSetting(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING);
-        config.registerSetting(AbstractFunctionVisitorBasedMetric.LOCATION_DISTANCE_SETTING);
+        config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
+        config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
+        config.registerSetting(MetricSettings.LOCATION_DISTANCE_SETTING);
         AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
@@ -112,9 +115,9 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
             metrics, NDType.values());
         
         // Disable variability weights
-        config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
-        config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
-        config.setValue(AbstractFunctionVisitorBasedMetric.LOCATION_DISTANCE_SETTING, FeatureDistanceType.NO_DISTANCE);
+        config.setValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
+        config.setValue(MetricSettings.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
+        config.setValue(MetricSettings.LOCATION_DISTANCE_SETTING, FeatureDistanceType.NO_DISTANCE);
         
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());

@@ -13,6 +13,9 @@ import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
@@ -96,11 +99,11 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
                 } else {
                     // These metrics support scattering degree AND CTCR ratio AND Feature distance
                     for (FeatureDistanceType distanceType : FeatureDistanceType.values()) {
-                        config.setValue(AbstractFunctionVisitorBasedMetric.LOCATION_DISTANCE_SETTING, distanceType);
+                        config.setValue(MetricSettings.LOCATION_DISTANCE_SETTING, distanceType);
                         for (CTCRType ctcrType : CTCRType.values()) {
-                            config.setValue(AbstractFunctionVisitorBasedMetric.CTCR_USAGE_SETTING, ctcrType);
+                            config.setValue(MetricSettings.CTCR_USAGE_SETTING, ctcrType);
                             for (SDType sdType : SDType.values()) {
-                                config.setValue(AbstractFunctionVisitorBasedMetric.SCATTERING_DEGREE_USAGE_SETTING, sdType);
+                                config.setValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING, sdType);
                                 
                                 try {
                                     metricInstance = metricConstructor.newInstance(config,

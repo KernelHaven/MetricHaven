@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metric_haven.metric_components;
+package net.ssehub.kernel_haven.metric_haven.metric_components.config;
 
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
