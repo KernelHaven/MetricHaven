@@ -21,6 +21,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.Fan
 import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric.NDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;

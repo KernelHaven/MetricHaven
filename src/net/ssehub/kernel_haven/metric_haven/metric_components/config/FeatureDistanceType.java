@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metric_haven.metric_components;
+package net.ssehub.kernel_haven.metric_haven.metric_components.config;
 
 /**
  * Specification whether and how to incorporate distance to file defining the feature.
