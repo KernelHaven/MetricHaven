@@ -180,10 +180,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 result));
         }
         
-        time = System.currentTimeMillis() - time;
-        // See: https://stackoverflow.com/a/14081915
-        String text = String.format("%02d:%02d", time / 60000, time / 1000 % 60);
-        LOGGER.logInfo2("Analysis of ", getResultName(), " finished in ", text, " Min.");
+        logDuration(System.currentTimeMillis() - time, "Analysis of ", getResultName(), " finished in ");
     }
     
     /**
@@ -326,5 +323,17 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         return getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR
             || getDistanceType() != FeatureDistanceType.NO_DISTANCE
             || getVarTypeWeightType() != VariabilityTypeMeasureType.NO_TYPE_MEASURING;
+    }
+    
+    /**
+     * Logs the duration of a metrics analysis.
+     * @param duration The duration in milliseconds.
+     * @param text The description to log, will be appended as prefix. Avoid concatenations, this will be done here,
+     *     iff the log is printed.
+     */
+    protected final void logDuration(long duration, @NonNull String... text) {
+        // See: https://stackoverflow.com/a/14081915
+        String formatedDuration = String.format("%02d:%02d", duration / 60000, duration / 1000 % 60);
+        LOGGER.logInfo2(text, formatedDuration, " Min.");
     }
 }

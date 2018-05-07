@@ -93,6 +93,8 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
             func.getFunction().accept(visitor);
         }
         
+        logDuration(System.currentTimeMillis() - time, "Collection of function calls finished in ");
+        
         // Compute and report all results
         for (CodeFunction func : functions) {
             double result = computeResult(visitor, func);
@@ -106,10 +108,7 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
             addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), func.getName(), result));
         }
         
-        time = System.currentTimeMillis() - time;
-        // See: https://stackoverflow.com/a/14081915
-        String text = String.format("%02d:%02d", time / 60000, time / 1000 % 60);
-        LOGGER.logInfo2("Analysis of ", getResultName(), " finished in ", text, " Min.");
+        logDuration(System.currentTimeMillis() - time, "Analysis of ", getResultName(), " finished in ");
     }
     
     @Override
