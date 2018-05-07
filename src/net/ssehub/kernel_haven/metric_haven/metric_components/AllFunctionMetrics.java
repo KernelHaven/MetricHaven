@@ -95,7 +95,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         config.registerSetting(MetricSettings.TYPE_MEASURING_SETTING);
         config.registerSetting(MetricSettings.TYPE_WEIGHTS_SETTING);
         config.setValue(MetricSettings.TYPE_WEIGHTS_SETTING,
-            Arrays.asList("bool:1", "tristate:10", "string:100", "int:100", "hex:100"));
+            Arrays.asList("bool:1", "tristate:10", "string:100", "int:100", "integer:100", "hex:100"));
         AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
