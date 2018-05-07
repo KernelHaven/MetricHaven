@@ -121,7 +121,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
         
         if (measuredCode == CCType.MCCABE && hasVariabilityWeight()) {
             throw new UnsupportedMetricVariationException(getClass(), measuredCode, getSDType(), getCTCRType(),
-                getDistanceType());
+                getDistanceType(), getVarTypeWeightType());
         }
     }
 

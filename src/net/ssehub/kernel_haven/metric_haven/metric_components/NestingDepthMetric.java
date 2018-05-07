@@ -145,8 +145,8 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
         type = config.getValue(ND_TYPE_SETTING);
         
         if (!type.isVariabilityMetric && hasVariabilityWeight()) {
-            
-            throw new UnsupportedMetricVariationException(getClass(), type, getSDType(), getCTCRType());
+            throw new UnsupportedMetricVariationException(getClass(), type, getSDType(), getCTCRType(),
+                getDistanceType(), getVarTypeWeightType());
         }
     }
     

@@ -150,7 +150,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
         
         if (!type.isDegreeCentrality && hasVariabilityWeight()) {
             throw new UnsupportedMetricVariationException(getClass(), type, getSDType(), getCTCRType(),
-                getDistanceType());
+                getDistanceType(), getVarTypeWeightType());
         }
     }
 

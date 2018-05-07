@@ -334,6 +334,6 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     protected final void logDuration(long duration, @NonNull String... text) {
         // See: https://stackoverflow.com/a/14081915
         String formatedDuration = String.format("%02d:%02d", duration / 60000, duration / 1000 % 60);
-        LOGGER.logInfo2(text, formatedDuration, " Min.");
+        LOGGER.logInfo2((String[]) text, formatedDuration, " Min.");
     }
 }
