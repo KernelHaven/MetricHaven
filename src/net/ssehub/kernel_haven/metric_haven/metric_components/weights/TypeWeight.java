@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import net.ssehub.kernel_haven.util.Logger;
@@ -16,6 +17,7 @@ public class TypeWeight implements IVariableWeight {
     
     private Map<String, Integer> typeWeights;
     private Map<String, VariabilityVariable> varMap;
+    private Map<String, Integer> varWeights;
     
     /**
      * Sole constructor.
@@ -25,19 +27,27 @@ public class TypeWeight implements IVariableWeight {
     public TypeWeight(@NonNull VariabilityModel varModel, @NonNull Map<String, Integer> typeWeights) {
         varMap = varModel.getVariableMap();
         this.typeWeights = typeWeights;
+        varWeights = new HashMap<String, Integer>(varMap.size());
     }
 
     @Override
     public int getWeight(String variable) {
         int result = 0;
         
-        VariabilityVariable var = varMap.get(variable);
-        if (null != var) {
-            if (typeWeights.containsKey(var.getType())) {
-                result = typeWeights.get(var.getType());
-                
-            } else {
-                Logger.get().logWarning2("No weight specified for type ", var.getType(), " of variable ", variable);
+        Integer value = varWeights.get(variable);
+        if (null != value) {
+            result = value;
+        } else {
+            VariabilityVariable var = varMap.get(variable);
+            if (null != var) {
+                if (typeWeights.containsKey(var.getType())) {
+                    result = typeWeights.get(var.getType());
+                    // Avoid multiple hashing next time when the variable is measured.
+                    varWeights.put(variable, result);
+                    
+                } else {
+                    Logger.get().logWarning2("No weight specified for type ", var.getType(), " of variable ", variable);
+                }
             }
         }
         
