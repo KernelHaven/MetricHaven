@@ -227,7 +227,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         
         // Weights for the type of a feature
         if (varTypeWeightType != VariabilityTypeMeasureType.NO_TYPE_MEASURING && null != varModel
-                && null != typeWeights) {
+            && null != typeWeights) {
+            
             weights.add(new TypeWeight(varModel, typeWeights));
         }
         
@@ -242,7 +243,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     }
     
     /**
-     * Returns the {@link #SCATTERING_DEGREE_USAGE_SETTING} setting.
+     * Returns the {@link MetricSettings#SCATTERING_DEGREE_USAGE_SETTING} setting.
      * @return The configured {@link SDType}.
      */
     protected @NonNull SDType getSDType() {
@@ -250,7 +251,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     }
     
     /**
-     * Returns the {@link #CTCR_USAGE_SETTING} setting.
+     * Returns the {@link MetricSettings#CTCR_USAGE_SETTING} setting.
      * @return The configured {@link CTCRType}.
      */
     protected @NonNull CTCRType getCTCRType() {
@@ -258,11 +259,19 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     }
     
     /**
-     * Returns the {@link #LOCATION_DISTANCE_SETTING} setting.
+     * Returns the {@link MetricSettings#LOCATION_DISTANCE_SETTING} setting.
      * @return The configured {@link FeatureDistanceType}.
      */
     protected @NonNull FeatureDistanceType getDistanceType() {
         return locationType;
+    }
+    
+    /**
+     * Returns the {@link MetricSettings#TYPE_MEASURING_SETTING} setting.
+     * @return The configured {@link VariabilityTypeMeasureType}.
+     */
+    protected @NonNull VariabilityTypeMeasureType getVarTypeWeightType() {
+        return varTypeWeightType;
     }
     
     /**
@@ -279,16 +288,33 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      * @return The name of the selected weights or an empty string if no weight was selected.
      */
     protected String getWeightsName() {
-        String name;
-        if (getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR
-            || getDistanceType() != FeatureDistanceType.NO_DISTANCE) {
-            
-            name = " x " + getSDType().name() + " x " + getCTCRType().name() + " x " + getDistanceType().name();      
-        } else {
-            name = "";
+        StringBuffer weightsName = new StringBuffer();
+        
+        // Scattering Degree
+        if (getSDType() != SDType.NO_SCATTERING) {
+            weightsName.append(" x ");
+            weightsName.append(getSDType().name());
         }
         
-        return name;
+        // Cross-Tree Constraint Ratio
+        if (getCTCRType() != CTCRType.NO_CTCR) {
+            weightsName.append(" x ");
+            weightsName.append(getCTCRType().name());
+        }
+        
+        // Feature Distance
+        if (getDistanceType() != FeatureDistanceType.NO_DISTANCE) {
+            weightsName.append(" x ");
+            weightsName.append(getDistanceType().name());
+        }
+        
+        // Feature Types
+        if (getVarTypeWeightType() != VariabilityTypeMeasureType.NO_TYPE_MEASURING) {
+            weightsName.append(" x ");
+            weightsName.append(getVarTypeWeightType().name());
+        }
+        
+        return weightsName.toString();
     }
     
     /**
@@ -298,6 +324,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      */
     protected final boolean hasVariabilityWeight() {
         return getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR
-            || getDistanceType() != FeatureDistanceType.NO_DISTANCE;
+            || getDistanceType() != FeatureDistanceType.NO_DISTANCE
+            || getVarTypeWeightType() != VariabilityTypeMeasureType.NO_TYPE_MEASURING;
     }
 }

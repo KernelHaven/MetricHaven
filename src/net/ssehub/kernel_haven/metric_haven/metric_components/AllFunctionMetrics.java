@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -56,6 +58,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
 
     
     // CHECKSTYLE:OFF this method is too long, but splitting it up wouldn't make too much sense
+    @SuppressWarnings("null")
     @Override
     protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
     // CHECKSTYLE:ON
@@ -89,6 +92,10 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
         config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
         config.registerSetting(MetricSettings.LOCATION_DISTANCE_SETTING);
+        config.registerSetting(MetricSettings.TYPE_MEASURING_SETTING);
+        config.registerSetting(MetricSettings.TYPE_WEIGHTS_SETTING);
+        config.setValue(MetricSettings.TYPE_WEIGHTS_SETTING,
+            Arrays.asList("bool:1", "tristate:10", "string:100", "int:100", "hex:100"));
         AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
@@ -119,6 +126,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         config.setValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
         config.setValue(MetricSettings.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
         config.setValue(MetricSettings.LOCATION_DISTANCE_SETTING, FeatureDistanceType.NO_DISTANCE);
+        config.setValue(MetricSettings.TYPE_MEASURING_SETTING, VariabilityTypeMeasureType.NO_TYPE_MEASURING);
         
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());
