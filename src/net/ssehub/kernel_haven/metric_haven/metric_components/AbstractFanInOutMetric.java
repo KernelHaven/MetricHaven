@@ -75,6 +75,8 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
     
     @Override
     protected final void execute() {
+        long time = System.currentTimeMillis();
+        
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
         createWeight(varModel);
         
@@ -103,6 +105,11 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
             File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
             addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), func.getName(), result));
         }
+        
+        time = System.currentTimeMillis() - time;
+        // See: https://stackoverflow.com/a/14081915
+        String text = String.format("%02d:%02d", time / 60000, time / 1000 % 60);
+        LOGGER.logInfo2("Analysis of ", getResultName(), " finished in ", text, " Min.");
     }
     
     @Override
