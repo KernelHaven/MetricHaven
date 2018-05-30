@@ -39,6 +39,33 @@ public class BlocksPerFunctionMetric extends AbstractFunctionVisitorBasedMetric<
     private @NonNull BlockMeasureType measuredBlocks;
     
     /**
+     * Constructor with minimal parameters.
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @throws SetUpException If an unsupported combination of options is selected inside the <tt>config</tt>
+     */
+    public BlocksPerFunctionMetric(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder) throws SetUpException {
+        
+        this(config, codeFunctionFinder, null, null, null);
+    }
+    
+    /**
+     * Constructor with if a variability model is present, to filter for CPP-blocks, using at least one feature.
+     * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
+     * @param codeFunctionFinder The component to get the code functions from.
+     * @param varModelComponent Optional: If not <tt>null</tt> the varModel will be used the determine whether a
+     *     CPP-block is a feature-dependent block.
+     * @throws SetUpException If an unsupported combination of options is selected inside the <tt>config</tt>
+     */
+    public BlocksPerFunctionMetric(@NonNull Configuration config,
+            @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
+            @Nullable AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
+        
+        this(config, codeFunctionFinder, varModelComponent, null, null);
+    }
+    
+    /**
      * Default constructor.
      * @param config The complete user configuration for the pipeline. Must not be <code>null</code>.
      * @param codeFunctionFinder The component to get the code functions from.
