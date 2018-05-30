@@ -16,6 +16,7 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLine
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.VariabilityCounter;
+import net.ssehub.kernel_haven.metric_haven.metric_components.BlocksPerFunctionMetric.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
@@ -130,6 +131,10 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());
+        
+        // All internal ifdef block metrics
+        addMetric(BlocksPerFunctionMetric.class, BlocksPerFunctionMetric.BLOCK_TYPE_SETTING, filteredFunctionSplitter,
+            null, metrics, BlockMeasureType.values());
         
         // join the parallel metrics together
         @SuppressWarnings({ "null", "unchecked" })
