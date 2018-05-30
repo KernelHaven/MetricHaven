@@ -14,6 +14,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
@@ -131,6 +132,32 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 }
                 typeWeights.put(setting[0], weight);
             }
+        }
+    }
+    
+    /**
+     * May be called by constructors of inherited classes to throw an appropriate exception iff a variability weight
+     * is selected, but no variable code parts a measured.
+     * @param measuresVariability <tt>true</tt> if variability weights are allowed, i.e., if variable code parts are
+     *     measured and shall be weighted
+     * @param options Options selected, which are only defined in the inherited class.
+     * @throws UnsupportedMetricVariationException The exception to be thrown in the inherited constructor.
+     */
+    protected void checkVariabilityWeights(boolean measuresVariability,
+        Enum<?>... options) throws UnsupportedMetricVariationException {
+        
+        if (!measuresVariability && hasVariabilityWeight()) {
+            int nOtherOptions = null != options ? options.length : 0;
+            Enum<?>[] selectedOptions = new Enum<?>[nOtherOptions + 4];
+            if (nOtherOptions > 0) {
+                System.arraycopy(options, 0, selectedOptions, 0, nOtherOptions);
+            }
+            selectedOptions[nOtherOptions++] = getSDType();
+            selectedOptions[nOtherOptions++] = getCTCRType();
+            selectedOptions[nOtherOptions++] = getDistanceType();
+            selectedOptions[nOtherOptions++] = getVarTypeWeightType();
+            
+            throw new UnsupportedMetricVariationException(getClass(), selectedOptions);
         }
     }
     

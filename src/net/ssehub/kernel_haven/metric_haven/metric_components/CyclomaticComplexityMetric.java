@@ -119,10 +119,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
         config.registerSetting(VARIABLE_TYPE_SETTING);
         measuredCode = config.getValue(VARIABLE_TYPE_SETTING);
         
-        if (measuredCode == CCType.MCCABE && hasVariabilityWeight()) {
-            throw new UnsupportedMetricVariationException(getClass(), measuredCode, getSDType(), getCTCRType(),
-                getDistanceType(), getVarTypeWeightType());
-        }
+        checkVariabilityWeights(measuredCode != CCType.MCCABE, measuredCode);
     }
 
     @Override

@@ -66,6 +66,8 @@ public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
         super(config, codeFunctionFinder, varModelComponent, null, null);
         config.registerSetting(LOC_TYPE_SETTING);
         type = config.getValue(LOC_TYPE_SETTING);
+        
+        checkVariabilityWeights(false, type);
     }
     
     @Override
