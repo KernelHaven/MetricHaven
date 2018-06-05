@@ -9,6 +9,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.SourceLocation;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
+import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attribute;
 
 /**
  * Counts the shortest path to traversal from the code destination to the source location where the feature was defined
@@ -25,7 +26,7 @@ public class FeatureDistanceWeight implements IVariableWeight {
      *     where a variable/feature was defined.
      */
     public FeatureDistanceWeight(@NonNull VariabilityModel varModel) {
-        if (null != varModel && varModel.getDescriptor().hasSourceLoactions()) {
+        if (null != varModel && varModel.getDescriptor().hasAttribute(Attribute.SOURCE_LOCATIONS)) {
             varMap = varModel.getVariableMap();
         } else {
             throw new UnsupportedOperationException("FeatureDistanceWeight without an approriate"

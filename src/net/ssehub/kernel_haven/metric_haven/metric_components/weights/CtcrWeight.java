@@ -8,6 +8,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
+import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attribute;
 
 /**
  * Scattering degree based on cross-tree constraint ratio.
@@ -28,7 +29,7 @@ public class CtcrWeight implements IVariableWeight {
      */
     public CtcrWeight(@Nullable VariabilityModel varModel, @NonNull CTCRType ctcrType) {
         this.ctcrType = ctcrType;
-        if (null != varModel && varModel.getDescriptor().hasConstraintUsage()) {
+        if (null != varModel && varModel.getDescriptor().hasAttribute(Attribute.CONSTRAINT_USAGE)) {
             varMapping = varModel.getVariableMap();
         }
     }
