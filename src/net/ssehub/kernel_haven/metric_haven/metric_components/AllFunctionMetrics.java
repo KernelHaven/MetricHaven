@@ -24,6 +24,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
@@ -97,6 +98,10 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         config.registerSetting(MetricSettings.TYPE_WEIGHTS_SETTING);
         config.setValue(MetricSettings.TYPE_WEIGHTS_SETTING,
             Arrays.asList("bool:1", "tristate:10", "string:100", "int:100", "integer:100", "hex:100"));
+        config.registerSetting(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING);
+        config.registerSetting(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
+        config.setValue(MetricSettings.HIERARCHY_WEIGHTS_SETTING,
+                Arrays.asList("top:1", "intermediate:10", "leaf:100"));
         AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
@@ -128,6 +133,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         config.setValue(MetricSettings.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
         config.setValue(MetricSettings.LOCATION_DISTANCE_SETTING, FeatureDistanceType.NO_DISTANCE);
         config.setValue(MetricSettings.TYPE_MEASURING_SETTING, VariabilityTypeMeasureType.NO_TYPE_MEASURING);
+        config.setValue(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING, HierarchyType.NO_HIERARCHY_MEASURING);
         
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());

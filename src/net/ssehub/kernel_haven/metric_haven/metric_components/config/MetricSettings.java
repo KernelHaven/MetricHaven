@@ -68,9 +68,32 @@ public class MetricSettings {
      * Configuration of variability weight (for features): Definitions of weights for {@value #TYPE_MEASURING_SETTING}.
      */
     public static final @NonNull Setting<List<String>> TYPE_WEIGHTS_SETTING
-        = new Setting<List<String>>("metric.function_measures.weight_definitions", Type.STRING_LIST,
+        = new Setting<List<String>>("metric.function_measures.type_weight_definitions", Type.STRING_LIST,
             false, "", "Defines the weights to be used if " + TYPE_MEASURING_SETTING.getKey() + " is set to "
                 + VariabilityTypeMeasureType.TYPE_WEIGHTS_BY_FILE.name() + "\n"
                 + "Define the weights in form of (separated by a comma): type:weight");
+    
+    /**
+     * Configuration of variability weight (for features): <b>Hierarchy level of features</b>.
+     */
+    public static final @NonNull Setting<HierarchyType> HIERARCHY_TYPE_MEASURING_SETTING
+        = new EnumSetting<>("metric.function_measures.consider_feature_hierarchies", HierarchyType.class,
+            true, HierarchyType.NO_HIERARCHY_MEASURING, "Defines whether and how to incorporate hierarchies of used "
+                + "features:\n"
+                + " - " + HierarchyType.NO_HIERARCHY_MEASURING.name() + ": Do not consider any hierarchies (default).\n"
+                + " - " + HierarchyType.HIERARCHY_WEIGHTS_BY_FILE.name() + ": Weights are defined in the configuration "
+                + "file.\n"
+                + " - " + HierarchyType.HIERARCHY_WEIGHTS_BY_LEVEL.name() + ": The hierarchy (level) is directly "
+                + "used as weight.");
+    
+    /**
+     * Configuration of variability weight (for features): Definitions of weights for
+     * {@value #HIERARCHY_TYPE_MEASURING_SETTING}.
+     */
+    public static final @NonNull Setting<List<String>> HIERARCHY_WEIGHTS_SETTING
+        = new Setting<List<String>>("metric.function_measures.hierarchy_weight_definitions", Type.STRING_LIST,
+            false, "", "Defines the weights to be used if " + HIERARCHY_TYPE_MEASURING_SETTING.getKey() + " is set to "
+                + HierarchyType.HIERARCHY_WEIGHTS_BY_FILE.name() + "\n"
+                + "Define the weights in form of (separated by a comma): hierarchy:weight");
 
 }

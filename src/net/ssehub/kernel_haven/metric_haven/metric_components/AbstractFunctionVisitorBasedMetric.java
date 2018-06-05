@@ -16,12 +16,14 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CtcrWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureDistanceWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.HierarchyWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
@@ -30,6 +32,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.TypeWeight
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
+import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attribute;
 
 /**
  * Class to simplify {@link AbstractFunctionVisitor}-based function-metrics.
@@ -41,6 +44,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisitor>
     extends AnalysisComponent<MetricResult> {
 
+    private static final int TOTAL_NUMBER_OF_VARIABILITY_WEIGHTS = 5;
+    
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @Nullable AnalysisComponent<BuildModel> bmComponent;
@@ -52,6 +57,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     private @NonNull FeatureDistanceType locationType;
     private @NonNull VariabilityTypeMeasureType varTypeWeightType;
     private @Nullable Map<String, Integer> typeWeights;
+    private @NonNull HierarchyType varHierarchyWeightType;
+    private @Nullable Map<String, Integer> hierarchyWeights;
     private IVariableWeight weighter;
     private File currentCodefile;
     
@@ -71,17 +78,20 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      * @throws SetUpException If {@link #SCATTERING_DEGREE_USAGE_SETTING} is used, but <tt>sdComponent</tt> is
      *     <tt>null</tt>.
      */
+    // CHECKSTYLE:OFF
     AbstractFunctionVisitorBasedMetric(@NonNull Configuration config,
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
         @Nullable AnalysisComponent<BuildModel> bmComponent,
         @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
-        
+    // CHECKSTYLE:ON
+    
         super(config);
         this.codeFunctionFinder = codeFunctionFinder;
         this.varModelComponent = varModelComponent;
         this.sdComponent = sdComponent;
         
+        // Weight: Scattering Degree
         config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
         sdType = config.getValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
         if (sdType != SDType.NO_SCATTERING && null == sdComponent) {
@@ -89,6 +99,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 + "SD analysis component was passed to " + this.getClass().getName());
         }
         
+        // Weight: Cross-Tree Constraints
         config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
         ctcrType = config.getValue(MetricSettings.CTCR_USAGE_SETTING);
         if (ctcrType != CTCRType.NO_CTCR && null == varModelComponent) {
@@ -96,6 +107,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 + "no variability model was passed to " + this.getClass().getName());
         }
         
+        // Weight: Location distance of feature definition / usage
         config.registerSetting(MetricSettings.LOCATION_DISTANCE_SETTING);
         locationType = config.getValue(MetricSettings.LOCATION_DISTANCE_SETTING);
         if (locationType != FeatureDistanceType.NO_DISTANCE && null == varModelComponent) {
@@ -103,6 +115,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                     + "no variability model was passed to " + this.getClass().getName());
         }
         
+        // Weight: Feature types
         config.registerSetting(MetricSettings.TYPE_MEASURING_SETTING);
         varTypeWeightType = config.getValue(MetricSettings.TYPE_MEASURING_SETTING);
         if (varTypeWeightType != VariabilityTypeMeasureType.NO_TYPE_MEASURING) {
@@ -132,6 +145,42 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 typeWeights.put(setting[0], weight);
             }
         }
+        
+        // Weight: Feature hierarchies
+        config.registerSetting(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING);
+        varHierarchyWeightType = config.getValue(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING);
+        if (varHierarchyWeightType != HierarchyType.NO_HIERARCHY_MEASURING) {
+            if (null == varModelComponent) {
+                throw new SetUpException("Use of feature hierarchy weights was configured ("
+                    + varHierarchyWeightType.name() + "), but no variability model was passed to "
+                    + this.getClass().getName());
+            }
+            
+            if (varHierarchyWeightType == HierarchyType.HIERARCHY_WEIGHTS_BY_FILE) {
+                config.registerSetting(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
+                List<String> weights = config.getValue(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
+                if (null == weights) {
+                    throw new SetUpException("Use of feature hierarchy weights was configured ("
+                        + varHierarchyWeightType.name() + "), but no weights are defined via "
+                        + MetricSettings.HIERARCHY_WEIGHTS_SETTING.getKey());
+                }
+                
+                hierarchyWeights = new HashMap<>();
+                for (String weightDef : weights) {
+                    String[] setting = weightDef.split(":");
+                    if (setting.length != 2) {
+                        throw new SetUpException("Weight definition in unexpected format: " + weightDef);
+                    }
+                    Integer weight = 0;
+                    try {
+                        weight = Integer.valueOf(setting[1]);
+                    } catch (NumberFormatException exc) {
+                        throw new SetUpException("Weight of " + setting[0] + " is not an Integer: " + setting[1]);
+                    }
+                    hierarchyWeights.put(setting[0], weight);
+                }
+            }
+        }
     }
     
     /**
@@ -147,7 +196,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         
         if (!measuresVariability && hasVariabilityWeight()) {
             int nOtherOptions = null != options ? options.length : 0;
-            Enum<?>[] selectedOptions = new Enum<?>[nOtherOptions + 4];
+            Enum<?>[] selectedOptions = new Enum<?>[nOtherOptions + TOTAL_NUMBER_OF_VARIABILITY_WEIGHTS];
             if (nOtherOptions > 0) {
                 System.arraycopy(options, 0, selectedOptions, 0, nOtherOptions);
             }
@@ -155,6 +204,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             selectedOptions[nOtherOptions++] = getCTCRType();
             selectedOptions[nOtherOptions++] = getDistanceType();
             selectedOptions[nOtherOptions++] = getVarTypeWeightType();
+            selectedOptions[nOtherOptions++] = varHierarchyWeightType;
             
             throw new UnsupportedMetricVariationException(getClass(), selectedOptions);
         }
@@ -255,6 +305,18 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             weights.add(new TypeWeight(varModel, typeWeights));
         }
         
+        // Weights for hierarchy level of a feature
+        if (varHierarchyWeightType != HierarchyType.NO_HIERARCHY_MEASURING) {
+            if (null != varModel && !varModel.getDescriptor().hasAttribute(Attribute.HIERARCHICAL)) {
+                weights.add(new HierarchyWeight(varModel, hierarchyWeights));
+            } else {
+                LOGGER.logError2("Hierarchy of features should be measured \""
+                    + MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING + "=" + varHierarchyWeightType.name() + "\", but"
+                    + " the variability does not store hierarchy information.");
+                
+            }
+        }
+        
         // Create final weighting function with as less objects as necessary
         if (weights.isEmpty()) {
             weighter = NoWeight.INSTANCE;
@@ -337,6 +399,12 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             weightsName.append(getVarTypeWeightType().name());
         }
         
+        // Feature hierarchies
+        if (varHierarchyWeightType != HierarchyType.NO_HIERARCHY_MEASURING) {
+            weightsName.append(" x ");
+            weightsName.append(varHierarchyWeightType.name());
+        }
+        
         return weightsName.toString();
     }
     
@@ -346,9 +414,13 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      *     defined.
      */
     protected final boolean hasVariabilityWeight() {
-        return getSDType() != SDType.NO_SCATTERING || getCTCRType() != CTCRType.NO_CTCR
+        // CHECKSTYLE:OFF
+        return getSDType() != SDType.NO_SCATTERING
+            || getCTCRType() != CTCRType.NO_CTCR
             || getDistanceType() != FeatureDistanceType.NO_DISTANCE
-            || getVarTypeWeightType() != VariabilityTypeMeasureType.NO_TYPE_MEASURING;
+            || getVarTypeWeightType() != VariabilityTypeMeasureType.NO_TYPE_MEASURING
+            || varHierarchyWeightType != HierarchyType.NO_HIERARCHY_MEASURING;
+     // CHECKSTYLE:ON
     }
     
     /**
