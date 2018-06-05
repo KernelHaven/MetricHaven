@@ -18,6 +18,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDist
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
@@ -100,41 +101,45 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
                             settings[i]);
                     }
                 } else {
-                    // These metrics support: Scattering Degree, CTCR, Feature distance, feature type, hierarchy weights
-                    for (HierarchyType hierarchyType : HierarchyType.values()) {
-                        config.setValue(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING, hierarchyType);
-                        for (VariabilityTypeMeasureType weightType : VariabilityTypeMeasureType.values()) {
-                            config.setValue(MetricSettings.TYPE_MEASURING_SETTING, weightType);
-                            for (FeatureDistanceType distanceType : FeatureDistanceType.values()) {
-                                config.setValue(MetricSettings.LOCATION_DISTANCE_SETTING, distanceType);
-                                for (CTCRType ctcrType : CTCRType.values()) {
-                                    config.setValue(MetricSettings.CTCR_USAGE_SETTING, ctcrType);
-                                    for (SDType sdType : SDType.values()) {
-                                        config.setValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING, sdType);
-                                        
-                                        try {
-                                            metricInstance = metricConstructor.newInstance(config,
-                                                filteredFunctionSplitter.createOutputComponent(),
-                                                getVmComponent(),
-                                                getBmComponent(),
-                                                sdSplitter.createOutputComponent());
+                    // These metrics support: Scattering Degree, CTCR, Feature distance, feature type, hierarchy,
+                    // and structural weights
+                    for (StructuralType structuralType : StructuralType.values()) {
+                        config.setValue(MetricSettings.STRUCTURE_MEASURING_SETTING, structuralType);
+                        for (HierarchyType hierarchyType : HierarchyType.values()) {
+                            config.setValue(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING, hierarchyType);
+                            for (VariabilityTypeMeasureType weightType : VariabilityTypeMeasureType.values()) {
+                                config.setValue(MetricSettings.TYPE_MEASURING_SETTING, weightType);
+                                for (FeatureDistanceType distanceType : FeatureDistanceType.values()) {
+                                    config.setValue(MetricSettings.LOCATION_DISTANCE_SETTING, distanceType);
+                                    for (CTCRType ctcrType : CTCRType.values()) {
+                                        config.setValue(MetricSettings.CTCR_USAGE_SETTING, ctcrType);
+                                        for (SDType sdType : SDType.values()) {
+                                            config.setValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING, sdType);
                                             
-                                            // Add instance to list if instantiation was successful
-                                            if (null != metricInstance) {
-                                                metrics.add(metricInstance);
-                                            } else {
-                                                LOGGER.logWarning2("Could not create instance of ", metric.getName(),
-                                                    " with setting ", settings[i], " and ", sdType, " and ", ctcrType,
-                                                    " and ", distanceType, " and ", weightType);
-                                            }
-                                        } catch (InvocationTargetException exc) {
-                                            Throwable orignException = exc.getTargetException();
-                                            if (orignException instanceof UnsupportedMetricVariationException) {
+                                            try {
+                                                metricInstance = metricConstructor.newInstance(config,
+                                                    filteredFunctionSplitter.createOutputComponent(),
+                                                    getVmComponent(),
+                                                    getBmComponent(),
+                                                    sdSplitter.createOutputComponent());
                                                 
-                                                // Drop silently illegal combinations
-                                                LOGGER.logDebug2("Discarded metric:\n", orignException.getMessage());
-                                            } else {
-                                                LOGGER.logException("Metric could not be instantiated.", orignException);
+                                                // Add instance to list if instantiation was successful
+                                                if (null != metricInstance) {
+                                                    metrics.add(metricInstance);
+                                                } else {
+                                                    LOGGER.logWarning2("Could not create instance of ", metric.getName(),
+                                                        " with setting ", settings[i], " and ", sdType, " and ", ctcrType,
+                                                        " and ", distanceType, " and ", weightType);
+                                                }
+                                            } catch (InvocationTargetException exc) {
+                                                Throwable orignException = exc.getTargetException();
+                                                if (orignException instanceof UnsupportedMetricVariationException) {
+                                                    
+                                                    // Drop silently illegal combinations
+                                                    LOGGER.logDebug2("Discarded metric:\n", orignException.getMessage());
+                                                } else {
+                                                    LOGGER.logException("Metric could not be instantiated.", orignException);
+                                                }
                                             }
                                         }
                                     }

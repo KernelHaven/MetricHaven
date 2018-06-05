@@ -19,6 +19,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDist
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CtcrWeight;
@@ -44,7 +45,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attr
 abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisitor>
     extends AnalysisComponent<MetricResult> {
 
-    private static final int TOTAL_NUMBER_OF_VARIABILITY_WEIGHTS = 5;
+    private static final int TOTAL_NUMBER_OF_VARIABILITY_WEIGHTS = 6;
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -59,6 +60,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     private @Nullable Map<String, Integer> typeWeights;
     private @NonNull HierarchyType varHierarchyWeightType;
     private @Nullable Map<String, Integer> hierarchyWeights;
+    private @NonNull StructuralType structuralWeightType;
     private IVariableWeight weighter;
     private File currentCodefile;
     
@@ -181,6 +183,15 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 }
             }
         }
+
+        // Weight: Structural weights of the variability model
+        config.registerSetting(MetricSettings.STRUCTURE_MEASURING_SETTING);
+        structuralWeightType = config.getValue(MetricSettings.STRUCTURE_MEASURING_SETTING);
+        if (structuralWeightType != StructuralType.NO_STRUCTURAL_MEASUREMENT && null == varModelComponent) {
+            throw new SetUpException("Use of variability model structure was configured (" + structuralWeightType.name()
+                + "), but no variability model was passed to " + this.getClass().getName());
+        }
+        
     }
     
     /**
@@ -205,6 +216,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             selectedOptions[nOtherOptions++] = getDistanceType();
             selectedOptions[nOtherOptions++] = getVarTypeWeightType();
             selectedOptions[nOtherOptions++] = varHierarchyWeightType;
+            selectedOptions[nOtherOptions++] = structuralWeightType;
             
             throw new UnsupportedMetricVariationException(getClass(), selectedOptions);
         }
@@ -405,6 +417,12 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             weightsName.append(varHierarchyWeightType.name());
         }
         
+        // Variability model structure
+        if (structuralWeightType != StructuralType.NO_STRUCTURAL_MEASUREMENT) {
+            weightsName.append(" x ");
+            weightsName.append(structuralWeightType.name());
+        }
+        
         return weightsName.toString();
     }
     
@@ -419,7 +437,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             || getCTCRType() != CTCRType.NO_CTCR
             || getDistanceType() != FeatureDistanceType.NO_DISTANCE
             || getVarTypeWeightType() != VariabilityTypeMeasureType.NO_TYPE_MEASURING
-            || varHierarchyWeightType != HierarchyType.NO_HIERARCHY_MEASURING;
+            || varHierarchyWeightType != HierarchyType.NO_HIERARCHY_MEASURING
+            || structuralWeightType != StructuralType.NO_STRUCTURAL_MEASUREMENT;
      // CHECKSTYLE:ON
     }
     

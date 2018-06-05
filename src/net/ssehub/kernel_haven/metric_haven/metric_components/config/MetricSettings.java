@@ -95,5 +95,17 @@ public class MetricSettings {
             false, "", "Defines the weights to be used if " + HIERARCHY_TYPE_MEASURING_SETTING.getKey() + " is set to "
                 + HierarchyType.HIERARCHY_WEIGHTS_BY_FILE.name() + "\n"
                 + "Define the weights in form of (separated by a comma): hierarchy:weight");
+    
+    /**
+     * Configuration of variability weight (for features): <b>Structural information of variability models</b>.
+     */
+    public static final @NonNull Setting<StructuralType> STRUCTURE_MEASURING_SETTING
+        = new EnumSetting<>("metric.function_measures.consider_varmodel_structures", StructuralType.class,
+            true, StructuralType.NO_STRUCTURAL_MEASUREMENT, "Defines whether and how to incorporate stuctural"
+                + "information of used features:\n"
+                + " - " + StructuralType.NO_STRUCTURAL_MEASUREMENT.name() + ": Do not consider any structures "
+                + "(default).\n"
+                + " - " + StructuralType.NUMBER_OF_CHILDREN.name() + ": Count number of children (inspired by RoV).\n"
+                + " - " + StructuralType.COC.name() + ": Count all edges (inspired by CoC).");
 
 }
