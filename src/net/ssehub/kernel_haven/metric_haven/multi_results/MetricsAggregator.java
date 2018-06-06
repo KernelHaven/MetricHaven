@@ -8,10 +8,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -32,47 +30,31 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
 public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     
     /**
-     * The default thread factory, copied from {@link Executors}.
+     * Responsible for renaming a sub thread, when the thread tis started.
+     * @author El-Sharkawy
+     *
      */
-    private static class DefaultThreadFactory implements ThreadFactory {
-        private final ThreadGroup group;
-        private final AtomicInteger threadNumber = new AtomicInteger(1);
-        private final String namePrefix;
-
+    private static class DefaultThreadFactory {
+        private int threadNumber = 1;
+               
         /**
-         * Sole constructor.
+         * Gives the currently executed thread a meaningful name.
          */
-        private DefaultThreadFactory() {
-            SecurityManager s = System.getSecurityManager();
-            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-            namePrefix = "MetricsAggreagtorPollThread #";
-        }
-
-        @Override
-        public Thread newThread(Runnable run) {
-            String name = namePrefix + threadNumber.getAndIncrement();
-            if (run instanceof NamedRunnable) {
-                name += " - " + ((NamedRunnable) run).getName();
-            } else {
-                try {
-                    Field f = run.getClass().getDeclaredField("firstTask");
-                    f.setAccessible(true);
-                    Object fieldValue = f.get(run);
-                    if (fieldValue instanceof NamedRunnable) {
-                        name += " - " + ((NamedRunnable) fieldValue).getName();
-                    }
-                } catch (ReflectiveOperationException | SecurityException e) {
-                    LOGGER.logWarning2("Could not extract name of metrics thread: " + e.getMessage());
+        private void rename() {
+            Thread th = Thread.currentThread();
+            Field thField;
+            try {
+                thField = th.getClass().getDeclaredField("target");
+                thField.setAccessible(true);
+                Object fieldValue = thField.get(th);
+                String name = "MetricsThread #" + threadNumber++;
+                if (fieldValue instanceof NamedRunnable) {
+                    name += " - " + ((NamedRunnable) fieldValue).getName();
                 }
+                Thread.currentThread().setName(name);
+            } catch (ReflectiveOperationException | SecurityException e) {
+                e.printStackTrace();
             }
-            Thread t = new Thread(group, run, name, 0);
-            if (t.isDaemon()) {
-                t.setDaemon(false);
-            }
-            if (t.getPriority() != Thread.NORM_PRIORITY) {
-                t.setPriority(Thread.NORM_PRIORITY);
-            }
-            return t;
         }
     }
     
@@ -290,8 +272,8 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         // start threads to poll from each input metric
         DefaultThreadFactory thFactory = new DefaultThreadFactory();
         ThreadPoolExecutor thPool = (ThreadPoolExecutor) ( (nThreads > 0)
-            ? Executors.newFixedThreadPool(nThreads, thFactory)
-            : Executors.newCachedThreadPool(thFactory));
+            ? Executors.newFixedThreadPool(nThreads)
+            : Executors.newCachedThreadPool());
         int totalNoOfThreads = 0;
         for (AnalysisComponent<MetricResult> metric : metrics) {
             totalNoOfThreads++;
@@ -299,7 +281,8 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 
                 @Override
                 public void run() {
-                    LOGGER.logInfo2("Starting metric: ", getName());
+                    thFactory.rename();
+                    LOGGER.logInfo2("Collecting metric results of: ", getName());
                     MetricResult result;
                     while ((result = metric.getNextResult()) != null) {
                         File f = result.getSourceFile();
@@ -310,7 +293,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                             metric.getResultName(), result.getValue());
                     }
                     
-                    LOGGER.logInfo2("Metric finished: ", getName());
+                    LOGGER.logInfo2("Metric result collection finished: ", getName());
                 }
 
                 @Override
