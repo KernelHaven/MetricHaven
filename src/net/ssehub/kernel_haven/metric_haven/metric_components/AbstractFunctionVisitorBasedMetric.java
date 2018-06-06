@@ -310,7 +310,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             weights.add(new CtcrWeight(varModel, ctcrType)); 
         }
         
-        // Cross-tree constraint ratio
+        // Feature distances
         if (locationType != FeatureDistanceType.NO_DISTANCE && null != varModel) {
             weights.add(new FeatureDistanceWeight(varModel)); 
         }
