@@ -245,12 +245,18 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     
     @Override
     protected void execute() {
+        
         long time = System.currentTimeMillis();
         
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
         bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         
-        createWeight(varModel);
+        try {
+            createWeight(varModel);
+        } catch (UnsupportedOperationException exc) {
+            LOGGER.logException("Could not create weights: ", exc);
+            return;
+        }
         
         CodeFunction function;
         V visitor = createVisitor(varModel);
