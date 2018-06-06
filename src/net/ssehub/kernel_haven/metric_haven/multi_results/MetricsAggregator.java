@@ -320,7 +320,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 }
             }
         };
-        Thread th = new Thread(monitor);
+        Thread th = new Thread(monitor, getClass().getSimpleName());
         th.start();
         try {
             thPool.awaitTermination(96L, TimeUnit.HOURS);
