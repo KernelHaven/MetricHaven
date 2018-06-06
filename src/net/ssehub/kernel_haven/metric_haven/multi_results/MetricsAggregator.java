@@ -5,9 +5,12 @@ import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -26,9 +29,47 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
  */
 public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     
+    /**
+     * The default thread factory, copied from {@link Executors}.
+     */
+    private static class DefaultThreadFactory implements ThreadFactory {
+        private final ThreadGroup group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final String namePrefix;
+
+        /**
+         * Sole constructor.
+         */
+        private DefaultThreadFactory() {
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+            namePrefix = "MetricsAggreagtorPollThread #";
+        }
+
+        @Override
+        public Thread newThread(Runnable run) {
+            String name = namePrefix + threadNumber.getAndIncrement();
+            if (run instanceof NamedRunnable) {
+                name += " - " + ((NamedRunnable) run).getName();
+            }
+            Thread t = new Thread(group, run, name, 0);
+            if (t.isDaemon()) {
+                t.setDaemon(false);
+            }
+            if (t.getPriority() != Thread.NORM_PRIORITY) {
+                t.setPriority(Thread.NORM_PRIORITY);
+            }
+            return t;
+        }
+    }
+    
     public static final @NonNull Setting<@NonNull Boolean> ROUND_RESULTS = new Setting<>("metrics.round_results",
         Type.BOOLEAN, true, "false", "If turned on, results will be limited to 2 digits after the comma (0.005 will be "
-        + "rounded up). This is maybe neccessary to limit the disk usage.");
+            + "rounded up). This is maybe neccessary to limit the disk usage.");
+    
+    public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
+        Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
+            + "executed in parallel.");
     
     private @NonNull AnalysisComponent<MetricResult> @NonNull [] metrics;
     
@@ -38,6 +79,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     private boolean hasIncludedFiles = false;
     private @NonNull String resultName;
     private boolean round = false;
+    private int nThreads;
 
     /**
      * Creates a {@link MetricsAggregator} for the given metric components, with a fixed name for the results.
@@ -70,6 +112,13 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             round = config.getValue(ROUND_RESULTS);
         } catch (SetUpException exc) {
             LOGGER.logException("Could not load configuration setting " + ROUND_RESULTS, exc);
+        }
+        
+        try {
+            config.registerSetting(MAX_THREADS);
+            nThreads = config.getValue(MAX_THREADS);
+        } catch (SetUpException exc) {
+            LOGGER.logException("Could not load configuration setting " + MAX_THREADS, exc);
         }
         
         this.metrics = notNull(metrics);
@@ -155,7 +204,6 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         Arrays.sort(columnIDs);
         
         // Create Values
-//        @NonNull MultiMetricResult[] result = new @NonNull MultiMetricResult[columnIDs.length];
         for (int i = 0; i < columnIDs.length; i++) {
             String id = columnIDs[i];
             ValueRow column = getRow(id);
@@ -179,45 +227,96 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         }
     }
 
+//    @Override
+//    protected void execute() {
+//        // start threads to poll from each input metric
+//        
+//        List<Thread> threads = new LinkedList<>();
+//        for (AnalysisComponent<MetricResult> metric : metrics) {
+//            
+//            Thread th = new Thread(() -> {
+//                
+//                MetricResult result;
+//                while ((result = metric.getNextResult()) != null) {
+//                    File f = result.getSourceFile();
+//                    String sourceFile = f != null ? notNull(f.getPath()) : "<unknown>";
+//                    f = result.getIncludedFile();
+//                    String includedFile = f != null ? f.getPath() : null;
+//                    addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
+//                            metric.getResultName(), result.getValue());
+//                }
+//                
+//            }, "MetricsAggreagtorPollThread");
+//            
+//            threads.add(th);
+//            th.start();
+//            
+//        }
+//        
+//        for (Thread th : threads) {
+//            try {
+//                th.join();
+//            } catch (InterruptedException e) {
+//                // can't happen
+//            }
+//        }
+//        
+//        LOGGER.logInfo2("All metrics done, merging ", threads.size(), " results.");
+//        createTable();
+//    }
+    
     @Override
     protected void execute() {
+        // See for thread pools: https://stackoverflow.com/a/8651450
+        // See for join threads: https://stackoverflow.com/a/20495490
         // start threads to poll from each input metric
-        
-        List<Thread> threads = new LinkedList<>();
+        DefaultThreadFactory thFactory = new DefaultThreadFactory();
+        ThreadPoolExecutor thPool = (ThreadPoolExecutor) ( (nThreads > 0)
+            ? Executors.newFixedThreadPool(nThreads, thFactory)
+            : Executors.newCachedThreadPool(thFactory));
         for (AnalysisComponent<MetricResult> metric : metrics) {
             
-            Thread th = new Thread(() -> {
+            NamedRunnable r = new NamedRunnable() {
                 
-                MetricResult result;
-                while ((result = metric.getNextResult()) != null) {
-                    File f = result.getSourceFile();
-                    String sourceFile = f != null ? notNull(f.getPath()) : "<unknown>";
-                    f = result.getIncludedFile();
-                    String includedFile = f != null ? f.getPath() : null;
-                    addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
+                @Override
+                public void run() {
+                    MetricResult result;
+                    while ((result = metric.getNextResult()) != null) {
+                        File f = result.getSourceFile();
+                        String sourceFile = f != null ? notNull(f.getPath()) : "<unknown>";
+                        f = result.getIncludedFile();
+                        String includedFile = f != null ? f.getPath() : null;
+                        addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
                             metric.getResultName(), result.getValue());
+                    }
+                }
+
+                @Override
+                public String getName() {
+                    return metric.getResultName();
                 }
                 
-            }, "MetricsAggreagtorPollThread");
-            
-            threads.add(th);
-            th.start();
-            
+            };
+
+            thPool.execute(r);           
         }
         
-        for (Thread th : threads) {
-            try {
-                th.join();
-            } catch (InterruptedException e) {
-                // can't happen
+        thPool.shutdown();
+        try {
+            while (!thPool.awaitTermination(96L, TimeUnit.HOURS)) {
+                LOGGER.logInfo2("Currently there are ", thPool.getActiveCount(), " metrics in execution.");
+                try {
+                    Thread.sleep(3 * 60 * 1000);
+                } catch (InterruptedException innerExc) {
+                    LOGGER.logException("", innerExc);
+                }
             }
+        } catch (InterruptedException outerExc) {
+            LOGGER.logException("", outerExc);
         }
         
-        LOGGER.logInfo2("All metrics done, merging ", threads.size(), " results.");
+        LOGGER.logInfo2("All metrics done, merging ", thFactory.threadNumber.get(), " results.");
         createTable();
-//        for (MultiMetricResult result : createTable()) {
-//            addResult(result);
-//        }
     }
 
     @Override
