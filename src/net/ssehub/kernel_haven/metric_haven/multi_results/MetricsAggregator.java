@@ -286,6 +286,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 
                 @Override
                 public void run() {
+                    LOGGER.logInfo2("Starting metric ", getName());
                     MetricResult result;
                     while ((result = metric.getNextResult()) != null) {
                         File f = result.getSourceFile();
