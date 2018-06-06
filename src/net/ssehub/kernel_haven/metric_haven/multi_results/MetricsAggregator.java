@@ -19,6 +19,7 @@ import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
@@ -73,9 +74,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     
     private @NonNull AnalysisComponent<MetricResult> @NonNull [] metrics;
     
-    private @NonNull Map<StringBuffer, ValueRow> valueTable = new HashMap<>();
+    private @NonNull Map<String, ValueRow> valueTable = new HashMap<>();
     private @NonNull String @NonNull [] metricNames;
-    private @NonNull Map<StringBuffer, MeasuredItem> ids = new HashMap<>();
+    private @NonNull Map<String, MeasuredItem> ids = new HashMap<>();
     private boolean hasIncludedFiles = false;
     private @NonNull String resultName;
     private boolean round = false;
@@ -157,14 +158,15 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         id.append(element);
         
         // Store information to create rows and columns
-        if (!ids.containsKey(id)) {
+        String key = NullHelpers.notNull(id.toString());
+        if (!ids.containsKey(key)) {
             MeasuredItem item = new MeasuredItem(mainFile, includedFile, lineNo, element);
-            ids.put(id, item);
+            ids.put(key, item);
         }
         hasIncludedFiles |= (null != includedFile);
         
         // Add the value
-        ValueRow column = getRow(id);
+        ValueRow column = getRow(key);
         if (round) {
             value = Math.floor(value * 100) / 100;
         }
@@ -176,11 +178,11 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      * @param id A unique identifier for an measured element.
      * @return The row values (maybe empty) for the measured element.
      */
-    private @NonNull ValueRow getRow(@NonNull StringBuffer id) {
+    private @NonNull ValueRow getRow(@NonNull String id) {
         ValueRow column = valueTable.get(id);
         if (null == column) {
             column = new ValueRow();
-            valueTable.put(id, column);
+            valueTable.put(id.toString(), column);
         }
         
         return column;
@@ -204,12 +206,12 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         System.arraycopy(metricNames, 0, header, index, metricNames.length);
         
         // Create rows
-        @NonNull StringBuffer[] columnIDs = ids.keySet().toArray(new @NonNull StringBuffer[0]);
+        @NonNull String[] columnIDs = ids.keySet().toArray(new @NonNull String[0]);
         Arrays.sort(columnIDs);
         
         // Create Values
         for (int i = 0; i < columnIDs.length; i++) {
-            StringBuffer id = columnIDs[i];
+            String id = columnIDs[i];
             ValueRow column = getRow(id);
             MeasuredItem item = ids.get(id);
             
