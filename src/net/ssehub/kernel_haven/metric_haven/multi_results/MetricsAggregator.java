@@ -307,6 +307,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             thPool.execute(r);           
         }
         
+        LOGGER.logInfo2("Submitted ", thFactory.threadNumber.get(), " metrics; ",
+            thPool.getActiveCount(), " metrics already started");
+        
         thPool.shutdown();
         try {
             while (!thPool.awaitTermination(96L, TimeUnit.HOURS)) {
