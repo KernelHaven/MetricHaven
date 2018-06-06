@@ -280,8 +280,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         ThreadPoolExecutor thPool = (ThreadPoolExecutor) ( (nThreads > 0)
             ? Executors.newFixedThreadPool(nThreads, thFactory)
             : Executors.newCachedThreadPool(thFactory));
+        int totalNoOfThreads = 0;
         for (AnalysisComponent<MetricResult> metric : metrics) {
-            
+            totalNoOfThreads++;
             NamedRunnable r = new NamedRunnable() {
                 
                 @Override
@@ -308,7 +309,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             thPool.execute(r);           
         }
         
-        LOGGER.logInfo2("Submitted ", thFactory.threadNumber.get(), " metrics; ",
+        LOGGER.logInfo2("Submitted ", totalNoOfThreads, " metrics; ",
             thPool.getActiveCount(), " metrics already started");
         
         thPool.shutdown();
@@ -325,7 +326,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             LOGGER.logException("", outerExc);
         }
         
-        LOGGER.logInfo2("All metrics done, merging ", thFactory.threadNumber.get(), " results.");
+        LOGGER.logInfo2("All metrics done. Merging ", totalNoOfThreads, " results.");
         createTable();
     }
 
