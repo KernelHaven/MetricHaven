@@ -73,9 +73,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     
     private @NonNull AnalysisComponent<MetricResult> @NonNull [] metrics;
     
-    private @NonNull Map<String, ValueRow> valueTable = new HashMap<>();
+    private @NonNull Map<StringBuffer, ValueRow> valueTable = new HashMap<>();
     private @NonNull String @NonNull [] metricNames;
-    private @NonNull Map<String, MeasuredItem> ids = new HashMap<>();
+    private @NonNull Map<StringBuffer, MeasuredItem> ids = new HashMap<>();
     private boolean hasIncludedFiles = false;
     private @NonNull String resultName;
     private boolean round = false;
@@ -146,11 +146,15 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             @NonNull String element, @NonNull String metricName, double value) {
     // CHECKSTYLE:ON
         
-        String id = mainFile;
+        StringBuffer id = new StringBuffer(mainFile);
         if (null != includedFile) {
-            id += ":" + includedFile;
+            id.append(":");
+            id.append(includedFile);
         }
-        id += ":" + lineNo + ":" + element;
+        id.append(":");
+        id.append(lineNo);
+        id.append(":");
+        id.append(element);
         
         // Store information to create rows and columns
         if (!ids.containsKey(id)) {
@@ -172,7 +176,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      * @param id A unique identifier for an measured element.
      * @return The row values (maybe empty) for the measured element.
      */
-    private @NonNull ValueRow getRow(@NonNull String id) {
+    private @NonNull ValueRow getRow(@NonNull StringBuffer id) {
         ValueRow column = valueTable.get(id);
         if (null == column) {
             column = new ValueRow();
@@ -200,12 +204,12 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         System.arraycopy(metricNames, 0, header, index, metricNames.length);
         
         // Create rows
-        @NonNull String[] columnIDs = ids.keySet().toArray(new @NonNull String[0]);
+        @NonNull StringBuffer[] columnIDs = ids.keySet().toArray(new @NonNull StringBuffer[0]);
         Arrays.sort(columnIDs);
         
         // Create Values
         for (int i = 0; i < columnIDs.length; i++) {
-            String id = columnIDs[i];
+            StringBuffer id = columnIDs[i];
             ValueRow column = getRow(id);
             MeasuredItem item = ids.get(id);
             
