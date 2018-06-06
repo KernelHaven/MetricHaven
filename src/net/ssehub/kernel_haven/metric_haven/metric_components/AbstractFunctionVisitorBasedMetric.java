@@ -29,8 +29,10 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.StructuralWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.TypeWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attribute;
@@ -47,6 +49,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
 
     private static final int TOTAL_NUMBER_OF_VARIABILITY_WEIGHTS = 6;
     
+    private static Map<Object, IVariableWeight> cachedWeighters = new HashMap<>();
+
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @Nullable AnalysisComponent<BuildModel> bmComponent;
@@ -63,6 +67,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     private @NonNull StructuralType structuralWeightType;
     private IVariableWeight weighter;
     private File currentCodefile;
+    
     
     /**
      * Sole constructor for this class.
@@ -291,13 +296,14 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
      * Part of {@link #execute()}: Create the weight instance based on the given settings.
      * @param varModel The variability model (may be <tt>null</tt>).
      */
+    // CHECKSTYLE:OFF
     protected void createWeight(@Nullable VariabilityModel varModel) {
+    // CHECKSTYLE:ON
         // Scattering degree
         List<IVariableWeight> weights = new ArrayList<>();
         if (sdType != SDType.NO_SCATTERING && null != sdComponent) {
             ScatteringDegreeContainer sdList = sdComponent.getNextResult();
             weights.add(new ScatteringWeight(sdList, sdType));
-            
         }
         
         // Cross-tree constraint ratio
@@ -314,18 +320,43 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         if (varTypeWeightType != VariabilityTypeMeasureType.NO_TYPE_MEASURING && null != varModel
             && null != typeWeights) {
             
-            weights.add(new TypeWeight(varModel, typeWeights));
+            IVariableWeight weight = cachedWeighters.get(varTypeWeightType);
+            if (null == weight) {
+                weight = new TypeWeight(varModel, NullHelpers.notNull(typeWeights));
+                cachedWeighters.put(typeWeights, weight);
+            }
+            if (null != weight) {
+                weights.add(weight);
+            }
         }
         
         // Weights for hierarchy level of a feature
         if (varHierarchyWeightType != HierarchyType.NO_HIERARCHY_MEASURING) {
-            if (null != varModel && !varModel.getDescriptor().hasAttribute(Attribute.HIERARCHICAL)) {
-                weights.add(new HierarchyWeight(varModel, hierarchyWeights));
-            } else {
-                LOGGER.logError2("Hierarchy of features should be measured \""
-                    + MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING + "=" + varHierarchyWeightType.name() + "\", but"
-                    + " the variability does not store hierarchy information.");
-                
+            IVariableWeight weight = cachedWeighters.get(varHierarchyWeightType);
+            if (null == weight) {
+                if (null != varModel && !varModel.getDescriptor().hasAttribute(Attribute.HIERARCHICAL)) {
+                    weight = new HierarchyWeight(varModel, hierarchyWeights);
+                    cachedWeighters.put(varHierarchyWeightType, weight);
+                } else {
+                    LOGGER.logError2("Hierarchy of features should be measured \""
+                        + MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING + "=" + varHierarchyWeightType.name()
+                        + "\", but the variability model does not store hierarchy information.");
+                }
+            }
+            if (null != weight) {
+                weights.add(weight);
+            }
+        }
+        
+        // Weights for the structure of the variability model
+        if (structuralWeightType != StructuralType.NO_STRUCTURAL_MEASUREMENT  && null != varModel) {
+            IVariableWeight weight = cachedWeighters.get(structuralWeightType);
+            if (null == weight) {
+                weight = new StructuralWeight(varModel, structuralWeightType);
+                cachedWeighters.put(structuralWeightType, weight);
+            }
+            if (null != weight) {
+                weights.add(weight);
             }
         }
         
@@ -452,5 +483,12 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         // See: https://stackoverflow.com/a/14081915
         String formatedDuration = String.format("%02d:%02d", duration / 60000, duration / 1000 % 60);
         LOGGER.logInfo2((String[]) text, formatedDuration, " Min.");
+    }
+    
+    /**
+     * Clears the cached weights, should be done if a new product line (version) is analyzed in the same process.
+     */
+    public static void clearChachedWeights() {
+        cachedWeighters.clear();
     }
 }
