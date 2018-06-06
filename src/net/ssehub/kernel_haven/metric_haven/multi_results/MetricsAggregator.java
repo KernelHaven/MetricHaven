@@ -3,6 +3,7 @@ package net.ssehub.kernel_haven.metric_haven.multi_results;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,17 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             String name = namePrefix + threadNumber.getAndIncrement();
             if (run instanceof NamedRunnable) {
                 name += " - " + ((NamedRunnable) run).getName();
+            } else {
+                try {
+                    Field f = run.getClass().getDeclaredField("firstTask");
+                    f.setAccessible(true);
+                    Object fieldValue = f.get(run);
+                    if (fieldValue instanceof NamedRunnable) {
+                        name += " - " + ((NamedRunnable) fieldValue).getName();
+                    }
+                } catch (ReflectiveOperationException | SecurityException e) {
+                    LOGGER.logWarning2("Could not extract name of metrics thread: " + e.getMessage());
+                }
             }
             Thread t = new Thread(group, run, name, 0);
             if (t.isDaemon()) {
@@ -297,6 +309,8 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                         addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
                             metric.getResultName(), result.getValue());
                     }
+                    
+                    LOGGER.logInfo2("Metric finished: ", getName());
                 }
 
                 @Override
@@ -313,17 +327,22 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             thPool.getActiveCount(), " metrics already started");
         
         thPool.shutdown();
-        try {
-            while (!thPool.awaitTermination(96L, TimeUnit.HOURS)) {
+        Runnable monitor = () -> {
+            while (!thPool.isTerminated()) {
                 LOGGER.logInfo2("Currently there are ", thPool.getActiveCount(), " metrics in execution.");
                 try {
                     Thread.sleep(3 * 60 * 1000);
-                } catch (InterruptedException innerExc) {
-                    LOGGER.logException("", innerExc);
+                } catch (InterruptedException exc) {
+                    LOGGER.logException("", exc);
                 }
             }
-        } catch (InterruptedException outerExc) {
-            LOGGER.logException("", outerExc);
+        };
+        Thread th = new Thread(monitor);
+        th.start();
+        try {
+            thPool.awaitTermination(96L, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            LOGGER.logException("", e);
         }
         
         LOGGER.logInfo2("All metrics done. Merging ", totalNoOfThreads, " results.");
