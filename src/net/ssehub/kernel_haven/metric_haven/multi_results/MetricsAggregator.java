@@ -50,6 +50,14 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 String name = "MetricsThread #" + threadNumber++;
                 if (fieldValue instanceof NamedRunnable) {
                     name += " - " + ((NamedRunnable) fieldValue).getName();
+                } else {
+                    // Maybe a private Worker
+                    Field f = fieldValue.getClass().getDeclaredField("firstTask");
+                    f.setAccessible(true);
+                    Object workerdValue = f.get(fieldValue);
+                    if (workerdValue instanceof NamedRunnable) {
+                        name += " - " + ((NamedRunnable) fieldValue).getName();
+                    }
                 }
                 Thread.currentThread().setName(name);
             } catch (ReflectiveOperationException | SecurityException e) {
