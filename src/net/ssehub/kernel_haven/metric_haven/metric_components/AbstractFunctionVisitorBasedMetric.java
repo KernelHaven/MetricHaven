@@ -260,7 +260,14 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         
         CodeFunction function;
         V visitor = createVisitor(varModel);
+        
+        LOGGER.logInfo("Created Visitor"); // TODO
+        
         while ((function = codeFunctionFinder.getNextResult()) != null)  {
+            LOGGER.logWarning("Starting for function " + function.getQualifiedName()); // TODO
+            
+            long t0 = System.currentTimeMillis();
+            
             currentCodefile = function.getSourceFile().getPath();
             Function astRoot = function.getFunction();
             visitor.reset();
@@ -276,6 +283,8 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 ? null : functionAST.getSourceFile();
             addResult(new MetricResult(currentCodefile, includedFile, functionAST.getLineStart(), function.getName(),
                 result));
+            
+            LOGGER.logWarning("Added result, took " + (System.currentTimeMillis() - t0) + "ms"); // TODO
         }
         
         logDuration(System.currentTimeMillis() - time, "Analysis of ", getResultName(), " finished in ");
