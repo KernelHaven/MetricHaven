@@ -14,7 +14,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
-import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
+import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.VariabilityCounter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.BlocksPerFunctionMetric.BlockMeasureType;
@@ -69,7 +69,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
     // CHECKSTYLE:ON
         
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
-        AnalysisComponent<CodeFunction> functionFilter = new CodeFunctionFilter(config, codeModel);
+        AnalysisComponent<CodeFunction> functionFilter = new OrderedCodeFunctionFilter(config, codeModel);
         
         // add a split component after the function filter
         SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
