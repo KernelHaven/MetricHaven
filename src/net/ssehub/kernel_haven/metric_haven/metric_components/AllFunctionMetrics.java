@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.analysis.JoinComponent;
 import net.ssehub.kernel_haven.analysis.ObservableAnalysis;
 import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
@@ -30,7 +31,6 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
-import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
@@ -40,6 +40,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
     
+    private static final boolean JOIN_INTO_SINGLE_SHEET = false;
     /**
      * Whether this pipeline should add an {@link ObservableAnalysis} at the end or not.
      */
@@ -49,6 +50,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
      * Whether this pipeline should add a {@link CodeFunctionByLineFilter} or not.
      */
     private static boolean addLineFilter = false;
+    
     
     /**
      * Creates this pipeline object.
@@ -146,9 +148,14 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
             null, metrics, BlockMeasureType.values());
         
         // join the parallel metrics together
-        @SuppressWarnings({ "null", "unchecked" })
-        AnalysisComponent<MultiMetricResult> join = new MetricsAggregator(config, "All Function Metrics",
-            metrics.toArray(new AnalysisComponent[metrics.size()]));
+        @SuppressWarnings({"unchecked"})
+        AnalysisComponent<MetricResult>[] metricComponents = metrics.toArray(new AnalysisComponent[metrics.size()]);
+        AnalysisComponent<?> join;
+        if (JOIN_INTO_SINGLE_SHEET) {
+            join = new MetricsAggregator(config, "All Function Metrics", metricComponents);           
+        } else {
+            join = new JoinComponent(config, metricComponents);
+        }
         
         if (addObservable) {
             join = new ObservableAnalysis<>(config, join);
