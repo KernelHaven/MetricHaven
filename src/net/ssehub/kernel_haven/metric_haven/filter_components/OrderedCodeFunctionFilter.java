@@ -53,15 +53,16 @@ public class OrderedCodeFunctionFilter extends AnalysisComponent<CodeFunction> i
         Comparator<CodeFunction> funcComparator = new Comparator<CodeFunction>() {
 
             @Override
-            public int compare(CodeFunction o1, CodeFunction o2) {
-                int result = o1.getSourceFile().getPath().getName().compareTo(o2.getSourceFile().getPath().getName());
+            public int compare(CodeFunction func1, CodeFunction func2) {
+                int result = func1.getSourceFile().getPath().getAbsolutePath().compareTo(
+                    func2.getSourceFile().getPath().getAbsolutePath());
                 
                 if (0 == result) {
-                    result = o1.getName().compareTo(o2.getName());
+                    result = func1.getName().compareTo(func2.getName());
                 }
                 
                 if (0 == result) {
-                    result = Integer.compare(o1.getFunction().getLineStart(), o2.getFunction().getLineStart());
+                    result = Integer.compare(func1.getFunction().getLineStart(), func2.getFunction().getLineStart());
                 }
                 
                 return result;
