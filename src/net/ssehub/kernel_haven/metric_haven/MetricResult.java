@@ -1,6 +1,11 @@
 package net.ssehub.kernel_haven.metric_haven;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.io.TableElement;
@@ -47,7 +52,14 @@ public class MetricResult {
         this.element = element;
         this.value = value;
         
-        instances++;
+    instances++;
+    if (instances % 100000 == 0) {
+        Exception stackTrace = new Exception("Stack trace");
+        StringWriter sWriter = new StringWriter();
+        PrintWriter pWriter = new PrintWriter(sWriter);
+        stackTrace.printStackTrace(pWriter);
+        Logger.get().logInfo2(sWriter.toString());
+    }
     }
     
     /**
