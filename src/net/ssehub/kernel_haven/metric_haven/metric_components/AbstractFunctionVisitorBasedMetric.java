@@ -235,11 +235,10 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     protected abstract @NonNull V createVisitor(@Nullable VariabilityModel varModel);
     
     /**
-     * This method will compute the result based on the results of the visitor created by
+     * This method shall compute the result based on the results of the visitor created by
      *     {@link #createVisitor(VariabilityModel)}.
      * @param visitor The visitor after visitation of a single function.
-     * @return The computed value or {@link Double#NaN} if no result could be computed an this metric should not
-     *     mention the result.
+     * @return The computed value or {@link Double#NaN} if no result could be computed and this metric should abort.
      */
     protected abstract double computeResult(@NonNull V visitor);
     
