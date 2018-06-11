@@ -1,13 +1,9 @@
 package net.ssehub.kernel_haven.metric_haven;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 
 import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.Logger.Level;
 import net.ssehub.kernel_haven.util.io.TableElement;
 import net.ssehub.kernel_haven.util.io.TableRow;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -45,7 +41,8 @@ public class MetricResult {
      * @param value The value that the metric returned.
      */
     public MetricResult(@Nullable File sourceFile, @Nullable File includedFile, int lineNo,  @NonNull String element,
-            double value) {
+        double value) {
+        
         this.sourceFile = sourceFile;
         this.includedFile = includedFile;
         this.lineNo = lineNo;
@@ -54,11 +51,7 @@ public class MetricResult {
         
     instances++;
     if (instances % 100000 == 0) {
-        Exception stackTrace = new Exception("Stack trace");
-        StringWriter sWriter = new StringWriter();
-        PrintWriter pWriter = new PrintWriter(sWriter);
-        stackTrace.printStackTrace(pWriter);
-        Logger.get().logInfo2(sWriter.toString());
+        Logger.get().logStackTrace(Level.INFO, instances + " Metrics Results created:");
     }
     }
     

@@ -7,8 +7,8 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
-import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attribute;
+import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
  * Scattering degree based on cross-tree constraint ratio.

@@ -8,8 +8,8 @@ import java.util.Map;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.SourceLocation;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
-import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attribute;
+import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
  * Counts the shortest path to traversal from the code destination to the source location where the feature was defined
