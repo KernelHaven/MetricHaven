@@ -265,7 +265,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             astRoot.accept(visitor);
             
             double result = computeResult(visitor);
-            if (Double.NaN == result) {
+            if (Double.isNaN(result)) {
                 return;
             }
             
