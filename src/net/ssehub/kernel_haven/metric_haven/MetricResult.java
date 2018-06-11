@@ -51,7 +51,7 @@ public class MetricResult {
         
     instances++;
     if (instances % 100000 == 0) {
-        Logger.get().logStackTrace(Level.INFO, instances + " Metrics Results created:");
+        Logger.get().logStackTrace(Level.INFO, instances + " Metric Results created:");
     }
     }
     
