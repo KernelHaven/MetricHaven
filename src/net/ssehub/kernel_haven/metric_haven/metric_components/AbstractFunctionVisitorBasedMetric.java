@@ -266,7 +266,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             
             double result = computeResult(visitor);
             if (Double.isNaN(result)) {
-                return;
+                break;
             }
             
             Function functionAST = function.getFunction();
