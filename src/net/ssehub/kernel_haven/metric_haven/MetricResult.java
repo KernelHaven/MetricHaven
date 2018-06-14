@@ -2,8 +2,6 @@ package net.ssehub.kernel_haven.metric_haven;
 
 import java.io.File;
 
-import net.ssehub.kernel_haven.util.Logger;
-import net.ssehub.kernel_haven.util.Logger.Level;
 import net.ssehub.kernel_haven.util.io.TableElement;
 import net.ssehub.kernel_haven.util.io.TableRow;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -18,7 +16,7 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
 @TableRow
 public class MetricResult {
     
-   private static int instances = 0;
+//    private static int instances = 0;
 
     private @NonNull String element;
     
@@ -49,12 +47,12 @@ public class MetricResult {
         this.element = element;
         this.value = value;
         
-        synchronized (MetricResult.class) {
-            instances++;
-            if (instances % 100000 == 0) {
-                Logger.get().logStackTrace(Level.INFO, instances + " Metric Results created:");
-            }
-        }
+//        synchronized (MetricResult.class) {
+//            instances++;
+//            if (instances % 100000 == 0) {
+//                Logger.get().logStackTrace(Level.INFO, instances + " Metric Results created:");
+//            }
+//        }
     }
     
     /**
@@ -113,14 +111,15 @@ public class MetricResult {
         return element + ": " + value;
     }
     
-    @Override
-    protected void finalize() throws Throwable {
-        synchronized (MetricResult.class) {
-            instances--;
-            if (instances % 100000 == 0) {
-                Logger.get().logInfo2(instances, " Metric results");
-            }
-        }
-        super.finalize();
-    }
+//    @Override
+//    protected void finalize() throws Throwable {
+//        synchronized (MetricResult.class) {
+//            instances--;
+//            if (instances % 100000 == 0) {
+//                Logger.get().logInfo2(instances, " Metric results");
+//            }
+//        }
+//        super.finalize();
+//    }
+
 }
