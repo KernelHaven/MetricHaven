@@ -18,7 +18,7 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
 @TableRow
 public class MetricResult {
     
-    private static int instances = 0;
+   private static int instances = 0;
 
     private @NonNull String element;
     
@@ -49,10 +49,12 @@ public class MetricResult {
         this.element = element;
         this.value = value;
         
-    instances++;
-    if (instances % 100000 == 0) {
-        Logger.get().logStackTrace(Level.INFO, instances + " Metric Results created:");
-    }
+        synchronized (MetricResult.class) {
+            instances++;
+            if (instances % 100000 == 0) {
+                Logger.get().logStackTrace(Level.INFO, instances + " Metric Results created:");
+            }
+        }
     }
     
     /**
@@ -113,10 +115,12 @@ public class MetricResult {
     
     @Override
     protected void finalize() throws Throwable {
-        instances--;
-        super.finalize();
-        if (instances % 100000 == 0) {
-            Logger.get().logInfo2(instances, " Metric results");
+        synchronized (MetricResult.class) {
+            instances--;
+            if (instances % 100000 == 0) {
+                Logger.get().logInfo2(instances, " Metric results");
+            }
         }
+        super.finalize();
     }
 }
