@@ -62,7 +62,6 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
      * 
      * @throws SetUpException If {@link #VARIABLE_TYPE_SETTING} was defined with an invalid option.
      */
-    @SuppressWarnings("null")
     public AbstractFanInOutMetric(@NonNull Configuration config,
         @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder,
         @Nullable AnalysisComponent<VariabilityModel> varModelComponent,

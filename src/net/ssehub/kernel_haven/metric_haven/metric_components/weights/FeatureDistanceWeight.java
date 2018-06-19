@@ -26,7 +26,7 @@ public class FeatureDistanceWeight implements IVariableWeight {
      *     where a variable/feature was defined.
      */
     public FeatureDistanceWeight(@NonNull VariabilityModel varModel) {
-        if (null != varModel && varModel.getDescriptor().hasAttribute(Attribute.SOURCE_LOCATIONS)) {
+        if (varModel.getDescriptor().hasAttribute(Attribute.SOURCE_LOCATIONS)) {
             varMap = varModel.getVariableMap();
         } else {
             throw new UnsupportedOperationException("FeatureDistanceWeight without an approriate "

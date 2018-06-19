@@ -66,13 +66,11 @@ public class StructuralWeight implements IVariableWeight {
                 StructuralType.NO_STRUCTURAL_MEASUREMENT.name());
             break;
         case NUMBER_OF_CHILDREN:
-            result = var.getChildren() != null ? var.getChildren().size() : 0;
+            result = var.getChildren().size();
             break;
         case COC:
             Set<VariabilityVariable> connectedVariables = new HashSet<>();
-            if (null != var.getChildren()) {
-                connectedVariables.addAll(var.getChildren());
-            }
+            connectedVariables.addAll(var.getChildren());
             if (null != var.getParent()) {
                 connectedVariables.add(var.getParent());
             }

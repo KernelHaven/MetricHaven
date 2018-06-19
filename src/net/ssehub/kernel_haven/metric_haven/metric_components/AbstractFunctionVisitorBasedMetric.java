@@ -325,9 +325,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 weight = new TypeWeight(varModel, NullHelpers.notNull(typeWeights));
                 WeigthsCache.INSTANCE.add(varTypeWeightType, weight);
             }
-            if (null != weight) {
-                weights.add(weight);
-            }
+            weights.add(weight);
         }
         
         // Weights for hierarchy level of a feature
@@ -361,9 +359,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 weight = new StructuralWeight(varModel, structuralWeightType);
                 WeigthsCache.INSTANCE.add(structuralWeightType, weight);
             }
-            if (null != weight) {
-                weights.add(weight);
-            }
+            weights.add(weight);
         }
         
         // Create final weighting function with as less objects as necessary
@@ -488,6 +484,6 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     protected final void logDuration(long duration, @NonNull String... text) {
         // See: https://stackoverflow.com/a/14081915
         String formatedDuration = String.format("%02d:%02d", duration / 60000, duration / 1000 % 60);
-        LOGGER.logInfo2((String[]) text, formatedDuration, " Min.");
+        LOGGER.logInfo2(text, formatedDuration, " Min.");
     }
 }

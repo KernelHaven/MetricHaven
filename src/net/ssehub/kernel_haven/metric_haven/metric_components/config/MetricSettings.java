@@ -6,6 +6,7 @@ import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
  * Definition of metric settings.
@@ -17,7 +18,7 @@ public class MetricSettings {
     /**
      * Configuration of variability weight (for features): <b>Scattering Degree</b>.
      */
-    public static final @NonNull Setting<SDType> SCATTERING_DEGREE_USAGE_SETTING
+    public static final @NonNull Setting<@NonNull SDType> SCATTERING_DEGREE_USAGE_SETTING
         = new EnumSetting<>("metric.function_measures.consider_scattering_degree", SDType.class, true, 
             SDType.NO_SCATTERING, "Defines whether and how to incorporate scattering degree values"
                 + "into measurement results.\n"
@@ -28,7 +29,7 @@ public class MetricSettings {
     /**
      * Configuration of variability weight (for features): <b>Cross-Tree Constraint Ratio</b>.
      */
-    public static final @NonNull Setting<CTCRType> CTCR_USAGE_SETTING
+    public static final @NonNull Setting<@NonNull CTCRType> CTCR_USAGE_SETTING
         = new EnumSetting<>("metric.function_measures.consider_ctcr", CTCRType.class, true, 
             CTCRType.NO_CTCR, "Defines whether and how to incorporate cross-tree constraint ratios from the variability"
                     + " model into measurement results.\n"
@@ -44,7 +45,7 @@ public class MetricSettings {
     /**
      * Configuration of variability weight (for features): <b>Distance between definition and usage</b>.
      */
-    public static final @NonNull Setting<FeatureDistanceType> LOCATION_DISTANCE_SETTING
+    public static final @NonNull Setting<@NonNull FeatureDistanceType> LOCATION_DISTANCE_SETTING
         = new EnumSetting<>("metric.function_measures.consider_feature_definition_distance", FeatureDistanceType.class,
             true, FeatureDistanceType.NO_DISTANCE, "Defines whether and how to incorporate distance between used "
                 + "feature (location of measured code file) and definition of feature "
@@ -56,7 +57,7 @@ public class MetricSettings {
     /**
      * Configuration of variability weight (for features): <b>Type of features</b>.
      */
-    public static final @NonNull Setting<VariabilityTypeMeasureType> TYPE_MEASURING_SETTING
+    public static final @NonNull Setting<@NonNull VariabilityTypeMeasureType> TYPE_MEASURING_SETTING
         = new EnumSetting<>("metric.function_measures.consider_feature_types", VariabilityTypeMeasureType.class,
             true, VariabilityTypeMeasureType.NO_TYPE_MEASURING, "Defines whether and how to incorporate types of used "
                 + "features:\n"
@@ -67,16 +68,16 @@ public class MetricSettings {
     /**
      * Configuration of variability weight (for features): Definitions of weights for {@value #TYPE_MEASURING_SETTING}.
      */
-    public static final @NonNull Setting<List<String>> TYPE_WEIGHTS_SETTING
-        = new Setting<List<String>>("metric.function_measures.type_weight_definitions", Type.STRING_LIST,
-            false, "", "Defines the weights to be used if " + TYPE_MEASURING_SETTING.getKey() + " is set to "
+    public static final @NonNull Setting<@Nullable List<@NonNull String>> TYPE_WEIGHTS_SETTING
+        = new Setting<>("metric.function_measures.type_weight_definitions", Type.STRING_LIST,
+            false, null, "Defines the weights to be used if " + TYPE_MEASURING_SETTING.getKey() + " is set to "
                 + VariabilityTypeMeasureType.TYPE_WEIGHTS_BY_FILE.name() + "\n"
                 + "Define the weights in form of (separated by a comma): type:weight");
     
     /**
      * Configuration of variability weight (for features): <b>Hierarchy level of features</b>.
      */
-    public static final @NonNull Setting<HierarchyType> HIERARCHY_TYPE_MEASURING_SETTING
+    public static final @NonNull Setting<@NonNull HierarchyType> HIERARCHY_TYPE_MEASURING_SETTING
         = new EnumSetting<>("metric.function_measures.consider_feature_hierarchies", HierarchyType.class,
             true, HierarchyType.NO_HIERARCHY_MEASURING, "Defines whether and how to incorporate hierarchies of used "
                 + "features:\n"
@@ -90,16 +91,16 @@ public class MetricSettings {
      * Configuration of variability weight (for features): Definitions of weights for
      * {@value #HIERARCHY_TYPE_MEASURING_SETTING}.
      */
-    public static final @NonNull Setting<List<String>> HIERARCHY_WEIGHTS_SETTING
-        = new Setting<List<String>>("metric.function_measures.hierarchy_weight_definitions", Type.STRING_LIST,
-            false, "", "Defines the weights to be used if " + HIERARCHY_TYPE_MEASURING_SETTING.getKey() + " is set to "
-                + HierarchyType.HIERARCHY_WEIGHTS_BY_FILE.name() + "\n"
+    public static final @NonNull Setting<@Nullable List<@NonNull String>> HIERARCHY_WEIGHTS_SETTING
+        = new Setting<>("metric.function_measures.hierarchy_weight_definitions", Type.STRING_LIST,
+            false, null, "Defines the weights to be used if " + HIERARCHY_TYPE_MEASURING_SETTING.getKey()
+                + " is set to " + HierarchyType.HIERARCHY_WEIGHTS_BY_FILE.name() + "\n"
                 + "Define the weights in form of (separated by a comma): hierarchy:weight");
     
     /**
      * Configuration of variability weight (for features): <b>Structural information of variability models</b>.
      */
-    public static final @NonNull Setting<StructuralType> STRUCTURE_MEASURING_SETTING
+    public static final @NonNull Setting<@NonNull StructuralType> STRUCTURE_MEASURING_SETTING
         = new EnumSetting<>("metric.function_measures.consider_varmodel_structures", StructuralType.class,
             true, StructuralType.NO_STRUCTURAL_MEASUREMENT, "Defines whether and how to incorporate stuctural"
                 + "information of used features:\n"

@@ -107,11 +107,11 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         Enum<?>[] values = null;
         if (setting instanceof EnumSetting<?>) {
             EnumSetting<?> enumSetting = (EnumSetting<?>) setting;
-            enumClass = (Class<? extends Enum<?>>) enumSetting.getEnumClass();
+            enumClass = enumSetting.getEnumClass();
             values = enumClass.getEnumConstants();
         }
         
-        if (null != enumClass) {
+        if (null != enumClass && values != null) {
             // Perform (dirty) casts to fulfill requirements of "generic" method
             MT[] metricTypeSettings = (MT[]) Array.newInstance(enumClass, values.length);
             System.arraycopy(values, 0, metricTypeSettings, 0, values.length);

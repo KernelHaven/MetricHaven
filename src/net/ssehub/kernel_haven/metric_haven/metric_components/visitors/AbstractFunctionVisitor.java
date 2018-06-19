@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
@@ -76,7 +78,7 @@ public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
      *     variability model.
      */
     protected boolean isFeature(String variableName) {
-        return (null == varModel || varModel.getVariableMap().containsKey(variableName));
+        return (null == varModel || notNull(varModel).getVariableMap().containsKey(variableName));
     }
     
     /**
