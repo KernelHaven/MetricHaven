@@ -39,9 +39,19 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
     /**
      * Single constructor to instantiate and execute all variations of a single metric-analysis class.
      * @param config The global configuration.
+     * @throws SetUpException In case of problems with the configuration of {@link #METRICS_CLASS}.
      */
-    public MetricsRunner(@NonNull Configuration config) {
+    @SuppressWarnings("unchecked")
+    public MetricsRunner(@NonNull Configuration config) throws SetUpException {
         super(config);
+        config.registerSetting(METRICS_CLASS);
+        String metricsClassName = config.getValue(METRICS_CLASS);
+        try {
+            metricClass = (Class<? extends AbstractFunctionVisitorBasedMetric<?>>)
+                ClassLoader.getSystemClassLoader().loadClass(metricsClassName);
+        } catch (ClassNotFoundException | ClassCastException exc) {
+            LOGGER.logException("Could not load specified metric analysis class:", exc);
+        }
     }
 
     @Override
