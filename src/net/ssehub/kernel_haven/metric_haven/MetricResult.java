@@ -46,13 +46,6 @@ public class MetricResult {
         this.lineNo = lineNo;
         this.element = element;
         this.value = value;
-        
-//        synchronized (MetricResult.class) {
-//            instances++;
-//            if (instances % 100000 == 0) {
-//                Logger.get().logStackTrace(Level.INFO, instances + " Metric Results created:");
-//            }
-//        }
     }
     
     /**
