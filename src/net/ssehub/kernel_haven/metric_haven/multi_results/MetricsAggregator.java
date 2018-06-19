@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -283,6 +284,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             ? Executors.newFixedThreadPool(nThreads)
             : Executors.newCachedThreadPool());
         int totalNoOfThreads = 0;
+        AtomicInteger nThreadsProcessed = new AtomicInteger(0);
         for (AnalysisComponent<MetricResult> metric : metrics) {
             totalNoOfThreads++;
             NamedRunnable r = new NamedRunnable() {
@@ -302,6 +304,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                     }
                     
                     LOGGER.logInfo2("Metric result collection finished: ", getName());
+                    nThreadsProcessed.incrementAndGet();
                 }
 
                 @Override
@@ -313,13 +316,16 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
 
             thPool.execute(r);           
         }
-        
         LOGGER.logInfo2("Submitted ", totalNoOfThreads, " metrics; ",
             thPool.getActiveCount(), " metrics already started");
-        
         thPool.shutdown();
+        final int submittedThreads = totalNoOfThreads;
         Runnable monitor = () -> {
             while (!thPool.isTerminated()) {
+                LOGGER.logInfo("Joining components:",
+                        "Total: " + submittedThreads, 
+                        "Finished: " + nThreadsProcessed.get(),
+                        "Processing: " + thPool.getActiveCount());
                 LOGGER.logInfo2("Currently there are ", thPool.getActiveCount(), " metrics in execution.");
                 try {
                     Thread.sleep(3 * 60 * 1000);
