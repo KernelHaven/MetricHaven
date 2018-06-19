@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -155,4 +156,42 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
     }
     
     // CHECKSTYLE:ON
+    
+
+
+
+    /**
+     * Registers all settings, which are used to realize variability weights in more than only in one specific
+     * metric-class.
+     * 
+     * @throws SetUpException If the constraints for a setting are not satisfied,
+     *     or a different setting with a same key was already registered.
+     */
+    protected void registerVariabilityWeights() throws SetUpException {
+        config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
+        config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
+        config.registerSetting(MetricSettings.LOCATION_DISTANCE_SETTING);
+        config.registerSetting(MetricSettings.TYPE_MEASURING_SETTING);
+        config.registerSetting(MetricSettings.TYPE_WEIGHTS_SETTING);
+        config.setValue(MetricSettings.TYPE_WEIGHTS_SETTING,
+            Arrays.asList("bool:1", "tristate:10", "string:100", "int:100", "integer:100", "hex:100"));
+        config.registerSetting(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING);
+        config.registerSetting(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
+        config.setValue(MetricSettings.HIERARCHY_WEIGHTS_SETTING,
+                Arrays.asList("top:1", "intermediate:10", "leaf:100"));
+        config.registerSetting(MetricSettings.STRUCTURE_MEASURING_SETTING);
+    }
+
+    /**
+     * Disables the values of {@link #registerVariabilityWeights()} to disable weights. Should be done for metrics,
+     * which do not support the variability weights.
+     */
+    protected void unregisterVariabilityWeights() {
+        config.setValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
+        config.setValue(MetricSettings.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
+        config.setValue(MetricSettings.LOCATION_DISTANCE_SETTING, FeatureDistanceType.NO_DISTANCE);
+        config.setValue(MetricSettings.TYPE_MEASURING_SETTING, VariabilityTypeMeasureType.NO_TYPE_MEASURING);
+        config.setValue(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING, HierarchyType.NO_HIERARCHY_MEASURING);
+        config.setValue(MetricSettings.STRUCTURE_MEASURING_SETTING, StructuralType.NO_STRUCTURAL_MEASUREMENT);
+    }
 }

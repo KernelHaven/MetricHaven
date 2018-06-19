@@ -1,6 +1,5 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,13 +22,6 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric.NDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
@@ -94,24 +86,10 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         // use functionSplitter.createOutputComponent() or filteredFunctionSplitter.createOutputComponent() to create
         // inputs for multiple metrics after the split
         
-        config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
-        config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
-        config.registerSetting(MetricSettings.LOCATION_DISTANCE_SETTING);
-        config.registerSetting(MetricSettings.TYPE_MEASURING_SETTING);
-        config.registerSetting(MetricSettings.TYPE_WEIGHTS_SETTING);
-        config.setValue(MetricSettings.TYPE_WEIGHTS_SETTING,
-            Arrays.asList("bool:1", "tristate:10", "string:100", "int:100", "integer:100", "hex:100"));
-        config.registerSetting(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING);
-        config.registerSetting(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
-        config.setValue(MetricSettings.HIERARCHY_WEIGHTS_SETTING,
-                Arrays.asList("top:1", "intermediate:10", "leaf:100"));
-        config.registerSetting(MetricSettings.STRUCTURE_MEASURING_SETTING);
+        registerVariabilityWeights();
         AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
-        
-        //VariabilityModel varModel = getVmComponent().getNextResult();
-        
         
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
@@ -133,12 +111,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
             metrics, NDType.values());
         
         // Disable variability weights
-        config.setValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING, SDType.NO_SCATTERING);
-        config.setValue(MetricSettings.CTCR_USAGE_SETTING, CTCRType.NO_CTCR);
-        config.setValue(MetricSettings.LOCATION_DISTANCE_SETTING, FeatureDistanceType.NO_DISTANCE);
-        config.setValue(MetricSettings.TYPE_MEASURING_SETTING, VariabilityTypeMeasureType.NO_TYPE_MEASURING);
-        config.setValue(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING, HierarchyType.NO_HIERARCHY_MEASURING);
-        config.setValue(MetricSettings.STRUCTURE_MEASURING_SETTING, StructuralType.NO_STRUCTURAL_MEASUREMENT);
+        unregisterVariabilityWeights();
         
         // All dLoC per Function metrics
         addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());
@@ -163,8 +136,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         
         return join;
     }
-    
-    
+
     /**
      * Whether this pipeline should add an {@link ObservableAnalysis} at the end or not.
      * Default is <code>false</code>.
