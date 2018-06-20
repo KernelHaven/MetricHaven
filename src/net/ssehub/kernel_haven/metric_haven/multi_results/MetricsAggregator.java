@@ -234,6 +234,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             
             addResult(new MultiMetricResult(header, values));
         }
+        
+        // Deallocate memory
+        clear();
     }
     
     @Override
@@ -308,5 +311,19 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     @Override
     public @NonNull String getResultName() {
         return resultName;
+    }
+    
+    /**
+     * Deallocates memory after aggregation is finished.
+     */
+    @SuppressWarnings("null")
+    private void clear() {
+        ids.clear();
+        valueTable.clear();
+        
+        // May only be called after execution/createTable loop is finished, must be considered while refactoring
+        metrics = null;
+        
+        System.gc();
     }
 }
