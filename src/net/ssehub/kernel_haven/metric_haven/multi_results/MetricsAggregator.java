@@ -285,7 +285,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         final int submittedThreads = totalNoOfThreads;
         Runnable monitor = () -> {
             while (!thPool.isTerminated()) {
-                LOGGER.logInfo("Joining components:",
+                LOGGER.logStatusLines("Joining components:",
                     "Total: " + submittedThreads, 
                     "Finished: " + nThreadsProcessed.get(),
                     "Processing: " + thPool.getActiveCount());
