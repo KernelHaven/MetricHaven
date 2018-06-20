@@ -235,44 +235,6 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             addResult(new MultiMetricResult(header, values));
         }
     }
-
-//    @Override
-//    protected void execute() {
-//        // start threads to poll from each input metric
-//        
-//        List<Thread> threads = new LinkedList<>();
-//        for (AnalysisComponent<MetricResult> metric : metrics) {
-//            
-//            Thread th = new Thread(() -> {
-//                
-//                MetricResult result;
-//                while ((result = metric.getNextResult()) != null) {
-//                    File f = result.getSourceFile();
-//                    String sourceFile = f != null ? notNull(f.getPath()) : "<unknown>";
-//                    f = result.getIncludedFile();
-//                    String includedFile = f != null ? f.getPath() : null;
-//                    addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
-//                            metric.getResultName(), result.getValue());
-//                }
-//                
-//            }, "MetricsAggreagtorPollThread");
-//            
-//            threads.add(th);
-//            th.start();
-//            
-//        }
-//        
-//        for (Thread th : threads) {
-//            try {
-//                th.join();
-//            } catch (InterruptedException e) {
-//                // can't happen
-//            }
-//        }
-//        
-//        LOGGER.logInfo2("All metrics done, merging ", threads.size(), " results.");
-//        createTable();
-//    }
     
     @Override
     protected void execute() {
@@ -292,7 +254,6 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 @Override
                 public void run() {
                     thFactory.rename();
-                    LOGGER.logInfo2("Collecting metric results of: ", getName());
                     MetricResult result;
                     while ((result = metric.getNextResult()) != null) {
                         File f = result.getSourceFile();
@@ -316,8 +277,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
 
             thPool.execute(r);           
         }
-        LOGGER.logInfo2("Submitted ", totalNoOfThreads, " metrics; ",
-            thPool.getActiveCount(), " metrics already started");
+
         thPool.shutdown();
         final int submittedThreads = totalNoOfThreads;
         Runnable monitor = () -> {
