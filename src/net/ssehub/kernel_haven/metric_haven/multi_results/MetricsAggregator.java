@@ -283,10 +283,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         Runnable monitor = () -> {
             while (!thPool.isTerminated()) {
                 LOGGER.logInfo("Joining components:",
-                        "Total: " + submittedThreads, 
-                        "Finished: " + nThreadsProcessed.get(),
-                        "Processing: " + thPool.getActiveCount());
-                LOGGER.logInfo2("Currently there are ", thPool.getActiveCount(), " metrics in execution.");
+                    "Total: " + submittedThreads, 
+                    "Finished: " + nThreadsProcessed.get(),
+                    "Processing: " + thPool.getActiveCount());
                 try {
                     Thread.sleep(3 * 60 * 1000);
                 } catch (InterruptedException exc) {

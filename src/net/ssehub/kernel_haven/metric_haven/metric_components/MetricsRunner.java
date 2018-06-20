@@ -11,9 +11,11 @@ import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.analysis.JoinComponent;
 import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
@@ -34,6 +36,8 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
     public static final @NonNull Setting<@NonNull String> METRICS_CLASS
         = new Setting<>("analysis.metrics_runner.metrics_class", STRING, true, null,
             "The fully qualified class name of the metric that should be run.");
+    private static final int MAX_METRICS_PER_AGGREGATOR = 1150;
+    
     private Class<? extends AbstractFunctionVisitorBasedMetric<?>> metricClass;
 
     /**
@@ -55,6 +59,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
     }
 
     @Override
+    @SuppressWarnings("null")
     protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
         AnalysisComponent<CodeFunction> functionFilter = new OrderedCodeFunctionFilter(config, codeModel);
@@ -83,8 +88,22 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         // Start and join all metrics into a single sheet
         @SuppressWarnings("unchecked")
         AnalysisComponent<MetricResult>[] metricComponents = metrics.toArray(new AnalysisComponent[metrics.size()]);
-        @SuppressWarnings("null")
-        AnalysisComponent<?> join = new MetricsAggregator(config, "All Function Metrics", metricComponents);
+        AnalysisComponent<?> join;
+        if (metricComponents.length > MAX_METRICS_PER_AGGREGATOR) {
+            int nAggregators = (int) Math.ceil(((double) metricComponents.length) % MAX_METRICS_PER_AGGREGATOR);
+            MetricsAggregator[] aggregators = new MetricsAggregator[nAggregators];
+            int index = 0;
+            for (int i = 0; i < metricComponents.length; i += MAX_METRICS_PER_AGGREGATOR) {
+                AnalysisComponent<MetricResult>[] interval = new AnalysisComponent[MAX_METRICS_PER_AGGREGATOR];
+                int nElements = Math.min(MAX_METRICS_PER_AGGREGATOR, metricComponents.length - i);
+                System.arraycopy(metricComponents, i, interval, 0, nElements);
+                aggregators[index] = new MetricsAggregator(config, metricClass.getSimpleName() + index++, interval);
+            }
+            config.setValue(DefaultSettings.ANALYSIS_SPLITCOMPONENT_MAX_THREADS, 1);
+            join = new JoinComponent(config, aggregators);
+        } else {
+            join = new MetricsAggregator(config, metricClass.getSimpleName(), metricComponents);
+        }
         
         return join;
     }
