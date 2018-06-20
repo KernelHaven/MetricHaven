@@ -63,14 +63,24 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
         
         // Access constructor
         Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
+        boolean useVariabilityWeights = (null != sdSplitter);
         try {
-            if (null == sdSplitter) {
+            if (!useVariabilityWeights) {
                 // Default constructor
                 metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
             } else {
-                // Constructor with VarModel, BuildModel, and Scattering Degree container
-                metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
-                    AnalysisComponent.class, AnalysisComponent.class, AnalysisComponent.class);
+                try {
+                    // Constructor with VarModel, BuildModel, and Scattering Degree container
+                    metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
+                        AnalysisComponent.class, AnalysisComponent.class, AnalysisComponent.class);
+                } catch (NoSuchMethodException e) {
+                    /* 
+                     * Fall back, if SD splitter is passed to this method,
+                     * but metric does not support variability weights.
+                     */
+                    metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
+                    useVariabilityWeights = false;
+                }
             }
         } catch (ReflectiveOperationException e) {
             throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
@@ -90,7 +100,7 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
             try {
                 // Instantiate metric
                 AbstractFunctionVisitorBasedMetric<?> metricInstance = null;
-                if (null == sdSplitter) {
+                if (!useVariabilityWeights) {
                     metricInstance = metricConstructor.newInstance(config,
                         filteredFunctionSplitter.createOutputComponent());
                     
