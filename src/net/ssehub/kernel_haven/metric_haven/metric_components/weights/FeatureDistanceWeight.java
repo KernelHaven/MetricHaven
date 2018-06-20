@@ -46,14 +46,16 @@ public class FeatureDistanceWeight implements IVariableWeight {
         Path codefolder = codeFile.getAbsoluteFile().getParentFile().toPath();
         
         List<SourceLocation> srcLocations = varMap.get(variable).getSourceLocations();
-        for (SourceLocation location : srcLocations) {
-            Path srcFolder = location.getSource().getAbsoluteFile().getParentFile().toPath();
-            Path delta = codefolder.relativize(srcFolder);
-            
-            // if both folders are identical, delta will be empty but getNameCount() returns 1
-            int distance = delta.toString().isEmpty() ? 0 : delta.getNameCount();
-            if (distance < result || result == -1) {
-                result = distance;
+        if (null != srcLocations) {
+            for (SourceLocation location : srcLocations) {
+                Path srcFolder = location.getSource().getAbsoluteFile().getParentFile().toPath();
+                Path delta = codefolder.relativize(srcFolder);
+                
+                // if both folders are identical, delta will be empty but getNameCount() returns 1
+                int distance = delta.toString().isEmpty() ? 0 : delta.getNameCount();
+                if (distance < result || result == -1) {
+                    result = distance;
+                }
             }
         }
         
