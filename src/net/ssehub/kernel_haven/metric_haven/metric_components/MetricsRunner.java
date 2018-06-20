@@ -94,8 +94,8 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
             MetricsAggregator[] aggregators = new MetricsAggregator[nAggregators];
             int index = 0;
             for (int i = 0; i < metricComponents.length; i += MAX_METRICS_PER_AGGREGATOR) {
-                AnalysisComponent<MetricResult>[] interval = new AnalysisComponent[MAX_METRICS_PER_AGGREGATOR];
                 int nElements = Math.min(MAX_METRICS_PER_AGGREGATOR, metricComponents.length - i);
+                AnalysisComponent<MetricResult>[] interval = new AnalysisComponent[nElements];
                 System.arraycopy(metricComponents, i, interval, 0, nElements);
                 aggregators[index] = new MetricsAggregator(config, metricClass.getSimpleName() + index++, interval);
             }
