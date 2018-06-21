@@ -58,6 +58,7 @@ public class HierarchyWeight implements IVariableWeight {
     private int weight(HierarchicalVariable var) {
         int result;
         
+        Map<String, Integer> hierarchyWeights = this.hierarchyWeights; // copy to fix null warnings
         if (null != hierarchyWeights) {
             // Weights specified for the type (top, intermediate, leaf)
             if (var.getParent() == null) {

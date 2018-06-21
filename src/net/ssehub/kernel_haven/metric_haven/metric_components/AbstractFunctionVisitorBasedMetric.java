@@ -137,6 +137,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
             }
             
             typeWeights = new HashMap<>();
+            Map<String, Integer> typeWeights = this.typeWeights; // copy to get rid of null warnings
             for (String weightDef : weights) {
                 String[] setting = weightDef.split(":");
                 if (setting.length != 2) {
@@ -172,6 +173,7 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
                 }
                 
                 hierarchyWeights = new HashMap<>();
+                Map<String, Integer> hierarchyWeights = this.hierarchyWeights; // copy to get rid of null warnings
                 for (String weightDef : weights) {
                     String[] setting = weightDef.split(":");
                     if (setting.length != 2) {

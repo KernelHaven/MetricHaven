@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -132,7 +134,7 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
                                                     filteredFunctionSplitter.createOutputComponent(),
                                                     getVmComponent(),
                                                     getBmComponent(),
-                                                    sdSplitter.createOutputComponent());
+                                                    notNull(sdSplitter).createOutputComponent());
                                                 
                                                 // Add instance to list if instantiation was successful
                                                 if (null != metricInstance) {
