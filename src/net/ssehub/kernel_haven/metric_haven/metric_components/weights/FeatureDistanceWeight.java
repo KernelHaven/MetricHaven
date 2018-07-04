@@ -50,10 +50,13 @@ public class FeatureDistanceWeight implements IVariableWeight {
             for (SourceLocation location : srcLocations) {
                 Path srcFolder = location.getSource().getAbsoluteFile().getParentFile().toPath();
                 Path delta = codefolder.relativize(srcFolder);
+               LOGGER.logInfo2("Code path ", codefolder, " with ", codefolder.getNameCount(), " segments");
+               LOGGER.logInfo2("VarModel path of ", variable, " is ", srcFolder, " with ", srcFolder.getNameCount(), " segments");
                 
                 // if both folders are identical, delta will be empty but getNameCount() returns 1
                 int distance = delta.toString().isEmpty() ? 0 : delta.getNameCount();
                 if (distance < result || result == -1) {
+                   LOGGER.logInfo2("Delta of ", variable, " is ", delta, " with ",distance, " segments");
                     result = distance;
                 }
             }
