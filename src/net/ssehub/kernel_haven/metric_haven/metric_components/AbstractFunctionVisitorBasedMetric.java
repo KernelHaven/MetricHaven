@@ -317,7 +317,9 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         
         // Feature distances
        LOGGER.logInfo2("VarModel is set to ", varModel);
-       LOGGER.logInfo2("Location setting is set to ", varModel.getDescriptor().hasAttribute(Attribute.SOURCE_LOCATIONS));
+       if (null != varModel) {
+           LOGGER.logInfo2("Location setting is set to ", varModel.getDescriptor().hasAttribute(Attribute.SOURCE_LOCATIONS));
+       }
         if (locationType != FeatureDistanceType.NO_DISTANCE && null != varModel) {
             weights.add(new FeatureDistanceWeight(varModel)); 
         }
