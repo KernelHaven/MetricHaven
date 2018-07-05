@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,11 +69,17 @@ public class CtcrWeight implements IVariableWeight {
                 break;
             case ALL_CTCR:
                 if (null != var) {
-                    Set<VariabilityVariable> inVars = var.getVariablesUsedInConstraints();
+                    Set<VariabilityVariable> inVars = var.getUsedInConstraintsOfOtherVariables();
                     Set<VariabilityVariable> outVars = var.getVariablesUsedInConstraints();
-                    if (null != inVars && null != outVars) {
-                        weight = inVars.size() + outVars.size() + 1;
+                    
+                    Set<VariabilityVariable> union = new HashSet<>();
+                    if (null != inVars) {
+                        union.addAll(inVars);
                     }
+                    if (null != outVars) {
+                        union.addAll(outVars);
+                    }
+                    weight = union.size() + 1;
                 } else {
                     LOGGER.logWarning2("Could not compute full ctcr in ", getClass().getName(),
                         ", because " , variable , " was not found in variability model.");
