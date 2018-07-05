@@ -247,11 +247,9 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     @Override
     protected void execute() {
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
-       LOGGER.logInfo2("Start execution with ", varModel);
         bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         
         try {
-           LOGGER.logInfo2("Create weights with ", varModel);
             createWeight(varModel);
         } catch (UnsupportedOperationException exc) {
             LOGGER.logException("Could not create weights: ", exc);
@@ -316,10 +314,6 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         }
         
         // Feature distances
-       LOGGER.logInfo2("VarModel is set to ", varModel);
-       if (null != varModel) {
-           LOGGER.logInfo2("Location setting is set to ", varModel.getDescriptor().hasAttribute(Attribute.SOURCE_LOCATIONS));
-       }
         if (locationType != FeatureDistanceType.NO_DISTANCE && null != varModel) {
             weights.add(new FeatureDistanceWeight(varModel)); 
         }
