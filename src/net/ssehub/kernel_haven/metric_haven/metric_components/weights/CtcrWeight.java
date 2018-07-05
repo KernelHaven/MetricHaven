@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +22,9 @@ public class CtcrWeight implements IVariableWeight {
     private @Nullable Map<String, VariabilityVariable> varMapping = null;
     private @NonNull CTCRType ctcrType;
     
+    // Cached values
+    private Map<String, Integer> varWeights;
+    
     /**
      * Creates a new weight based on cross-tree constraint ratios.
      * @param varModel Must be a variability model, which has the ability to provide information about constraint usage.
@@ -32,6 +36,9 @@ public class CtcrWeight implements IVariableWeight {
         this.ctcrType = ctcrType;
         if (null != varModel && varModel.getDescriptor().hasAttribute(Attribute.CONSTRAINT_USAGE)) {
             varMapping = varModel.getVariableMap();
+            varWeights = new HashMap<>(varMapping.size());
+        } else {
+            throw new UnsupportedOperationException("CtcrWeight without an approriate variability model created.");
         }
     }
 
@@ -39,7 +46,10 @@ public class CtcrWeight implements IVariableWeight {
     public synchronized int getWeight(String variable) {
         int weight = 1;
         
-        if (null != varMapping) {
+        Integer value = varWeights.get(variable);
+        if (null != value) {
+            weight = value;
+        } else if (null != varMapping) {
             VariabilityVariable var = varMapping.get(variable);
             switch (ctcrType) {
             case NO_CTCR:
@@ -90,6 +100,7 @@ public class CtcrWeight implements IVariableWeight {
                     getClass().getName(), ", for CTCR type " , ctcrType.name());
                 break;
             }
+            varWeights.put(variable, weight);
         }
         
         return weight;
