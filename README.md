@@ -12,7 +12,7 @@ Place [`MetricHaven.jar`](https://jenkins.sse.uni-hildesheim.de/view/KernelHaven
 
 ### Provided Metrics
 For the sake of simplicity we omit the full qualified class names in the following table. All class names start with the
-prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
+prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the metrics support [variability weights](#supported-variability-weights).
 
 <table style="width:100%">
   <tr>
@@ -37,31 +37,9 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
         <li><code>EXTERNAL_WITH_BUILD_VARS</code>: Counts the number of variables used outside the function (considers variables of the build model (requires provided build model))</li>
         <li><code>ALL</code>: <code>EXTERNAL + INTERNAL</code></li>
         <li><code>ALL_WITH_BUILD_VARS</code>: <code>EXTERNAL_WITH_BUILD_VARS + INTERNAL</code></li>
-    </ul>
-    <code>metric.function_measures.consider_scattering_degree</code>:
-    <ul>
-      <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
-      <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
-      <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
-    </ul>
-    <code>metric.function_measures.consider_ctcr</code> (requires an extracted variability model): 
-    <ul>
-      <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
-      <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
-      <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
-      <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
-    </ul>
-    <code>metric.function_measures.consider_feature_definition_distance</code> (requires an extracted variability model, which provides information where in the file system a feature was defined):
-    <ul>
-      <li><code>NO_DISTANCE</code>: Won't consider feature distances</li>
-      <li><code>SHORTEST_DISTANCE</code>: Computes the shortest way to traverse from the folder of the currently measured code artifact to the folder containing the definition of the feature in the variability model. If mutliple definition exist (e.g., supported by Kconfig), the shortes path is used.</li>
-    </ul>
-    <code>metric.function_measures.consider_feature_types</code> (requires an extracted variability model):
-    <ul>
-      <li><code>NO_TYPE_MEASURING</code>: Won't consider any weights with respect to the type of the feature.</li>
-      <li><code>TYPE_WEIGHTS_BY_FILE</code>: Requires the configuration of weights per feature type in the configuration file (via <code>metric.function_measures.weight_definitions</code>). Each type weight is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>.</li>
-    </ul>
-  </td>
+      </ul>
+      All variations may be combined with any of the [variability weights](#supported-variability-weights) from below.
+    </td>
   </tr>
   <!-- CyclomaticComplexityMetric -->
   <tr>
@@ -76,30 +54,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
         <li><code>VARIATION_POINTS</code>: Measures the cyclomatic complexity of variation points only; uses a simplification that only the following keywords will be counted: <tt>if, elif</tt>.</li>
         <li><code>ALL</code>: <code>MCCABE + VARIATION_POINTS</code></li>
       </ul>
-      <code>metric.function_measures.consider_scattering_degree</code> (not applyable to <code>MCCABE</code>):
-      <ul>
-        <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
-        <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
-        <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
-      </ul>
-      <code>metric.function_measures.consider_ctcr</code> (requires an extracted variability model, not applyable to <code>MCCABE</code>):
-      <ul>
-        <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
-        <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
-        <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
-        <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
-      </ul>
-      <code>metric.function_measures.consider_feature_definition_distance</code> (requires an extracted variability model, which provides information where in the file system a feature was defined, not applyable to <code>MCCABE</code>):
-      <ul>
-        <li><code>NO_DISTANCE</code>: Won't consider feature distances</li>
-        <li><code>SHORTEST_DISTANCE</code>: Computes the shortest way to traverse from the folder of the currently measured code artifact to the folder containing the definition of the feature in the variability model. If mutliple definition exist (e.g., supported by Kconfig), the shortes path is used.</li>
-      </ul>
-      <code>metric.function_measures.consider_feature_types</code> (requires an extracted variability model, not applyable to <code>MCCABE</code>):
-      <ul>
-        <li><code>NO_TYPE_MEASURING</code>: Won't consider any weights with respect to the type of the feature.</li>
-        <li><code>TYPE_WEIGHTS_BY_FILE</code>: Requires the configuration of weights per feature type in the configuration file (via <code>metric.function_measures.weight_definitions</code>). Each type weight is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>.</li>
-      </ul>
-    </td>
+      All variations except for <code>MCCABE</code> may be combined with any of the [variability weights](#supported-variability-weights) from below.
   </tr>
   <!-- DLoC -->
   <tr>
@@ -130,29 +85,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
         <li><code>COMBINED_ND_MAX</code>: Maximum depth (within a function) of non-CPP and CPP structures.</li>
         <li><code>COMBINED_ND_AVG</code>: Average depth (within a function) of non-CPP and CPP structures.</li>
       </ul>
-      <code>metric.function_measures.consider_scattering_degree</code> (not applyable to <code>CLASSIC_ND</code>):
-      <ul>
-        <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
-        <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
-        <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
-      </ul>
-      <code>metric.function_measures.consider_ctcr</code> (requires an extracted variability model, not applyable to <code>CLASSIC_ND</code>):
-      <ul>
-        <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
-        <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
-        <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
-        <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
-      </ul>
-      <code>metric.function_measures.consider_feature_definition_distance</code> (requires an extracted variability model, which provides information where in the file system a feature was defined, not applyable to <code>CLASSIC_ND</code>):
-      <ul>
-        <li><code>NO_DISTANCE</code>: Won't consider feature distances</li>
-        <li><code>SHORTEST_DISTANCE</code>: Computes the shortest way to traverse from the folder of the currently measured code artifact to the folder containing the definition of the feature in the variability model. If mutliple definition exist (e.g., supported by Kconfig), the shortes path is used.</li>
-      </ul>
-      <code>metric.function_measures.consider_feature_types</code> (requires an extracted variability model, not applyable to <code>CLASSIC_ND</code>):
-      <ul>
-        <li><code>NO_TYPE_MEASURING</code>: Won't consider any weights with respect to the type of the feature.</li>
-        <li><code>TYPE_WEIGHTS_BY_FILE</code>: Requires the configuration of weights per feature type in the configuration file (via <code>metric.function_measures.weight_definitions</code>). Each type weight is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>.</li>
-      </ul>
+      All variations except for <code>CLASSIC_ND_*</code> may be combined with any of the [variability weights](#supported-variability-weights) from below.
     </td>
   </tr>
   <!-- FanInOutMetric -->
@@ -176,28 +109,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
         <li><code>DEGREE_CENTRALITY_OUT_GLOBALLY</code>: Measures <code>No. of features + 1</code> for function calls to other functions to anywhere in code.</li>
         <li><code>DEGREE_CENTRALITY_OUT_LOCALLY</code>: Measures <code>No. of features + 1</code> for function calls to other functions in the same file.</li>
       </ul>
-      <code>metric.function_measures.consider_scattering_degree</code> (only applyable to <code>DEGREE_CENTRALITY</code>):
-      <ul>
-        <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
-        <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
-        <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
-      </ul>
-      <code>metric.function_measures.consider_ctcr</code> (requires an extracted variability model, only applyable to <code>DEGREE_CENTRALITY</code>):
-      <ul>
-        <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
-        <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
-        <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
-        <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
-      </ul>
-      <code>metric.function_measures.consider_feature_definition_distance</code> (requires an extracted variability model, which provides information where in the file system a feature was defined, only applyable to <code>DEGREE_CENTRALITY</code>):
-      <ul>
-        <li><code>NO_DISTANCE</code>: Won't consider feature distances</li>
-        <li><code>SHORTEST_DISTANCE</code>: Computes the shortest way to traverse from the folder of the currently measured code artifact to the folder containing the definition of the feature in the variability model. If mutliple definition exist (e.g., supported by Kconfig), the shortes path is used.</li>
-      </ul>
-      <code>metric.function_measures.consider_feature_types</code> (requires an extracted variability model, only applyable to <code>DEGREE_CENTRALITY</code>):
-      <ul>
-        <li><code>NO_TYPE_MEASURING</code>: Won't consider any weights with respect to the type of the feature.</li>
-        <li><code>TYPE_WEIGHTS_BY_FILE</code>: Requires the configuration of weights per feature type in the configuration file (via <code>metric.function_measures.weight_definitions</code>). Each type weight is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>.</li>
+      <code>DEGREE_CENTRALITY_*</code> variations may be combined with any of the [variability weights](#supported-variability-weights) from below.
     </td>
   </tr>
   <tr>
@@ -205,6 +117,62 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`.
     <td>734</td>
     <td></td>
     <td></td>
+  </tr>
+</table>
+
+## Supported Variability Weights
+<table style="width:100%">
+  <tr>
+    <th>Weight (Setting)</th>
+    <th>Description</th>
+    <th>Values</th>
+  </tr>
+  <!-- Scattering Degree -->
+  <tr>
+    <td><code>metric.function_measures.consider_scattering_degree</code></td>
+    <td>Weights features used in code blocks based on their scattering degree (how often they are used in code).</td>
+    <td>
+      <ul>
+        <li><code>NO_SCATTERING</code>: Won't consider scattering degree of measured variables</li>
+        <li><code>SD_VP</code>: Weights each variable with its variation point scattering (e.g., no of ifdefs a variable is used in).</li>
+        <li><code>SD_FILE</code>: Weights each variable with its file scattering.</li>
+      </ul>
+    </td>
+  </tr>
+  <!-- Cross-Tree Constraint Ratios -->
+  <tr>
+    <td><code>metric.function_measures.consider_ctcr</code></td>
+    <td>Weights features based on their usage in cross-tree constraints of the variability model.</td>
+    <td>
+      <ul>
+        <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
+        <li><code>INCOMIG_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, specifying a constraint <b>TO</b> the measured variable.</li>
+        <li><code>OUTGOING_CONNECTIONS</code>: Weights each variable with the no. of distinct variables, referenced in constraints defined <b>BY</b> the measured variable.</li>
+        <li><code>ALL_CTCR</code>: Weights each variable with the (INCOMIG_CONNECTIONS + OUTGOING_CONNECTIONS).</li>
+      </ul>
+    </td>
+  </tr>
+  <!-- Feature Distances -->
+  <tr>
+    <td><code>metric.function_measures.consider_feature_definition_distance</code></td>
+    <td>Weights features based on the distance where they are defined (location of the variability model) and their usage (location of the measured code artifact). Requires an extracted variability model, which provides information where in the file system a feature was defined.</td>
+    <td>
+      <ul>
+        <li><code>NO_DISTANCE</code>: Won't consider feature distances</li>
+        <li><code>SHORTEST_DISTANCE</code>: Computes the shortest way to traverse from the folder of the currently measured code artifact to the folder containing the definition of the feature in the variability model. If mutliple definition exist (e.g., supported by Kconfig), the shortes path is used.</li>
+    </ul>
+    </td>
+  </tr>
+  <!-- Feature Types -->
+  <tr>
+    <td><code>metric.function_measures.consider_feature_types</code></td>
+    <td>Weights features based on their data type. Requires an extracted variability model.</td>
+    <td>
+      <ul>
+        <li><code>NO_TYPE_MEASURING</code>: Won't consider any weights with respect to the type of the feature.</li>
+        <li><code>TYPE_WEIGHTS_BY_FILE</code>: Requires the configuration of weights per feature type in the configuration file (via <code>metric.function_measures.weight_definitions</code>). Each type weight is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>.</li>
+    </ul>
+    </td>
   </tr>
 </table>
 
