@@ -38,7 +38,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
         <li><code>ALL</code>: <code>EXTERNAL + INTERNAL</code></li>
         <li><code>ALL_WITH_BUILD_VARS</code>: <code>EXTERNAL_WITH_BUILD_VARS + INTERNAL</code></li>
       </ul>
-      All variations may be combined with any of the [variability weights](#supported-variability-weights) from below.
+      All variations may be combined with any of the variability weights from below.
     </td>
   </tr>
   <!-- CyclomaticComplexityMetric -->
@@ -54,7 +54,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
         <li><code>VARIATION_POINTS</code>: Measures the cyclomatic complexity of variation points only; uses a simplification that only the following keywords will be counted: <tt>if, elif</tt>.</li>
         <li><code>ALL</code>: <code>MCCABE + VARIATION_POINTS</code></li>
       </ul>
-      All variations except for <code>MCCABE</code> may be combined with any of the [variability weights](#supported-variability-weights) from below.
+      All variations except for <code>MCCABE</code> may be combined with any of the variability weights from below.
   </tr>
   <!-- DLoC -->
   <tr>
@@ -85,7 +85,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
         <li><code>COMBINED_ND_MAX</code>: Maximum depth (within a function) of non-CPP and CPP structures.</li>
         <li><code>COMBINED_ND_AVG</code>: Average depth (within a function) of non-CPP and CPP structures.</li>
       </ul>
-      All variations except for <code>CLASSIC_ND_*</code> may be combined with any of the [variability weights](#supported-variability-weights) from below.
+      All variations except for <code>CLASSIC_ND_*</code> may be combined with any of the variability weights from below.
     </td>
   </tr>
   <!-- FanInOutMetric -->
@@ -109,12 +109,27 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
         <li><code>DEGREE_CENTRALITY_OUT_GLOBALLY</code>: Measures <code>No. of features + 1</code> for function calls to other functions to anywhere in code.</li>
         <li><code>DEGREE_CENTRALITY_OUT_LOCALLY</code>: Measures <code>No. of features + 1</code> for function calls to other functions in the same file.</li>
       </ul>
-      <code>DEGREE_CENTRALITY_*</code> variations may be combined with any of the [variability weights](#supported-variability-weights) from below.
+      <code>DEGREE_CENTRALITY_*</code> variations may be combined with any of the variability weights from below.
+    </td>
+  </tr>
+  <!-- BlocksPerFunctionMetric -->
+  <tr>
+    <td><code>BlocksPerFunctionMetric</code></td>
+    <td>648</td>
+    <td>Measures the numbers of VP blocks in a function, independent whether they are nested or not.
+    </td>
+    <td>
+      <code>metric.blocks_per_function.measured_block_type</code>:
+      <ul>
+        <li><code>BLOCK_AS_ONE</code>: if, elif, else are counted as one block</li>
+        <li><code>SEPARATE_PARTIAL_BLOCKS</code>: if, elif, else are treated as three independent blocks</li>
+      </ul>
+      All variations may be combined with any of the variability weights from below.
     </td>
   </tr>
   <tr>
     <th>Total</th>
-    <td>6794</td>
+    <td>7442</td>
     <td></td>
     <td></td>
   </tr>
