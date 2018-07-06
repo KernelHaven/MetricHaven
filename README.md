@@ -129,7 +129,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   </tr>
   <tr>
     <th>Total</th>
-    <td>7442</td>
+    <td>7142</td>
     <td></td>
     <td></td>
   </tr>
