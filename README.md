@@ -171,7 +171,31 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
       <ul>
         <li><code>NO_TYPE_MEASURING</code>: Won't consider any weights with respect to the type of the feature.</li>
         <li><code>TYPE_WEIGHTS_BY_FILE</code>: Requires the configuration of weights per feature type in the configuration file (via <code>metric.function_measures.weight_definitions</code>). Each type weight is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>.</li>
-    </ul>
+      </ul>
+    </td>
+  </tr>
+  <!-- Hierarchy Types -->
+  <tr>
+    <td><code>metric.function_measures.consider_feature_hierarchies</code></td>
+    <td>Weights features based on their hierarchy level as models in the variability model. Requires an extracted variability model, which provides information of the hierarchy.</td>
+    <td>
+      <ul>
+        <li><code>NO_HIERARCHY_MEASURING</code>: Won't consider any feature hierarchies.</li>
+        <li><code>HIERARCHY_WEIGHTS_BY_FILE</code>: Requires the configuration of hierarchy weights in the configuration file (via <code>metric.function_measures.hierarchy_weight_definitions</code>). Each hierarchy type is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>. Supported hierarchy types are <code>top</code>, <code>intermediate</code>, and <code>leaf</code></li>
+        <li><code>HIERARCHY_WEIGHTS_BY_LEVEL</code>: The hierarchy (level) is directly used as weight.</li>
+      </ul>
+    </td>
+  </tr>
+  <!-- Structures / CoC -->
+  <tr>
+    <td><code>metric.function_measures.consider_varmodel_structures</code></td>
+    <td>Weights features based on the number of childred / parents they have.</td>
+    <td>
+      <ul>
+        <li><code>NO_STRUCTURAL_MEASUREMENT</code>: Won't consider any feature structures.</li>
+        <li><code>NUMBER_OF_CHILDREN</code>: Counts the number of (direct) children a features has.</li>
+        <li><code>COC</code>: Count all edges (inspired by CoC).</li>
+      </ul>
     </td>
   </tr>
 </table>
