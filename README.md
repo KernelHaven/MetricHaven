@@ -219,7 +219,9 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
 
 In addition to KernelHaven, this plugin has the following dependencies:
 * A code extractor, which extracts an AST (`SyntaxElement`s).
-* A variability model extractor, which computes cross-tree constraint ratios for <code>CTCR</code> options.
+* A variability model extractor, which provides support for
+  * Cross-tree constraint ratios for <code>CTCR</code> options.
+  * Location of feature definitions for <code>feature_definition_distance</code> options.
 * A build model extractor, for some of the options (see description from above).
 
 ## Guidance
@@ -232,6 +234,10 @@ The follwoing classes execute all currently available metrics in one step, witho
   <tr>
     <td><code>net.ssehub.kernel_haven.metric_haven.metric_components.AllFunctionMetrics</code></td>
     <td>All code function metrics</td>
+  </tr>
+  <tr>
+    <td><code>net.ssehub.kernel_haven.metric_haven.metric_components.MetricsRunner</code></td>
+    <td>All variations of one code function metric, requires <code>analysis.metrics_runner.metrics_class</code> as additional parameter so specify the metric to be executed.</td>
   </tr>
 </table>
 
