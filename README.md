@@ -115,7 +115,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   <!-- BlocksPerFunctionMetric -->
   <tr>
     <td><code>BlocksPerFunctionMetric</code></td>
-    <td>648</td>
+    <td>864</td>
     <td>Measures the numbers of VP blocks in a function, independent whether they are nested or not.
     </td>
     <td>
@@ -129,7 +129,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   </tr>
   <tr>
     <th>Total</th>
-    <td>7142</td>
+    <td>7358</td>
     <td></td>
     <td></td>
   </tr>
