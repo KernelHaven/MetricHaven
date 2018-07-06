@@ -24,7 +24,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   <!-- VariablesPerFunctionMetric -->
   <tr>
     <td><code>VariablesPerFunctionMetric</code></td>
-    <td>240</td>
+    <td>2160</td>
     <td>Realizes the <i>Number of internal/external configuration options</i> metric from
         <a href="https://doi.org/10.1145/2934466.2934467"> Do #ifdefs influence the occurrence of vulnerabilities? an
         empirical study of the linux kernel</a> paper.
@@ -44,7 +44,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   <!-- CyclomaticComplexityMetric -->
   <tr>
     <td><code>CyclomaticComplexityMetric</code></td>
-    <td>97</td>
+    <td>865</td>
     <td>Measures the Cyclomatic Complexity of code functions.
     </td>
     <td>
@@ -73,7 +73,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   <!-- NestingDepthMetric -->
   <tr>
     <td><code>NestingDepthMetric</code></td>
-    <td>194</td>
+    <td>1730</td>
     <td>Measures the number of nested constroll structures.</td>
     <td>
       <code>metric.nesting_depth.measured_type</code>:
@@ -91,7 +91,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   <!-- FanInOutMetric -->
   <tr>
     <td><code>FanInOutMetric</code></td>
-    <td>200</td>
+    <td>1736</td>
     <td>Measures the number of incoming/outgoing function calls per function</td>
     <td>
       <code>metric.fan_in_out.type</code>:
@@ -114,7 +114,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   </tr>
   <tr>
     <th>Total</th>
-    <td>734</td>
+    <td>6794</td>
     <td></td>
     <td></td>
   </tr>
