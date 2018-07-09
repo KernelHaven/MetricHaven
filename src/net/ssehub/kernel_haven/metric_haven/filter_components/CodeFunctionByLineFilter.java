@@ -4,8 +4,7 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.config.Setting;
-import net.ssehub.kernel_haven.config.Setting.Type;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
@@ -17,11 +16,6 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class CodeFunctionByLineFilter extends AnalysisComponent<CodeFunction> {
 
-    private static final @NonNull Setting<@NonNull Integer> LINE_NUMBER_SETTING
-            = new Setting<>("analysis.code_function.line", Type.INTEGER, true, null,
-                    "Specifies, the line number that the CodeFunctionByLineFilter should filter the code functions for."
-                    + " It will pass on the function that this line lies in.");
-    
     private @NonNull AnalysisComponent<CodeFunction> functionSource;
     
     private int lineNumber;
@@ -39,8 +33,14 @@ public class CodeFunctionByLineFilter extends AnalysisComponent<CodeFunction> {
         
         super(config);
         
-        config.registerSetting(LINE_NUMBER_SETTING);
-        lineNumber = config.getValue(LINE_NUMBER_SETTING);
+        config.registerSetting(MetricSettings.LINE_NUMBER_SETTING);
+        Integer value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
+        if (null != value) {
+            lineNumber = value;
+        } else {
+            throw new SetUpException(MetricSettings.LINE_NUMBER_SETTING.getKey() + "missing, but required for "
+                + this.getClass().getCanonicalName());
+        }
         
         this.functionSource = functionSource;
     }

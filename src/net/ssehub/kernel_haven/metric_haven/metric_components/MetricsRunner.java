@@ -20,9 +20,11 @@ import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.VariabilityCounter;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
@@ -37,6 +39,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         = new Setting<>("analysis.metrics_runner.metrics_class", STRING, true, null,
             "The fully qualified class name of the metric that should be run.");
     private static final int MAX_METRICS_PER_AGGREGATOR = 1150;
+    private boolean lineFilter;
     
     private Class<? extends AbstractFunctionVisitorBasedMetric<?>> metricClass;
 
@@ -56,6 +59,13 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         } catch (ClassNotFoundException | ClassCastException exc) {
             LOGGER.logException("Could not load specified metric analysis class:", exc);
         }
+        
+        lineFilter = false;
+        config.registerSetting(MetricSettings.LINE_NUMBER_SETTING);
+        Integer value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
+        if (null != value) {
+            lineFilter = true;
+        }
     }
 
     @Override
@@ -63,6 +73,10 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
     protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
         AnalysisComponent<CodeFunction> functionFilter = new OrderedCodeFunctionFilter(config, codeModel);
+        
+        if (lineFilter) {
+            functionFilter = new CodeFunctionByLineFilter(config, functionFilter);
+        }
         
         // add a split component after the function filter
         SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
