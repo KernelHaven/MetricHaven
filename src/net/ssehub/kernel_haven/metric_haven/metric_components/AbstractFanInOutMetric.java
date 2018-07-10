@@ -130,7 +130,7 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
         for (CodeFunction func : functions) {
             if (filter(func)) {
                 double result = computeResult(visitor, func);
-                if (Double.NaN == result) {
+                if (Double.isNaN(result)) {
                     return;
                 }
                 
