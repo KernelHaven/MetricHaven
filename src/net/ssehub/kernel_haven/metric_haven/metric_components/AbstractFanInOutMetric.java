@@ -96,7 +96,7 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
         boolean accept = true;
         if (null != fileNameFilter) {
             // Filter code functions by file/path if a filter is defined
-            accept = fileNameFilter.contains(func.getSourceFile().getPath());
+            accept = fileNameFilter.contains(func.getSourceFile().getPath().getPath());
         }
         
         return accept;
