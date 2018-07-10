@@ -166,6 +166,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
                             fileNameFilter.add(filePattern);
                         }
                     }
+                    setFilter(fileNameFilter);
                 }
             }
         } catch (SetUpException exc) {
