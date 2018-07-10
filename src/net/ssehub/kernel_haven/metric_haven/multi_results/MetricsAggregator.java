@@ -6,7 +6,10 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -75,6 +78,10 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
             + "executed in parallel.");
     
+    public static final @NonNull Setting<@Nullable List<String>> FILTER_BY_FILES = new Setting<>(
+        "metrics.filter_results_by.files", Type.STRING_LIST, false, "", "IF defined, the results are filter so that "
+            + "the final results will contain only results for the specified files (comma separated list)");
+    
     private @NonNull AnalysisComponent<MetricResult> @NonNull [] metrics;
     
     private @NonNull Map<String, ValueRow> valueTable = new HashMap<>();
@@ -84,6 +91,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     private @NonNull String resultName;
     private boolean round = false;
     private int nThreads;
+    private @Nullable Set<String> fileNameFilter;
 
     /**
      * Creates a {@link MetricsAggregator} for the given metric components, with a fixed name for the results.
@@ -119,6 +127,16 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         }
         
         try {
+            config.registerSetting(FILTER_BY_FILES);
+            List<String> filterList = config.getValue(FILTER_BY_FILES);
+            if (null != filterList && !filterList.isEmpty()) {
+                fileNameFilter = new HashSet<>(filterList);
+            }
+        } catch (SetUpException exc) {
+            LOGGER.logException("Could not load configuration setting " + FILTER_BY_FILES, exc);
+        }
+        
+        try {
             config.registerSetting(MAX_THREADS);
             nThreads = config.getValue(MAX_THREADS);
         } catch (SetUpException exc) {
@@ -136,6 +154,26 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     }
 
     /**
+     * Determines whether the given element shall be rejected (<tt>false</tt>) or be accepted (<tt>true</tt>)
+     * by this filter.
+     * @param mainFile The measured source file (e.g., a C-file).
+     * @param includedFile Optional: an included file (e.g., a H-file).
+     * @param lineNo The line number of the measured item.
+     * @param element The measured item (e.g., the name of a function).
+     * @return <tt>true</tt>: Element shall be kept; <tt>false</tt>: Element shall be skipped.
+     */
+    private boolean filter(@NonNull String mainFile, @Nullable String includedFile, int lineNo,
+        @NonNull String element) {
+        
+        boolean accept = fileNameFilter == null;
+        if (!accept) {
+            accept = fileNameFilter.contains(mainFile);
+        }
+        
+        return accept;
+    }
+    
+    /**
      * Adds a new metric results to this table.
      * 
      * @param mainFile The measured source file (e.g., a C-file).
@@ -150,30 +188,32 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             @NonNull String element, @NonNull String metricName, double value) {
     // CHECKSTYLE:ON
         
-        StringBuffer id = new StringBuffer(mainFile);
-        if (null != includedFile) {
+        if (filter(mainFile, includedFile, lineNo, element)) {
+            StringBuffer id = new StringBuffer(mainFile);
+            if (null != includedFile) {
+                id.append(":");
+                id.append(includedFile);
+            }
             id.append(":");
-            id.append(includedFile);
+            id.append(lineNo);
+            id.append(":");
+            id.append(element);
+            
+            // Store information to create rows and columns
+            String key = NullHelpers.notNull(id.toString());
+            if (!ids.containsKey(key)) {
+                MeasuredItem item = new MeasuredItem(mainFile, includedFile, lineNo, element);
+                ids.put(key, item);
+            }
+            hasIncludedFiles |= (null != includedFile);
+            
+            // Add the value
+            ValueRow column = getRow(key);
+            if (round) {
+                value = Math.floor(value * 100) / 100;
+            }
+            column.addValue(metricName, value);
         }
-        id.append(":");
-        id.append(lineNo);
-        id.append(":");
-        id.append(element);
-        
-        // Store information to create rows and columns
-        String key = NullHelpers.notNull(id.toString());
-        if (!ids.containsKey(key)) {
-            MeasuredItem item = new MeasuredItem(mainFile, includedFile, lineNo, element);
-            ids.put(key, item);
-        }
-        hasIncludedFiles |= (null != includedFile);
-        
-        // Add the value
-        ValueRow column = getRow(key);
-        if (round) {
-            value = Math.floor(value * 100) / 100;
-        }
-        column.addValue(metricName, value);
     }
     
     /**
