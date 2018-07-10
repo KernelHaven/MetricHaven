@@ -3,6 +3,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -28,6 +29,7 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
 
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
+    private @Nullable Set<String> fileNameFilter;
     
     /**
      * Simple constructor for this class, won't consider scattering degree.
@@ -72,6 +74,34 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
         this.codeFunctionFinder = codeFunctionFinder;
     }
     
+    /**
+     * Allows to specify a file/path filter to run the metric only on relevant code files.
+     * Must be called from inside a constructor (or at least before the {@link #execute()} method.
+     * 
+     * @param fileNameFilter The name/path of files which are allowed. If <tt>null</tt> (default case) all files
+     *     are accepted.
+     */
+    protected void setFilter(@Nullable Set<String> fileNameFilter) {
+        this.fileNameFilter = fileNameFilter;
+    }
+    
+    /**
+     * Determines whether the given {@link CodeFunction} shall be rejected (<tt>false</tt>)
+     * or be accepted (<tt>true</tt>) by this filter.
+     * @param func A code function to test if it shall be processed.
+     * @return <tt>true</tt>: {@link CodeFunction} shall be kept; <tt>false</tt>: {@link CodeFunction} shall be skipped.
+     */
+    private boolean filter(CodeFunction func) {
+        // Do not filter code functions by default
+        boolean accept = true;
+        if (null != fileNameFilter) {
+            // Filter code functions by file/path if a filter is defined
+            accept = fileNameFilter.contains(func.getSourceFile().getPath());
+        }
+        
+        return accept;
+    }
+    
     @Override
     protected final void execute() {
         long time = System.currentTimeMillis();
@@ -89,22 +119,26 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
         // Gather function calls for all functions
         AbstractFanInOutVisitor visitor = createVisitor(functions, varModel, getWeighter());
         for (CodeFunction func : functions) {
-            func.getFunction().accept(visitor);
+            if (filter(func)) {
+                func.getFunction().accept(visitor);
+            }
         }
         
         logDuration(System.currentTimeMillis() - time, "Collection of function calls finished in ");
         
         // Compute and report all results
         for (CodeFunction func : functions) {
-            double result = computeResult(visitor, func);
-            if (Double.NaN == result) {
-                return;
+            if (filter(func)) {
+                double result = computeResult(visitor, func);
+                if (Double.NaN == result) {
+                    return;
+                }
+                
+                Function functionAST = func.getFunction();
+                File cFile = func.getSourceFile().getPath();
+                File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
+                addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), func.getName(), result));
             }
-            
-            Function functionAST = func.getFunction();
-            File cFile = func.getSourceFile().getPath();
-            File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
-            addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), func.getName(), result));
         }
         
         logDuration(System.currentTimeMillis() - time, "Analysis of ", getResultName(), " finished in ");

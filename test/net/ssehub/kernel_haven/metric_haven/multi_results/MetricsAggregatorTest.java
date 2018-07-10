@@ -14,6 +14,7 @@ import org.junit.Test;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
 import net.ssehub.kernel_haven.util.io.csv.CsvWriter;
@@ -189,7 +190,7 @@ public class MetricsAggregatorTest {
     @Test
     public void testFiltering() throws IOException, SetUpException {
         Properties testConfig = new Properties();
-        testConfig.setProperty(MetricsAggregator.FILTER_BY_FILES.getKey(), "kernel/kexec.c,kernel/kexec_core.c");
+        testConfig.setProperty(MetricSettings.FILTER_BY_FILES.getKey(), "kernel/kexec.c,kernel/kexec_core.c");
         MetricsAggregator aggregator = createAggreagtor(
                 new String[] {"McCabe", "Vars"},
                 testConfig,

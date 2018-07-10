@@ -15,6 +15,10 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
  */
 public class MetricSettings {
     
+    public static final @NonNull Setting<@Nullable List<String>> FILTER_BY_FILES = new Setting<>(
+        "metrics.filter_results_by.files", Type.STRING_LIST, false, null, "If defined, the results are filter so that "
+            + "the final results will contain only results for the specified files (comma separated list)");
+    
     public static final @NonNull Setting<@Nullable Integer> LINE_NUMBER_SETTING
         = new Setting<>("analysis.code_function.line", Type.INTEGER, false, null,
             "Specifies, the line number that the CodeFunctionByLineFilter should filter the code functions for."

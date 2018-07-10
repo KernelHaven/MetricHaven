@@ -1,6 +1,9 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -10,6 +13,7 @@ import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -147,6 +151,26 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
         
         config.registerSetting(FAN_TYPE_SETTING);
         type = config.getValue(FAN_TYPE_SETTING);
+        
+        try {
+            if (type.isLocal || type.name().contains("_OUT_")) {
+                config.registerSetting(MetricSettings.FILTER_BY_FILES);
+                List<String> filterList = config.getValue(MetricSettings.FILTER_BY_FILES);
+                if (null != filterList && !filterList.isEmpty()) {
+                    @Nullable Set<String> fileNameFilter = new HashSet<>();
+                    for (String filePattern : filterList) {
+                        if (File.separatorChar == '\\') {
+                            // Make pattern platform independent (file names are generated from java.io.File objects)
+                            fileNameFilter.add(filePattern.replace('/', File.separatorChar));
+                        } else {
+                            fileNameFilter.add(filePattern);
+                        }
+                    }
+                }
+            }
+        } catch (SetUpException exc) {
+            LOGGER.logException("Could not load configuration setting " + MetricSettings.FILTER_BY_FILES.getKey(), exc);
+        }
         
         checkVariabilityWeights(type.isDegreeCentrality, type);
     }

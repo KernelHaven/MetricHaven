@@ -21,6 +21,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -78,10 +79,6 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
             + "executed in parallel.");
     
-    public static final @NonNull Setting<@Nullable List<String>> FILTER_BY_FILES = new Setting<>(
-        "metrics.filter_results_by.files", Type.STRING_LIST, false, null, "IF defined, the results are filter so that "
-            + "the final results will contain only results for the specified files (comma separated list)");
-    
     private @NonNull AnalysisComponent<MetricResult> @NonNull [] metrics;
     
     private @NonNull Map<String, ValueRow> valueTable = new HashMap<>();
@@ -123,12 +120,12 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             config.registerSetting(ROUND_RESULTS);
             round = config.getValue(ROUND_RESULTS);
         } catch (SetUpException exc) {
-            LOGGER.logException("Could not load configuration setting " + ROUND_RESULTS, exc);
+            LOGGER.logException("Could not load configuration setting " + ROUND_RESULTS.getKey(), exc);
         }
         
         try {
-            config.registerSetting(FILTER_BY_FILES);
-            List<String> filterList = config.getValue(FILTER_BY_FILES);
+            config.registerSetting(MetricSettings.FILTER_BY_FILES);
+            List<String> filterList = config.getValue(MetricSettings.FILTER_BY_FILES);
             if (null != filterList && !filterList.isEmpty()) {
                 fileNameFilter = new HashSet<>();
                 for (String filePattern : filterList) {
@@ -141,14 +138,14 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 }
             }
         } catch (SetUpException exc) {
-            LOGGER.logException("Could not load configuration setting " + FILTER_BY_FILES, exc);
+            LOGGER.logException("Could not load configuration setting " + MetricSettings.FILTER_BY_FILES.getKey(), exc);
         }
         
         try {
             config.registerSetting(MAX_THREADS);
             nThreads = config.getValue(MAX_THREADS);
         } catch (SetUpException exc) {
-            LOGGER.logException("Could not load configuration setting " + MAX_THREADS, exc);
+            LOGGER.logException("Could not load configuration setting " + MAX_THREADS.getKey(), exc);
         }
         
         this.metrics = notNull(metrics);
