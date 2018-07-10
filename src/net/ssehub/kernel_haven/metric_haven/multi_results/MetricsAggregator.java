@@ -92,7 +92,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     private boolean round = false;
     private int nThreads;
     private @Nullable Set<String> fileNameFilter;
-
+    
     /**
      * Creates a {@link MetricsAggregator} for the given metric components, with a fixed name for the results.
      * 
@@ -130,7 +130,15 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             config.registerSetting(FILTER_BY_FILES);
             List<String> filterList = config.getValue(FILTER_BY_FILES);
             if (null != filterList && !filterList.isEmpty()) {
-                fileNameFilter = new HashSet<>(filterList);
+                fileNameFilter = new HashSet<>();
+                for (String filePattern : filterList) {
+                    if (File.separatorChar == '\\') {
+                        // Make pattern platform independent (file names are generated from java.io.File objects)
+                        fileNameFilter.add(filePattern.replace('/', File.separatorChar));
+                    } else {
+                        fileNameFilter.add(filePattern);
+                    }
+                }
             }
         } catch (SetUpException exc) {
             LOGGER.logException("Could not load configuration setting " + FILTER_BY_FILES, exc);

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -22,6 +23,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  * Tests the {@link MetricsAggregator} and {@link MultiMetricResult}s.
  * 
  * @author Adam
+ * @author Sascha El-Sharkawy
  */
 public class MetricsAggregatorTest {
     
@@ -35,7 +37,23 @@ public class MetricsAggregatorTest {
      * @throws SetUpException Shouldn't happen.
      */
     private MetricsAggregator createAggreagtor(String[] names, MetricResult[]... metrics) throws SetUpException {
-        TestConfiguration config = new TestConfiguration(new Properties());
+        return createAggreagtor(names, new Properties(), metrics);
+    }
+    
+    /**
+     * Creates a {@link MetricsAggregator} for the given input metrics.
+     * 
+     * @param names The names for the input metrics.
+     * @param testConfig Settings for the {@link MetricsAggregator}, may be empty
+     * @param metrics The input metric results.
+     * @return A {@link MetricsAggregator} for the given inputs.
+     * 
+     * @throws SetUpException Shouldn't happen.
+     */
+    private MetricsAggregator createAggreagtor(String[] names, @NonNull Properties testConfig,
+        MetricResult[]... metrics) throws SetUpException {
+        
+        TestConfiguration config = new TestConfiguration(testConfig);
         
         @SuppressWarnings("unchecked")
         @NonNull AnalysisComponent<MetricResult>[] inputs = new @NonNull AnalysisComponent[names.length];
@@ -162,4 +180,42 @@ public class MetricsAggregatorTest {
         ));
     }
 
+    /**
+     * Tests the setting {@link MetricsAggregator#FILTER_BY_FILES}.
+     * 
+     * @throws IOException unwanted.
+     * @throws SetUpException unwanted.
+     */
+    @Test
+    public void testFiltering() throws IOException, SetUpException {
+        Properties testConfig = new Properties();
+        testConfig.setProperty(MetricsAggregator.FILTER_BY_FILES.getKey(), "kernel/kexec.c,kernel/kexec_core.c");
+        MetricsAggregator aggregator = createAggreagtor(
+                new String[] {"McCabe", "Vars"},
+                testConfig,
+                new MetricResult[] {
+                    new MetricResult(new File("kernel/kexec.c"), null, 1, "funcA", 2.3),
+                    new MetricResult(new File("kernel/kexec_core.c"), null, 1, "funcB", 23.2),
+                    new MetricResult(new File("kernel/not_considered.c"), null, 1, "funcC", 23.2),
+                },
+                new MetricResult[] {
+                    new MetricResult(new File("kernel/kexec.c"), null, 1, "funcA", 3),
+                    new MetricResult(new File("kernel/kexec_core.c"), null, 1, "funcB", 2),
+                    new MetricResult(new File("kernel/not_considered.c"), null, 1, "funcC", 8),
+                }
+        );
+        
+        
+        ByteArrayOutputStream str = new ByteArrayOutputStream();
+        try (CsvWriter out = new CsvWriter(str)) {
+            MultiMetricResult result;
+            while ((result = aggregator.getNextResult()) != null) {
+                out.writeObject(result);
+            }
+        }
+        
+        Assert.assertEquals("Source File;Line No.;Element;McCabe;Vars\n"
+                + "kernel" + File.separatorChar + "kexec.c;1;funcA;2.3;3.0\n"
+                + "kernel" + File.separatorChar + "kexec_core.c;1;funcB;23.2;2.0\n", str.toString());
+    }
 }
