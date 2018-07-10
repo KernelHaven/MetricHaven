@@ -79,7 +79,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             + "executed in parallel.");
     
     public static final @NonNull Setting<@Nullable List<String>> FILTER_BY_FILES = new Setting<>(
-        "metrics.filter_results_by.files", Type.STRING_LIST, false, "", "IF defined, the results are filter so that "
+        "metrics.filter_results_by.files", Type.STRING_LIST, false, null, "IF defined, the results are filter so that "
             + "the final results will contain only results for the specified files (comma separated list)");
     
     private @NonNull AnalysisComponent<MetricResult> @NonNull [] metrics;
