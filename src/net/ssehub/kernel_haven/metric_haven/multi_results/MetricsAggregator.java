@@ -196,32 +196,31 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             @NonNull String element, @NonNull String metricName, double value) {
     // CHECKSTYLE:ON
         
-        if (filter(mainFile, includedFile, lineNo, element)) {
-            StringBuffer id = new StringBuffer(mainFile);
-            if (null != includedFile) {
-                id.append(":");
-                id.append(includedFile);
-            }
+        
+        StringBuffer id = new StringBuffer(mainFile);
+        if (null != includedFile) {
             id.append(":");
-            id.append(lineNo);
-            id.append(":");
-            id.append(element);
-            
-            // Store information to create rows and columns
-            String key = NullHelpers.notNull(id.toString());
-            if (!ids.containsKey(key)) {
-                MeasuredItem item = new MeasuredItem(mainFile, includedFile, lineNo, element);
-                ids.put(key, item);
-            }
-            hasIncludedFiles |= (null != includedFile);
-            
-            // Add the value
-            ValueRow column = getRow(key);
-            if (round) {
-                value = Math.floor(value * 100) / 100;
-            }
-            column.addValue(metricName, value);
+            id.append(includedFile);
         }
+        id.append(":");
+        id.append(lineNo);
+        id.append(":");
+        id.append(element);
+        
+        // Store information to create rows and columns
+        String key = NullHelpers.notNull(id.toString());
+        if (!ids.containsKey(key)) {
+            MeasuredItem item = new MeasuredItem(mainFile, includedFile, lineNo, element);
+            ids.put(key, item);
+        }
+        hasIncludedFiles |= (null != includedFile);
+        
+        // Add the value
+        ValueRow column = getRow(key);
+        if (round) {
+            value = Math.floor(value * 100) / 100;
+        }
+        column.addValue(metricName, value);
     }
     
     /**
@@ -311,8 +310,10 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                         String sourceFile = f != null ? notNull(f.getPath()) : "<unknown>";
                         f = result.getIncludedFile();
                         String includedFile = f != null ? f.getPath() : null;
-                        addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
-                            metric.getResultName(), result.getValue());
+                        if (filter(sourceFile, includedFile, result.getLine(), result.getContext())) {
+                            addValue(sourceFile, includedFile, result.getLine(), result.getContext(),
+                                metric.getResultName(), result.getValue());
+                        }
                     }
                     
                     LOGGER.logInfo2("Metric result collection finished: ", getName());
