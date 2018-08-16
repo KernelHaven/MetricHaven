@@ -3,7 +3,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock.Type;
-import net.ssehub.kernel_haven.metric_haven.metric_components.BlocksPerFunctionMetric.BlockMeasureType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.BlockMeasureType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -41,7 +41,7 @@ public class BlockCounter extends AbstractFunctionVisitor {
         boolean isVariationPoint = isFeatureDependentBlock(block); 
         if (isVariationPoint) {
             if (measuredBlocks == BlockMeasureType.BLOCK_AS_ONE) {
-                if (block.getType() == Type.IF || block.getType() == Type.IFDEF ||  block.getType() == Type.IFNDEF) {
+                if (block.getType() == Type.IF || block.getType() == Type.IFDEF || block.getType() == Type.IFNDEF) {
                     count();
                 }
             } else {

@@ -112,6 +112,14 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
       <code>DEGREE_CENTRALITY_*</code> variations may be combined with any of the variability weights from below.
     </td>
   </tr>
+  <!-- TanglingDegreeFunctionMetric -->
+  <tr>
+    <td><code>TanglingDegreeFunctionMetric</code></td>
+    <td>432</td>
+    <td>Measures tangling degree values for each CPP block with an expression (no else statements) and sums them up for each function. </td>
+    <td>This metric has no individual settings, but supports any of the variability weights from below.
+    </td>
+  </tr>
   <!-- BlocksPerFunctionMetric -->
   <tr>
     <td><code>BlocksPerFunctionMetric</code></td>

@@ -8,6 +8,7 @@ import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.BlockCounter;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -22,15 +23,6 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class BlocksPerFunctionMetric extends AbstractFunctionVisitorBasedMetric<BlockCounter> {
 
-    /**
-     * Specification how to cound blocks.
-     * @author El-Sharkawy
-     *
-     */
-    public static enum BlockMeasureType {
-        BLOCK_AS_ONE, SEPARATE_PARTIAL_BLOCKS;
-    }
-    
     public static final @NonNull Setting<@NonNull BlockMeasureType> BLOCK_TYPE_SETTING
         = new EnumSetting<>("metric.blocks_per_function.measured_block_type", BlockMeasureType.class, true, 
                 BlockMeasureType.BLOCK_AS_ONE, "Defines whether partial blocks (#elif/#else) are also counted.");

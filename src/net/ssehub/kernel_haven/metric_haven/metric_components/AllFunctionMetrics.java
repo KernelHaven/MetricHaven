@@ -16,12 +16,12 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLine
 import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.VariabilityCounter;
-import net.ssehub.kernel_haven.metric_haven.metric_components.BlocksPerFunctionMetric.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric.NDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
