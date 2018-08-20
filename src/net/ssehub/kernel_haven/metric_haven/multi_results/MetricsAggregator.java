@@ -240,18 +240,6 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
      * {@link #addValue(String, String, int, String, String, double)}.
      */
     private void createTable() {
-        // Create header/columns
-        int nColumns = hasIncludedFiles ? metricNames.length + 4 : metricNames.length + 3;
-        String[] header = new String[nColumns];
-        int index = 0;
-        header[index++] = "Source File";
-        if (hasIncludedFiles) {
-            header[index++] = "Included File";
-        }
-        header[index++] = "Line No.";
-        header[index++] = "Element";
-        System.arraycopy(metricNames, 0, header, index, metricNames.length);
-        
         // Create rows
         @NonNull String[] columnIDs = ids.keySet().toArray(new @NonNull String[0]);
         Arrays.sort(columnIDs);
@@ -260,23 +248,15 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         for (int i = 0; i < columnIDs.length; i++) {
             String id = columnIDs[i];
             ValueRow column = getRow(id);
-            MeasuredItem item = ids.get(id);
+            MeasuredItem item = notNull(ids.get(id)); // not null since we iterate over the known key set
+            item.setConsiderIncludedFile(hasIncludedFiles);
             
-            Object[] values = new Object[header.length];
-            index = 0;
-            // The measured element
-            values[index++] = item.getMainFile();
-            if (hasIncludedFiles) {
-                values[index++] = item.getIncludedFile();
-            }
-            values[index++] = item.getLineNo();
-            values[index++] = item.getElement();
-            // The measured values
+            Double[] values = new Double[metricNames.length];
             for (int j = 0; j < metricNames.length; j++) {
-                values[index++] = column.getValue(metricNames[j]);
+                values[j] = column.getValue(metricNames[j]);
             }
             
-            addResult(new MultiMetricResult(header, values));
+            addResult(new MultiMetricResult(item, metricNames, values));
         }
         
         // Deallocate memory

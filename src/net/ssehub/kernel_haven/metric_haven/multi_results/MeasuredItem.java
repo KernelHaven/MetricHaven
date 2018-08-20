@@ -4,30 +4,57 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
- * Part of {@link MetricsAggregator}, will be used to order the rows. A {@link MeasuredItem} represents the fowllowing
- * tuple: (file, included file, line number, element), while the included file is optional.
+ * An item that is measured by metrics; represents the following tuple: (file, included file, line number, element),
+ * while the included file is optional. This usually represents a C function.
+ * 
  * @author El-Sharkawy
- *
+ * @author Adam
  */
-class MeasuredItem implements Comparable<MeasuredItem> {
+public class MeasuredItem implements Comparable<MeasuredItem> {
     
     private @NonNull String mainFile;
+    
+    private boolean considerIncludedFile;
+    
     private @Nullable String includedFile;
+    
     private int lineNo;
+    
     private @NonNull String element;
     
     /**
-     * Initializes the measured element (a row).
+     * Creates a new {@link MeasuredItem}.
+     * 
      * @param sourceFile The measured source file (e.g., a C-file).
-     * @param includedFile Optional: an included file (e.g., a H-file).
+     * @param includedFile Optional: an included file (e.g., a H-file). If this is not <code>null</code>, then
+     *      considerIncludedFile is set to true (but only for this element! you have to do it for other elements
+     *          in the list, too).
      * @param lineNo The line number of the measured item.
      * @param element The measured item (e.g., the name of a function).
      */
-    MeasuredItem(@NonNull String sourceFile, @Nullable String includedFile, int lineNo, @NonNull String element) {
+    public MeasuredItem(@NonNull String sourceFile, @Nullable String includedFile, int lineNo,
+            @NonNull String element) {
+        
         this.mainFile = sourceFile;
         this.includedFile = includedFile;
         this.lineNo = lineNo;
         this.element = element;
+        this.considerIncludedFile = includedFile != null;
+    }
+    
+    /**
+     * Creates a new {@link MeasuredItem} without an includedFile.
+     * 
+     * @param sourceFile The measured source file (e.g., a C-file).
+     * @param lineNo The line number of the measured item.
+     * @param element The measured item (e.g., the name of a function).
+     */
+    public MeasuredItem(@NonNull String sourceFile, int lineNo, @NonNull String element) {
+        
+        this.mainFile = sourceFile;
+        this.lineNo = lineNo;
+        this.element = element;
+        this.considerIncludedFile = false;
     }
     
     /**
@@ -46,6 +73,28 @@ class MeasuredItem implements Comparable<MeasuredItem> {
         return includedFile;
     }
 
+    /**
+     * Whether {@link #getIncludedFile()} should be considered. This is important if a list of {@link MeasuredItem}s
+     * sometimes have an included file and sometimes don't. If any element inside a list of {@link MeasuredItem} has
+     * an included file, then this is true for all the items in that list.
+     * 
+     * @return Whether any element in the list of {@link MeasuredItem} has an include file.
+     */
+    public boolean isConsiderIncludedFile() {
+        return considerIncludedFile;
+    }
+    
+    /**
+     * Whether {@link #getIncludedFile()} should be considered. This is important if a list of {@link MeasuredItem}s
+     * sometimes have an included file and sometimes don't. If any element inside a list of {@link MeasuredItem} has
+     * an included file, then this is true for all the items in that list.
+     * 
+     * @param considerIncludedFile Whether any element in the list of {@link MeasuredItem} has an include file.
+     */
+    public void setConsiderIncludedFile(boolean considerIncludedFile) {
+        this.considerIncludedFile = considerIncludedFile;
+    }
+    
     /**
      * Returns the line number.
      * @return The line number of the measured element, maybe  &lt; 0 if the line number could not be determined.
@@ -68,9 +117,9 @@ class MeasuredItem implements Comparable<MeasuredItem> {
      */
     @Override
     public int compareTo(MeasuredItem other) {
+        // First: Order by main file
         int result = this.mainFile.compareTo(other.mainFile);
         
-        // First: Order by main file
         if (0 == result) {
             String thisIncludedFile = this.includedFile;
             String otherIncludedFile = other.includedFile;
@@ -105,4 +154,40 @@ class MeasuredItem implements Comparable<MeasuredItem> {
         
         return result;
     }
+    
+    @Override
+    public int hashCode() {
+        return 83 * mainFile.hashCode() + 71 * Integer.hashCode(lineNo) + 19 * element.hashCode()
+                + (includedFile != null ? includedFile.hashCode() : 41);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        boolean equal = false;
+        
+        if (obj instanceof MeasuredItem) {
+            MeasuredItem other = (MeasuredItem) obj;
+            equal = this.mainFile.equals(other.mainFile)
+                    && this.lineNo == other.lineNo
+                    && this.element.equals(other.element);
+            
+            if (equal) {
+                String includedFile = this.includedFile;
+                if (includedFile == null) {
+                    equal = other.includedFile == null;
+                } else {
+                    equal = includedFile.equals(other.includedFile);
+                }
+            }
+        }
+        
+        return equal;
+    }
+    
+    @Override
+    public String toString() {
+        return "(" + mainFile + ", " + (includedFile != null ? includedFile + ", " : "") + lineNo + ", " + element
+                + ")";
+    }
+    
 }
