@@ -104,7 +104,8 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         AnalysisComponent<MetricResult>[] metricComponents = metrics.toArray(new AnalysisComponent[metrics.size()]);
         AnalysisComponent<?> join;
         if (metricComponents.length > MAX_METRICS_PER_AGGREGATOR) {
-            int nAggregators = (int) Math.ceil(((double) metricComponents.length) % MAX_METRICS_PER_AGGREGATOR);
+            // calculate how many "buckets" of size MAX_METRICS_PER_AGGREGATOR are needed
+            int nAggregators = (int) Math.ceil(((double) metricComponents.length) / MAX_METRICS_PER_AGGREGATOR);
             MetricsAggregator[] aggregators = new MetricsAggregator[nAggregators];
             int index = 0;
             for (int i = 0; i < metricComponents.length; i += MAX_METRICS_PER_AGGREGATOR) {
