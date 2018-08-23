@@ -488,4 +488,12 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
         String formatedDuration = String.format("%02d:%02d", duration / 60000, duration / 1000 % 60);
         LOGGER.logInfo2(text, formatedDuration, " Min.");
     }
+    
+    /**
+     * Returns the variability model provider, if it was passed to the constructor.
+     * @return The variability model provider or <tt>null</tt>. 
+     */
+    protected @Nullable AnalysisComponent<VariabilityModel> getVMComponent() {
+        return varModelComponent;
+    }
 }

@@ -28,7 +28,6 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric<AbstractFanInOutVisitor> {
 
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionFinder;
-    private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @Nullable Set<String> fileNameFilter;
     
     /**
@@ -106,7 +105,7 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
     protected final void execute() {
         long time = System.currentTimeMillis();
         
-        VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
+        VariabilityModel varModel = (null != getVMComponent()) ? getVMComponent().getNextResult() : null;
         createWeight(varModel);
         
         CodeFunction function;
