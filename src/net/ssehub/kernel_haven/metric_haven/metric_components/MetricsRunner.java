@@ -62,7 +62,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         
         lineFilter = false;
         config.registerSetting(MetricSettings.LINE_NUMBER_SETTING);
-        Integer value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
+        Object value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
         if (null != value) {
             lineFilter = true;
         }

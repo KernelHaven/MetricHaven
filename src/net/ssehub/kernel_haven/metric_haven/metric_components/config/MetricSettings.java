@@ -19,10 +19,12 @@ public class MetricSettings {
         "metrics.filter_results_by.files", Type.STRING_LIST, false, null, "If defined, the results are filter so that "
             + "the final results will contain only results for the specified files (comma separated list)");
     
-    public static final @NonNull Setting<@Nullable Integer> LINE_NUMBER_SETTING
-        = new Setting<>("analysis.code_function.line", Type.INTEGER, false, null,
-            "Specifies, the line number that the CodeFunctionByLineFilter should filter the code functions for."
-            + " It will pass on the function that this line lies in.");
+    public static final @NonNull Setting<@Nullable List<@NonNull String>> LINE_NUMBER_SETTING
+        = new Setting<>("analysis.code_function.lines", Type.STRING_LIST, false, null,
+            "Specifies, the files and line numbers that the CodeFunctionByLineFilter should filter the code functions "
+            + "for. Each element in the list should have a colon separated file path and line number (e.g. "
+            + "kernel/kernel.c:51 for line 51 in the file kernel/kernel.c). File paths are relative to the source "
+            + "tree. The filter will pass on only the functions that contain one of the file and line number pairs.");
     
     /**
      * Configuration of variability weight (for features): <b>Scattering Degree</b>.
