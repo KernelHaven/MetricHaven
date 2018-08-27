@@ -11,6 +11,7 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.ScatteringDegreeCo
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.BlockCounter;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -90,7 +91,11 @@ public class BlocksPerFunctionMetric extends AbstractFunctionVisitorBasedMetric<
 
     @Override
     public @NonNull String getResultName() {
-        return "No. of int. ifdefs x " + measuredBlocks.name(); 
+        StringBuffer resultName = new StringBuffer("No. of int. ifdefs x ");
+        resultName.append(measuredBlocks.name());
+        resultName.append(getWeightsName());
+        
+        return NullHelpers.notNull(resultName.toString());
     }
 
 }
