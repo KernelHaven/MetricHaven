@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -89,6 +90,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         
         // Determine individual settings of metric-analysis class
         List<@NonNull Setting<?>> settings = determineSettings(metricClass);
+        Collections.sort(settings, (o1, o2) -> o1.getKey().compareTo(o2.getKey())); // sort to be deterministic
 
         // Start all metric variations
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
