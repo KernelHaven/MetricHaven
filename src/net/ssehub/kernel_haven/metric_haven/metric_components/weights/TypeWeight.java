@@ -50,6 +50,7 @@ public class TypeWeight implements IVariableWeight {
                     Logger.get().logWarning2("No weight specified for type ", var.getType(), " of variable ", variable);
                 }
             }
+            // else: leave result as 0 (non-features have no weight)
         }
         
         return result;
