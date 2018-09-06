@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.util.Set;
 
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
@@ -75,8 +77,10 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
                 /* 
                  * If we use a varFinder, we are interested only in feature dependent code, i.e., check if symbols are
                  * defined in variability model.
+                 * 
+                 * block.getCondition() is not null because we already excluded else blocks above
                  */
-                Set<Variable> usedVars = block.getCondition().accept(varFinder);
+                Set<Variable> usedVars = notNull(block.getCondition()).accept(varFinder);
                 // Won't count blocks containing no variables
                 for (Variable variable : usedVars) {
                     String varName = variable.getName();

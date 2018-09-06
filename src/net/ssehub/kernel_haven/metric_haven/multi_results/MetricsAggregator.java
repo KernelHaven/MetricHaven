@@ -131,9 +131,9 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
                 for (String filePattern : filterList) {
                     if (File.separatorChar == '\\') {
                         // Make pattern platform independent (file names are generated from java.io.File objects)
-                        fileNameFilter.add(filePattern.replace('/', File.separatorChar));
+                        notNull(fileNameFilter).add(filePattern.replace('/', File.separatorChar));
                     } else {
-                        fileNameFilter.add(filePattern);
+                        notNull(fileNameFilter).add(filePattern);
                     }
                 }
             }
@@ -172,7 +172,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
         
         boolean accept = fileNameFilter == null;
         if (!accept) {
-            accept = fileNameFilter.contains(mainFile);
+            accept = notNull(fileNameFilter).contains(mainFile);
         }
         
         return accept;

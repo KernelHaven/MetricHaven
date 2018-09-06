@@ -105,7 +105,8 @@ abstract class AbstractFanInOutMetric extends AbstractFunctionVisitorBasedMetric
     protected final void execute() {
         long time = System.currentTimeMillis();
         
-        VariabilityModel varModel = (null != getVMComponent()) ? getVMComponent().getNextResult() : null;
+        AnalysisComponent<VariabilityModel> vmComponent = getVMComponent();
+        VariabilityModel varModel = (null != vmComponent) ? vmComponent.getNextResult() : null;
         createWeight(varModel);
         
         CodeFunction function;
