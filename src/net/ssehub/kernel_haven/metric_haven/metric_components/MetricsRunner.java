@@ -39,7 +39,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
     public static final @NonNull Setting<@NonNull String> METRICS_CLASS
         = new Setting<>("analysis.metrics_runner.metrics_class", STRING, true, null,
             "The fully qualified class name of the metric that should be run.");
-    private static final int MAX_METRICS_PER_AGGREGATOR = 1080;
+    private static final int MAX_METRICS_PER_AGGREGATOR = 720;
     private boolean lineFilter;
     
     private Class<? extends AbstractFunctionVisitorBasedMetric<?>> metricClass;
