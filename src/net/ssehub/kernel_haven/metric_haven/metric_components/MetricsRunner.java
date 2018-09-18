@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import static net.ssehub.kernel_haven.config.Setting.Type.STRING;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -23,7 +24,10 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctionFilter;
+import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegree;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeReader;
+import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeWriter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.VariabilityCounter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
@@ -84,8 +88,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         
         // Activate variability weights
         registerVariabilityWeights();
-        AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
-            = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+        AnalysisComponent<ScatteringDegreeContainer> sdAnalysis = createSdAnalysisComponent(config, true);
         SplitComponent<ScatteringDegreeContainer> sdSplitter = new SplitComponent<>(config, sdAnalysis);
         
         // Determine individual settings of metric-analysis class
@@ -189,4 +192,54 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         
         return settings;
     }
+    
+    /**
+     * Creates the {@link ScatteringDegree} component. If cache is enabled, the reader and writer are appropriately
+     * chosen based on whether the cache file exists or not.
+     * 
+     * @param config The pipeline configuration.
+     * @param useCache Whether {@link ScatteringDegreeReader} and {@link ScatteringDegreeWriter} should be used.
+     * 
+     * @return A component that will produce a {@link ScatteringDegreeContainer} (by either reading from cache, or
+     *      calculating from code model).
+     * 
+     * @throws SetUpException If the cache file setting is invalid.
+     */
+    private @NonNull AnalysisComponent<ScatteringDegreeContainer> createSdAnalysisComponent(
+            @NonNull Configuration config, boolean useCache) throws SetUpException {
+        
+        AnalysisComponent<ScatteringDegreeContainer> result;
+        
+        if (!useCache) {
+            result = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+            
+        } else {
+            config.registerSetting(ScatteringDegreeReader.SD_CACHE_FILE);
+            File cacheFile = config.getValue(ScatteringDegreeReader.SD_CACHE_FILE);
+            
+            if (cacheFile == null) {
+                // no cache file specified
+                result = new VariabilityCounter(config, getVmComponent(), getCmComponent());
+                LOGGER.logInfo("Not using ScatteringDegree cache because "
+                        + ScatteringDegreeReader.SD_CACHE_FILE.getKey() + " is not set");
+                
+            } else {
+                if (cacheFile.isFile()) {
+                    // cache file exists, use reader
+                    result = new ScatteringDegreeReader(config, getVmComponent());
+                    LOGGER.logInfo("Will read ScatteringDegree from cache file " + cacheFile);
+                    
+                } else {
+                    // cache file doesn't exist (yet), use writer
+                    result = new ScatteringDegreeWriter(config,
+                            new VariabilityCounter(config, getVmComponent(), getCmComponent()));
+                    LOGGER.logInfo("Will write ScatteringDegree from cache file " + cacheFile);
+                }
+            }
+            
+        }
+        
+        return result;
+    }
+    
 }
