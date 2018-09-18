@@ -26,7 +26,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 public class ScatteringDegreeReader extends AnalysisComponent<ScatteringDegreeContainer> {
 
     public static final @NonNull Setting<@Nullable File> SD_CACHE_FILE = new Setting<>("metrics.sd_cache.file",
-            Type.FILE, false, null, "Defines the file that " + ScatteringDegreeReader.class.getName() + " and "
+            Type.PATH, false, null, "Defines the file that " + ScatteringDegreeReader.class.getName() + " and "
             + ScatteringDegreeWriter.class.getName() + " read and write the scattering degree cache to.");
     
     private @NonNull File cacheFile;
