@@ -233,7 +233,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
                     // cache file doesn't exist (yet), use writer
                     result = new ScatteringDegreeWriter(config,
                             new VariabilityCounter(config, getVmComponent(), getCmComponent()));
-                    LOGGER.logInfo("Will write ScatteringDegree from cache file " + cacheFile);
+                    LOGGER.logInfo("Will write ScatteringDegree to cache file " + cacheFile);
                 }
             }
             
