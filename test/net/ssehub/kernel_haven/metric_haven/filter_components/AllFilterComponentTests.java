@@ -4,6 +4,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeReaderTest;
+import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeWriterTest;
+import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.VariabilityCounterTest;
+
 /**
  * All test classes for filter components.
  * 
@@ -11,7 +15,9 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    VariabilityCounterTest.class
+    VariabilityCounterTest.class,
+    ScatteringDegreeReaderTest.class,
+    ScatteringDegreeWriterTest.class,
     })
 public class AllFilterComponentTests {
 

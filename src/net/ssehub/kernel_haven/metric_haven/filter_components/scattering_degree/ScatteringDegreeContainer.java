@@ -1,8 +1,13 @@
-package net.ssehub.kernel_haven.metric_haven.filter_components;
+package net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree;
+
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * Stores for all variables of the variability model scattering degree metrics. More precisely:
@@ -55,4 +60,14 @@ public class ScatteringDegreeContainer {
     public int getSize() {
         return variables.size();
     }
+    
+    /**
+     * Returns an iterator over all {@link ScatteringDegree}s in this collection.
+     * 
+     * @return An iterator over all {@link ScatteringDegree}s.
+     */
+    @NonNull Iterator<ScatteringDegree> getScatteringDegreeIterator() {
+        return notNull(variables.values().iterator());
+    }
+    
 }

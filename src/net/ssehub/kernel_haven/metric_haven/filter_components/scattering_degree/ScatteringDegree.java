@@ -1,5 +1,7 @@
-package net.ssehub.kernel_haven.metric_haven.filter_components;
+package net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree;
 
+import net.ssehub.kernel_haven.util.io.TableElement;
+import net.ssehub.kernel_haven.util.io.TableRow;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
@@ -8,6 +10,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  * 
  * @author Adam
  */
+@TableRow
 public class ScatteringDegree {
 
     private @NonNull VariabilityVariable variable;
@@ -26,6 +29,19 @@ public class ScatteringDegree {
     }
     
     /**
+     * Creates an instance with the given values.
+     * 
+     * @param variable The variable that this object stores the counts for.
+     * @param ifdefs The number of ifdefs the variable occurs in.
+     * @param files The number of files the variable occurs in.
+     */
+    ScatteringDegree(@NonNull VariabilityVariable variable, int ifdefs, int files) {
+        this.variable = variable;
+        this.ifdefs = ifdefs;
+        this.files = files;
+    }
+    
+    /**
      * Returns the variable that was counted by this object.
      * @return The variable that this object has the counts for.
      */
@@ -34,10 +50,21 @@ public class ScatteringDegree {
     }
     
     /**
+     * Returns the name of the variable that was counted by this object.
+     * 
+     * @return The name of the variable that this object has the counts for.
+     */
+    @TableElement(index = 0, name = "Variable")
+    public @NonNull String getVariableName() {
+        return variable.getName();
+    }
+    
+    /**
      * Returns the number of #ifdefs that this variable was used in.
      * 
      * @return The number of #ifdefs that this variable was used in.
      */
+    @TableElement(index = 1, name = "#ifdef Count")
     public int getIfdefs() {
         return ifdefs;
     }
@@ -47,6 +74,7 @@ public class ScatteringDegree {
      * 
      * @return The number of source files that this variable was used in.
      */
+    @TableElement(index = 2, name = "File Count")
     public int getFiles() {
         return files;
     }

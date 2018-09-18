@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metric_haven.filter_components;
+package net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree;
 
 import static net.ssehub.kernel_haven.util.logic.FormulaBuilder.and;
 import static net.ssehub.kernel_haven.util.logic.FormulaBuilder.not;
