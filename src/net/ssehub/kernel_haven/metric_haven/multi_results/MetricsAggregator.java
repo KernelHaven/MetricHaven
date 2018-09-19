@@ -265,8 +265,7 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
     
     @Override
     protected void execute() {
-        // See for thread pools: https://stackoverflow.com/a/8651450
-        // See for join threads: https://stackoverflow.com/a/20495490
+        // See for thread pools: https://stackoverflow.com/a/8651450  join threads: https://stackoverflow.com/a/20495490
         // start threads to poll from each input metric
         DefaultThreadFactory thFactory = new DefaultThreadFactory();
         ThreadPoolExecutor thPool = (ThreadPoolExecutor) ( (nThreads > 0)
@@ -274,6 +273,8 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             : Executors.newCachedThreadPool());
         int totalNoOfThreads = 0;
         AtomicInteger nThreadsProcessed = new AtomicInteger(0);
+        LOGGER.logDebug("Start setting up " + ((nThreads > 0) ? nThreads + " " : "") + "threads to join "
+                + metrics.length + " metrics");
         for (AnalysisComponent<MetricResult> metric : metrics) {
             totalNoOfThreads++;
             NamedRunnable r = new NamedRunnable() {

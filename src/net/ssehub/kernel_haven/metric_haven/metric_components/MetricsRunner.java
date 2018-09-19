@@ -100,6 +100,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         for (@NonNull Setting<?> setting : settings) {
             createAllVariations(setting, functionSplitter, sdSplitter, metrics);
         }
+        LOGGER.logDebug("Created " + metrics.size() + " metric variations");
         
         // Disable variability weights
         unregisterVariabilityWeights();
