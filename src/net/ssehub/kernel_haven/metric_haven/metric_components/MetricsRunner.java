@@ -94,6 +94,7 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
         // Determine individual settings of metric-analysis class
         List<@NonNull Setting<?>> settings = determineSettings(metricClass);
         Collections.sort(settings, (o1, o2) -> o1.getKey().compareTo(o2.getKey())); // sort to be deterministic
+        LOGGER.logDebug("Found " + settings.size() + " metric settings");
 
         // Start all metric variations
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
