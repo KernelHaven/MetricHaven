@@ -98,10 +98,19 @@ public class MetricsRunner extends AbstractMultiFunctionMetrics {
 
         // Start all metric variations
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
-        for (@NonNull Setting<?> setting : settings) {
-            createAllVariations(setting, functionSplitter, sdSplitter, metrics);
+        if (settings.isEmpty()) {
+            // Run only setting provided by parent class
+            addMetric(metricClass, functionSplitter, sdSplitter, metrics);
+        } else {
+            // Run settings provided by parent class + settings of child class
+            for (@NonNull Setting<?> setting : settings) {
+                createAllVariations(setting, functionSplitter, sdSplitter, metrics);
+            }
         }
-        LOGGER.logInfo("Created " + metrics.size() + " metric variations");
+        if (metrics.isEmpty()) {
+            throw new SetUpException("Created no metric variations");
+        }
+        LOGGER.logDebug("Created " + metrics.size() + " metric variations");
         
         // Disable variability weights
         unregisterVariabilityWeights();
