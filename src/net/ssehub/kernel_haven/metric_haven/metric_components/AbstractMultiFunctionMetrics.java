@@ -200,22 +200,16 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
         try {
             if (!useVariabilityWeights) {
                 // Default constructor
-                metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
-            } else {
                 try {
-                    // Constructor with VarModel, BuildModel, and Scattering Degree container
-                    metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
-                        AnalysisComponent.class, AnalysisComponent.class, AnalysisComponent.class);
-                } catch (NoSuchMethodException e) {
-                    /* 
-                     * Fall back, if SD splitter is passed to this method,
-                     * but metric does not support variability weights.
-                     */
                     metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
+                } catch (NoSuchMethodException e) {
+                    throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
                 }
+            } else {
+                // Constructor with VarModel, BuildModel, and Scattering Degree container
+                metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
+                    AnalysisComponent.class, AnalysisComponent.class, AnalysisComponent.class);
             }
-        } catch (ReflectiveOperationException e) {
-            throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
         } catch (SecurityException e) {
             throw new SetUpException("Was not allowed to create instance of " + metric.getName() + "-metric.", e);
         }
