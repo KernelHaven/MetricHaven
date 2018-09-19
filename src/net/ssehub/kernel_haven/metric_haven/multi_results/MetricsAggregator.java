@@ -273,8 +273,8 @@ public class MetricsAggregator extends AnalysisComponent<MultiMetricResult> {
             : Executors.newCachedThreadPool());
         int totalNoOfThreads = 0;
         AtomicInteger nThreadsProcessed = new AtomicInteger(0);
-        LOGGER.logInfo("Start setting up " + ((nThreads > 0) ? nThreads + " " : "") + "threads to join "
-                + metrics.length + " metrics");
+        LOGGER.logDebug2("Start setting up ", ((nThreads > 0) ? nThreads + " " : ""), "threads to join ",
+            metrics.length, " metrics");
         for (AnalysisComponent<MetricResult> metric : metrics) {
             totalNoOfThreads++;
             NamedRunnable r = new NamedRunnable() {
