@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -39,17 +40,20 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * 
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
+     * 
+     * @throws SetUpException If creating the metric instances fails.
      */
     public CodeMetricsRunner(@NonNull Configuration config,
-            @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent) {
+            @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent) throws SetUpException {
         super(config);
         
         this.codeFunctionComponent = codeFunctionComponent;
         
         allMetrics = new ArrayList<>();
-        MetricFactory factory = new MetricFactory();
+        
+        MetricFactory factory = new MetricFactory(config);
         for (Class<? extends AbstractFunctionMetric<?>> metricType : METRICS_TO_CREATE) {
-            allMetrics.addAll(factory.createAllVariations(config, metricType));
+            allMetrics.addAll(factory.createAllVariations(metricType));
         }
         
         this.resultName = METRICS_TO_CREATE.size() + " Metrics in " + allMetrics.size() + " Variations";
