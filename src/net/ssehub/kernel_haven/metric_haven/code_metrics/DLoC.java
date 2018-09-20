@@ -71,7 +71,7 @@ class DLoC extends AbstractFunctionMetric<LoCVisitor> {
     }
     
     @Override
-    public @NonNull String getResultName() {
+    public @NonNull String getMetricName() {
         String resultName;
         switch(type) {
         case DLOC:

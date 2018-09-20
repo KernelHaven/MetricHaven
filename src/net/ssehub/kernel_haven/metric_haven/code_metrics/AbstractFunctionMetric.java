@@ -23,6 +23,8 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
     
     private @NonNull V functionVisitor;
     
+    private @NonNull IVariableWeight weight;
+    
     /**
      * Sole constructor, to create a new code function metric. Creates also an appropriate function visitor.
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
@@ -30,6 +32,7 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
      */
     AbstractFunctionMetric(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight) {
+        this.weight = weight;
         functionVisitor = createVisitor(varModel, weight);
     }
     
@@ -65,10 +68,20 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
     protected abstract Number computeResult(@NonNull V functionVisitor);
     
     /**
+     * The name of this metric (including the variation).
+     * 
+     * @return The name of this metric.
+     */
+    public abstract @NonNull String getMetricName();
+    
+    /**
      * The name to display to users for the output of this component. For example, this will be used to name the
-     * output tables.
+     * output tables. This basically concatenates {@link #getMetricName()} and {@link IVariableWeight#getName()}.
      * 
      * @return The name describing the output of this component.
      */
-    public abstract @NonNull String getResultName();
+    public final @NonNull String getResultName() {
+        return getMetricName() + " " + weight.getName();
+    }
+
 }
