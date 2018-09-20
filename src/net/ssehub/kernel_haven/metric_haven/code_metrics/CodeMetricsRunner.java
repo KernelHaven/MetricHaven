@@ -51,10 +51,11 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         allMetrics = new ArrayList<>();
         
-        MetricFactory factory = new MetricFactory(config);
-        for (Class<? extends AbstractFunctionMetric<?>> metricType : METRICS_TO_CREATE) {
-            allMetrics.addAll(factory.createAllVariations(metricType));
-        }
+        MetricFactory factory = new MetricFactory();
+//        for (Class<? extends AbstractFunctionMetric<?>> metricType : METRICS_TO_CREATE) {
+//            allMetrics.addAll(factory.createAllVariations(metricType));
+//        }
+        allMetrics.addAll(factory.createAllDLoCVariations());
         
         this.resultName = METRICS_TO_CREATE.size() + " Metrics in " + allMetrics.size() + " Variations";
     }

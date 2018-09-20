@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
+
 /**
  * Programmatically solution to use a <i>neutral</i> weight, which does not change the result.
  * @author El-Sharkawy
@@ -7,7 +9,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
  */
 public class NoWeight implements IVariableWeight {
     
-    public static final NoWeight INSTANCE = new NoWeight();
+    public static final @NonNull NoWeight INSTANCE = new NoWeight();
     
     /**
      * Singleton constructor.

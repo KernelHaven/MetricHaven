@@ -1,18 +1,13 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
-import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
-
-import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
-import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
-import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
  * Creates one or multiple metric instances with their corresponding variations.
@@ -21,15 +16,25 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class MetricFactory {
 
-    private @NonNull Configuration config;
-    
     /**
-     * Creates this metrics factory.
+     * Creates all variations of the DLoC metric.
      * 
-     * @param config The pipeline configuration.
+     * @return All variations of the DLoC metric.
      */
-    public MetricFactory(@NonNull Configuration config) {
-        this.config = config;
+    public @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllDLoCVariations() {
+
+        List<@NonNull AbstractFunctionMetric<?>> result = new LinkedList<>();
+        
+        for (LoFType type : LoFType.values()) {
+            try {
+                result.add(new DLoC(null, NoWeight.INSTANCE, type));
+                
+            } catch (UnsupportedMetricVariationException e) {
+                // ignore
+            }
+        }
+        
+        return result;
     }
     
     /**
@@ -46,17 +51,9 @@ public class MetricFactory {
         
         List<@NonNull AbstractFunctionMetric<?>> result = new LinkedList<>();
         
-        try {
-            // TODO: for now, just create a single instance with the NoWeight
-            Constructor<? extends AbstractFunctionMetric<?>> ctor =
-                    metricClass.getConstructor(VariabilityModel.class, IVariableWeight.class, LoFType.class);
-            // TODO: this is the constructor for the DLoC metric!
-            AbstractFunctionMetric<?> metric = notNull(ctor.newInstance(null, NoWeight.INSTANCE, LoFType.DLOC));
-            result.add(metric);
-            
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new SetUpException("Can't instantiate metric", e);
-        }
+        // TODO: how to get the right constructor for the metricClass?
+        // TODO: how to get the right parameters for the metricClass?
+        // TODO: how to get all allowed metric specific settings?
         
         return result;
     }
