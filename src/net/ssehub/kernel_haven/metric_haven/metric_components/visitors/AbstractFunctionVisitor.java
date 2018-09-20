@@ -19,7 +19,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     
-    private @Nullable VariabilityModel varModel;
+    private final @Nullable VariabilityModel varModel;
     
     private boolean isInCPP = false;
     private boolean isInFunction = false;
@@ -54,7 +54,6 @@ public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
     protected boolean isFeatureDependentBlock(@NonNull CppBlock block) {
         boolean isFeatureDependent = true;
         
-        VariabilityModel varModel = this.varModel;
         Formula condition = block.getCondition();
         if (null != varModel && null != condition) {
             isFeatureDependent = false;
