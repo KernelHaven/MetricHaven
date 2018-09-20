@@ -1,9 +1,10 @@
-package net.ssehub.kernel_haven.metric_haven.metric_components;
+package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -13,7 +14,12 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  * @param <V> The internally used function visitor to compute results.
  */
-abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> {
+public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> {
+    
+    /**
+     * Shorthand for the global singleton logger.
+     */
+    protected static final Logger LOGGER = Logger.get();
     
     private @NonNull V functionVisitor;
     
@@ -53,7 +59,16 @@ abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> {
      * Collects the measured value and may performs a post processing of the values.
      * @param functionVisitor The visitor created by {@link #createVisitor(VariabilityModel, IVariableWeight)}.
      * 
-     * @return The value to be returned by {@link #compute(CodeFunction)}.
+     * @return The value to be returned by {@link #compute(CodeFunction)}, or <tt>null</tt> if no valid value could be
+     *     computed (should not happen).
      */
     protected abstract Number computeResult(@NonNull V functionVisitor);
+    
+    /**
+     * The name to display to users for the output of this component. For example, this will be used to name the
+     * output tables.
+     * 
+     * @return The name describing the output of this component.
+     */
+    public abstract @NonNull String getResultName();
 }
