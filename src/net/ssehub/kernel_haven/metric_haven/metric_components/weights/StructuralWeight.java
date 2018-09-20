@@ -93,4 +93,9 @@ public class StructuralWeight implements IVariableWeight {
         return result;
     }
 
+    @Override
+    public String getName() {
+        return structureType.name();
+    }
+
 }

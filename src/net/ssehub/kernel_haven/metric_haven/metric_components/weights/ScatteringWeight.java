@@ -47,4 +47,8 @@ public class ScatteringWeight implements IVariableWeight {
         return weight;
     }
 
+    @Override
+    public String getName() {
+        return sdType.name();
+    }
 }

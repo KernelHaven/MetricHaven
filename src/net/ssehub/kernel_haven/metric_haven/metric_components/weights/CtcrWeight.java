@@ -106,4 +106,8 @@ public class CtcrWeight implements IVariableWeight {
         return weight;
     }
 
+    @Override
+    public String getName() {
+        return ctcrType.name();
+    }
 }

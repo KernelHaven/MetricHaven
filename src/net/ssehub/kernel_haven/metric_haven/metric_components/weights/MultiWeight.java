@@ -51,4 +51,17 @@ public class MultiWeight implements IVariableWeight {
         return weight;
     }
 
+    @Override
+    public String getName() {
+        StringBuffer name = new StringBuffer();
+        if (weights.length > 0) {
+            name.append(weights[0].getName());
+        }
+        for (int i = 1; i < weights.length; i++) {
+            name.append(" x ");
+            name.append(weights[i].getName());
+        }
+        
+        return name.toString();
+    }
 }

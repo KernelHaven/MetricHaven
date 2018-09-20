@@ -77,4 +77,8 @@ public class HierarchyWeight implements IVariableWeight {
         return result;
     }
 
+    @Override
+    public String getName() {
+        return "Hierarchy";
+    }
 }

@@ -19,4 +19,8 @@ public class NoWeight implements IVariableWeight {
         return 1;
     }
 
+    @Override
+    public String getName() {
+        return "No weight";
+    }
 }

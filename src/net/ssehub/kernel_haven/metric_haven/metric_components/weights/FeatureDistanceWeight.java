@@ -66,4 +66,9 @@ public class FeatureDistanceWeight implements IVariableWeight {
         
         return result;
     }
+    
+    @Override
+    public String getName() {
+        return "Feature distance";
+    }
 }

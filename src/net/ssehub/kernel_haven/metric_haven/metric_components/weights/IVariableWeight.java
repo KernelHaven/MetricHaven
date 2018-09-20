@@ -29,4 +29,11 @@ public interface IVariableWeight {
     public default int getWeight(String variable, File codefile) {
         return getWeight(variable);
     }
+    
+    /**
+     * Returns the name of the weight, may be used together with
+     * {@link net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric#getResultName()}.
+     * @return The name of activated weights.
+     */
+    public String getName();
 }

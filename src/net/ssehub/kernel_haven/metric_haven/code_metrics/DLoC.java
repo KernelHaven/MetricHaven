@@ -2,8 +2,10 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -24,10 +26,18 @@ class DLoC extends AbstractFunctionMetric<LoCVisitor> {
      *     model is involved in {@link CppBlock#getCondition()} expressions.
      * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
      * @param type Specifies whether to measure only classical LoC, feature LoC, or the fraction of both.
+     * @throws UnsupportedMetricVariationException In case that not {@link NoWeight} was used (this metric does not
+     *     support any weights).
      */
-    DLoC(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight, @NonNull LoFType type) {
+    DLoC(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight, @NonNull LoFType type)
+        throws UnsupportedMetricVariationException {
+        
         super(varModel, weight);
         this.type = type;
+        
+        if (weight != NoWeight.INSTANCE) {
+            throw new UnsupportedMetricVariationException(getClass(), weight);
+        }
     }
 
     @Override

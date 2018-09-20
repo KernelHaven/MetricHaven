@@ -56,4 +56,9 @@ public class TypeWeight implements IVariableWeight {
         return result;
     }
 
+    @Override
+    public String getName() {
+        return "Feature Type";
+    }
+
 }
