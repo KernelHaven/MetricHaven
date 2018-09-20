@@ -81,7 +81,7 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      * @return The name describing the output of this component.
      */
     public final @NonNull String getResultName() {
-        return getMetricName() + " " + weight.getName();
+        return getMetricName() + " (" + weight.getName() + ")";
     }
 
 }
