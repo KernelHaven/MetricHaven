@@ -229,6 +229,14 @@ abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisi
     }
     
     /**
+     * Returns the input processing unit, which may be used in inherited classes.
+     * @return An input processing unit providing code functions.
+     */
+    protected @NonNull AnalysisComponent<CodeFunction> getCodeFunctionFinder() {
+        return codeFunctionFinder;
+    }
+    
+    /**
      * Creates the visitor at the start of the computation.
      * @param varModel The variability model (retrieved from the <tt>varModelComponent</tt>), may be <tt>null</tt>.
      * @return The visitor to use for each of the functions, will be reseted after each computation via

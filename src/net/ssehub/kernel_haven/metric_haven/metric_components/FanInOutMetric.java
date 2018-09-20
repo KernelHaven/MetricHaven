@@ -2,15 +2,19 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
@@ -27,7 +31,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-public class FanInOutMetric extends AbstractFanInOutMetric {
+public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<AbstractFanInOutVisitor> {
 
     /**
      * Specification which kind of variables shall be measured.
@@ -75,6 +79,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
                     + " function.");
     
     private @NonNull FanType type;
+    private @Nullable Set<String> fileNameFilter;
     
     /**
      * Creates this metric, won't provide scattering degree, no check if a feature is defined in the variability model.
@@ -157,7 +162,7 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
                 config.registerSetting(MetricSettings.FILTER_BY_FILES);
                 List<String> filterList = config.getValue(MetricSettings.FILTER_BY_FILES);
                 if (null != filterList && !filterList.isEmpty()) {
-                    @Nullable Set<String> fileNameFilter = new HashSet<>();
+                    fileNameFilter = new HashSet<>();
                     for (String filePattern : filterList) {
                         if (File.separatorChar == '\\') {
                             // Make pattern platform independent (file names are generated from java.io.File objects)
@@ -166,7 +171,6 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
                             fileNameFilter.add(filePattern);
                         }
                     }
-                    setFilter(fileNameFilter);
                 }
             }
         } catch (SetUpException exc) {
@@ -175,15 +179,59 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
         
         checkVariabilityWeights(type.isDegreeCentrality, type);
     }
-
-    @Override
-    protected double computeResult(@NonNull AbstractFanInOutVisitor visitor, CodeFunction function) {
-        return visitor.getResult(function.getName());
+    
+    /**
+     * Determines whether the given {@link CodeFunction} shall be rejected (<tt>false</tt>)
+     * or be accepted (<tt>true</tt>) by this filter.
+     * @param func A code function to test if it shall be processed.
+     * @return <tt>true</tt>: {@link CodeFunction} shall be kept; <tt>false</tt>: {@link CodeFunction} shall be skipped.
+     */
+    private boolean filter(CodeFunction func) {
+        // Do not filter code functions by default
+        boolean accept = true;
+        if (null != fileNameFilter) {
+            // Filter code functions by file/path if a filter is defined
+            accept = fileNameFilter.contains(func.getSourceFile().getPath().getPath());
+        }
+        
+        return accept;
     }
 
     @Override
+    protected final @NonNull AbstractFanInOutVisitor createVisitor(@Nullable VariabilityModel varModel) {
+        throw new IllegalArgumentException("Wrong factory for visitor creation called: createVisitor(VariabilityModel),"
+            + " but should be createVisitor(List<CodeFunction>, VariabilityModel, IVariableWeight)");
+    }
+    
+    @Override
+    protected final double computeResult(@NonNull AbstractFanInOutVisitor visitor) {
+        throw new IllegalArgumentException("Wrong computation method called: computeResult(VariabilityModel),"
+            + " but should be computeResult(List<CodeFunction>, VariabilityModel)");
+    }
+    
+    /**
+     * This method computes the result based on the results of the visitor created by
+     *     {@link #createVisitor(List, VariabilityModel)}.
+     * @param visitor The visitor after visitation of a single function.
+     * @param function The function for which we compute the metric result for.
+     * @return The computed value or {@link Double#NaN} if no result could be computed an this metric should not
+     *     mention the result.
+     */
+    private double computeResult(@NonNull AbstractFanInOutVisitor visitor, CodeFunction function) {
+        return visitor.getResult(function.getName());
+    }
+
+    
+    /**
+     * Creates the visitor to be used by the metric.
+     * @param functions All gathered functions.
+     * @param varModel Optional, if not <tt>null</tt> this visitor should use the variability model to check if at least
+     *     one variable of the variability model is involved in {@link CppBlock#getCondition()} expressions.
+     * @param weight {@link #getWeighter()}
+     * @return The visitor to compute the fan-in fan-out metric by the inherited metric analysis.
+     */
     // CHECKSTYLE:OFF checkstyle can't parse the annotations properly...
-    protected @NonNull AbstractFanInOutVisitor createVisitor(@NonNull List<CodeFunction> functions,
+    private @NonNull AbstractFanInOutVisitor createVisitor(@NonNull List<CodeFunction> functions,
         @Nullable VariabilityModel varModel, IVariableWeight weight) {
     // CHECKSTYLE:ON
         
@@ -240,5 +288,48 @@ public class FanInOutMetric extends AbstractFanInOutMetric {
         resultName.append(getWeightsName());
         
         return NullHelpers.notNull(resultName.toString());
+    }
+    
+    @Override
+    protected final void execute() {
+        long time = System.currentTimeMillis();
+        
+        AnalysisComponent<VariabilityModel> vmComponent = getVMComponent();
+        VariabilityModel varModel = (null != vmComponent) ? vmComponent.getNextResult() : null;
+        createWeight(varModel);
+        
+        CodeFunction function;
+        List<CodeFunction> functions = new LinkedList<>();
+        while ((function = getCodeFunctionFinder().getNextResult()) != null)  {
+            functions.add(function);
+        }
+        // Looses threading for sub analyses, but should not be a big issue
+        
+        // Gather function calls for all functions
+        AbstractFanInOutVisitor visitor = createVisitor(functions, varModel, getWeighter());
+        for (CodeFunction func : functions) {
+            if (filter(func)) {
+                func.getFunction().accept(visitor);
+            }
+        }
+        
+        logDuration(System.currentTimeMillis() - time, "Collection of function calls finished in ");
+        
+        // Compute and report all results
+        for (CodeFunction func : functions) {
+            if (filter(func)) {
+                double result = computeResult(visitor, func);
+                if (Double.isNaN(result)) {
+                    return;
+                }
+                
+                Function functionAST = func.getFunction();
+                File cFile = func.getSourceFile().getPath();
+                File includedFile = cFile.equals(functionAST.getSourceFile()) ? null : functionAST.getSourceFile();
+                addResult(new MetricResult(cFile, includedFile, functionAST.getLineStart(), func.getName(), result));
+            }
+        }
+        
+        logDuration(System.currentTimeMillis() - time, "Analysis of ", getResultName(), " finished in ");
     }
 }
