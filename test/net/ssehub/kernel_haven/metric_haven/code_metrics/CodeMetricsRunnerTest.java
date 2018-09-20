@@ -45,7 +45,8 @@ public class CodeMetricsRunnerTest {
                 new TestConfiguration(new Properties()), new CodeFunction[] {f1});
         
         assertThat(result.size(), is(1));
-        assertThat(result.get(0).getMetrics(), is(new String[] {"LoC No weight", "LoF No weight", "PLoF No weight"}));
+        assertThat(result.get(0).getMetrics(), is(new String[] {
+            "LoC (No weight)", "LoF (No weight)", "PLoF (No weight)"}));
         assertThat(result.get(0).getValues(), is(new Double[] {14.0, 0.0, 0.0}));
 
         assertThat(result.get(0).getMeasuredItem().getElement(), is("simpleFunction"));
