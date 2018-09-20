@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -65,24 +66,9 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
         MT... settings) throws SetUpException {
         
         // Access constructor
-        boolean useVariabilityWeights = (null != sdSplitter);
-        Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
-        try {
-            metricConstructor = determineConstructor(metric, useVariabilityWeights);
-        } catch (NoSuchMethodException e) {
-            /* 
-             * Fall back, if SD splitter is passed to this method,
-             * but metric does not support variability weights.
-             */
-            try {
-                metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
-                useVariabilityWeights = false;
-            } catch (NoSuchMethodException e1) {
-                throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
-            } catch (SecurityException e1) {
-                throw new SetUpException("Was not allowed to create instance of " + metric.getName() + "-metric.", e);
-            }
-        }
+        AtomicBoolean useVariabilityWeights = new AtomicBoolean(null != sdSplitter);
+        Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor
+            = determineConstructor(metric, useVariabilityWeights);
         
         // Abort if constructor could not be accessed
         if (null == metricConstructor) {
@@ -96,7 +82,7 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
             config.setValue(setting, individualSetting);
             try {
                 // Instantiate metric
-                if (!useVariabilityWeights) {
+                if (!useVariabilityWeights.get()) {
                     AbstractFunctionVisitorBasedMetric<?> metricInstance = metricConstructor.newInstance(config,
                         filteredFunctionSplitter.createOutputComponent());
                     
@@ -133,24 +119,9 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
         List<@NonNull AnalysisComponent<MetricResult>> metrics) throws SetUpException {
         
         // Access constructor
-        boolean useVariabilityWeights = (null != sdSplitter);
-        Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
-        try {
-            metricConstructor = determineConstructor(metric, useVariabilityWeights);
-        } catch (NoSuchMethodException e) {
-            /* 
-             * Fall back, if SD splitter is passed to this method,
-             * but metric does not support variability weights.
-             */
-            try {
-                metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
-                useVariabilityWeights = false;
-            } catch (NoSuchMethodException e1) {
-                throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", e);
-            } catch (SecurityException e1) {
-                throw new SetUpException("Was not allowed to create instance of " + metric.getName() + "-metric.", e);
-            }
-        }
+        AtomicBoolean useVariabilityWeights = new AtomicBoolean(null != sdSplitter);
+        Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor
+            = determineConstructor(metric, useVariabilityWeights);
         
         // Abort if constructor could not be accessed
         if (null == metricConstructor) {
@@ -160,7 +131,7 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
         // Run all metric instances with correct constructor
         try {
             // Instantiate metric
-            if (!useVariabilityWeights) {
+            if (!useVariabilityWeights.get()) {
                 AbstractFunctionVisitorBasedMetric<?> metricInstance = metricConstructor.newInstance(config,
                     functionSplitter.createOutputComponent());
                 
@@ -185,7 +156,8 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
      * @param metric The metric class for which a constructor shall be retrieved.
      * @param useVariabilityWeights If <tt>true</tt> the constructor is used allowing to specify components required
      *     for variability weights, otherwise the constructor using a {@link Configuration} and one processing unit for
-     *     {@link CodeFunction}s is used.
+     *     {@link CodeFunction}s is used. May be changed as side effect if set to <tt>true</tt> but the required
+     *     constructor could not be retrieved.
      * 
      * @return A constructor to use, won't be <tt>null</tt>.
      * @throws SetUpException If the constructor could not be created.
@@ -193,12 +165,12 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
      *     without variability weights.
      */
     private Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> determineConstructor(
-        Class<? extends AbstractFunctionVisitorBasedMetric<?>> metric, boolean useVariabilityWeights)
-        throws SetUpException, NoSuchMethodException {
+        Class<? extends AbstractFunctionVisitorBasedMetric<?>> metric, AtomicBoolean useVariabilityWeights)
+        throws SetUpException {
         
         Constructor<? extends AbstractFunctionVisitorBasedMetric<?>> metricConstructor = null;
         try {
-            if (!useVariabilityWeights) {
+            if (!useVariabilityWeights.get()) {
                 // Default constructor
                 try {
                     metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
@@ -207,8 +179,24 @@ abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
                 }
             } else {
                 // Constructor with VarModel, BuildModel, and Scattering Degree container
-                metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
-                    AnalysisComponent.class, AnalysisComponent.class, AnalysisComponent.class);
+                try {
+                    metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class,
+                        AnalysisComponent.class, AnalysisComponent.class, AnalysisComponent.class);
+                } catch (NoSuchMethodException exc) {
+                    /* 
+                     * Fall back, if SD splitter is passed to this method,
+                     * but metric does not support variability weights.
+                     */
+                    try {
+                        metricConstructor = metric.getConstructor(Configuration.class, AnalysisComponent.class);
+                        useVariabilityWeights.set(false);
+                    } catch (NoSuchMethodException e1) {
+                        throw new SetUpException("Could not create instance of " + metric.getName() + "-metric.", exc);
+                    } catch (SecurityException e1) {
+                        throw new SetUpException("Was not allowed to create instance of " + metric.getName()
+                            + "-metric.", exc);
+                    }
+                }
             }
         } catch (SecurityException e) {
             throw new SetUpException("Was not allowed to create instance of " + metric.getName() + "-metric.", e);
