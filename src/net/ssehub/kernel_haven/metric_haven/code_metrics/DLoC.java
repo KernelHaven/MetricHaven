@@ -60,7 +60,7 @@ class DLoC extends AbstractFunctionMetric<LoCVisitor> {
             result = functionVisitor.getPLoF();
             break;
         default:
-            LOGGER.logError("Unsupported value setting for ", getClass().getName(), "-alysis: ",
+            LOGGER.logError("Unsupported value setting for ", getClass().getName(), "-analysis: ",
                 net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LOC_TYPE_SETTING.getKey(),
                 "=", type.name());
             result = null;
