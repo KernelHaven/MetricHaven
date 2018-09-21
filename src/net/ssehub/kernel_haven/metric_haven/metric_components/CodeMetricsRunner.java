@@ -106,7 +106,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             }
         }
         
-        this.resultName = " AllCodeFunctions";
+        this.resultName = "AllCodeFunctions";
         
         String[] metrics = new String[allMetrics.size()];
         int metricsIndex = 0;
@@ -136,7 +136,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
 
     @Override
     public @NonNull String getResultName() {
-        return resultName;
+        return "AllCodeFunctions";
     }
 
 }
