@@ -172,7 +172,7 @@ public class MetricFactory {
         return createAllVariations(null, null, DLoC.class, NoWeight.INSTANCE);
     }
     
-    public @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllVariations(@NonNull VariabilityModel vm,
+    public static @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllVariations(@NonNull VariabilityModel vm,
         @NonNull BuildModel bm, @NonNull ScatteringDegreeContainer sdContainer) throws SetUpException {
         
         List<@NonNull AbstractFunctionMetric<?>> result = new ArrayList<>();

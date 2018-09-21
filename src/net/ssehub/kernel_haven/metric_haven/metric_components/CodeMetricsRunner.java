@@ -8,14 +8,17 @@ import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
  * A processing unit for executing metrics.
@@ -35,6 +38,9 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics;
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent;
+    private @NonNull AnalysisComponent<VariabilityModel> varModelComponent;
+    private @NonNull AnalysisComponent<BuildModel> bmComponent;
+    private @NonNull AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     
     private @NonNull String resultName;
     
@@ -47,24 +53,39 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @throws SetUpException If creating the metric instances fails.
      */
     public CodeMetricsRunner(@NonNull Configuration config,
-            @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent) throws SetUpException {
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
+        @NonNull AnalysisComponent<VariabilityModel> varModelComponent,
+        @NonNull AnalysisComponent<BuildModel> bmComponent,
+        @NonNull AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        
         super(config);
         
         this.codeFunctionComponent = codeFunctionComponent;
+        this.varModelComponent = varModelComponent;
+        this.bmComponent = bmComponent;
+        this.sdComponent = sdComponent;
         
-        allMetrics = new ArrayList<>();
-        
-        MetricFactory factory = new MetricFactory();
-//        for (Class<? extends AbstractFunctionMetric<?>> metricType : METRICS_TO_CREATE) {
-//            allMetrics.addAll(factory.createAllVariations(metricType));
-//        }
-        allMetrics.addAll(factory.createAllDLoCVariations());
-        
-        this.resultName = METRICS_TO_CREATE.size() + " Metrics in " + allMetrics.size() + " Variations";
     }
 
     @Override
     protected void execute() {
+        VariabilityModel varModel = varModelComponent.getNextResult();
+        BuildModel bm = bmComponent.getNextResult();
+        ScatteringDegreeContainer sdContainer = sdComponent.getNextResult();
+        
+        if (null == varModel || bm == null || null == sdContainer) {
+            LOGGER.logError("Something was null, could not create weights: ");
+            return;
+        }
+        try {
+            allMetrics = MetricFactory.createAllVariations(varModel, bm , sdContainer);
+        } catch (SetUpException e) {
+            LOGGER.logException("Could not create instances", e);
+            return;
+        }
+        
+        this.resultName = METRICS_TO_CREATE.size() + " Metrics in " + allMetrics.size() + " Variations";
+        
         String[] metrics = new String[allMetrics.size()];
         int metricsIndex = 0;
         for (AbstractFunctionMetric<?> metric : allMetrics) {
