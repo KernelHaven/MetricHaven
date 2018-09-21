@@ -9,6 +9,8 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
@@ -26,6 +28,10 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author Adam
  */
 public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
+    
+    public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
+        Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
+            + "executed in parallel.");
 
     // TODO: read from setting
     private static final List<@NonNull Class<? extends AbstractFunctionMetric<?>>> METRICS_TO_CREATE;
@@ -43,6 +49,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     
     private @NonNull String resultName;
+    private int nThreads;
     
     /**
      * Creates this processing unit.
