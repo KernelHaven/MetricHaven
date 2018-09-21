@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.TanglingVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -26,6 +27,7 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
     TanglingDegree(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
         @NonNull IVariableWeight weight) {
         super(varModel, buildModel, weight);
+        // Always all weights are supported
     }
 
     @Override
@@ -36,7 +38,7 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
     }
 
     @Override
-    protected Number computeResult(@NonNull TanglingVisitor functionVisitor) {
+    protected Number computeResult(@NonNull TanglingVisitor functionVisitor, CodeFunction func) {
         return functionVisitor.getResult();
     }
 

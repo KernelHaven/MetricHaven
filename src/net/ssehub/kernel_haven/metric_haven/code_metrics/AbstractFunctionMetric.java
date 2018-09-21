@@ -50,7 +50,7 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
     public Number compute(CodeFunction func) {
         functionVisitor.reset();
         func.getFunction().accept(functionVisitor);
-        return computeResult(functionVisitor);
+        return computeResult(functionVisitor, func);
     }
 
     /**
@@ -72,7 +72,7 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      * @return The value to be returned by {@link #compute(CodeFunction)}, or <tt>null</tt> if no valid value could be
      *     computed (should not happen).
      */
-    protected abstract Number computeResult(@NonNull V functionVisitor);
+    protected abstract Number computeResult(@NonNull V functionVisitor, CodeFunction func);
     
     /**
      * The name of this metric (including the variation).
@@ -80,6 +80,10 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      * @return The name of this metric.
      */
     public abstract @NonNull String getMetricName();
+    
+    protected @NonNull IVariableWeight getWeight() {
+        return weight;
+    }
     
     /**
      * The name to display to users for the output of this component. For example, this will be used to name the

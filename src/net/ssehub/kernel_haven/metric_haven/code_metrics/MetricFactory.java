@@ -33,6 +33,7 @@ public class MetricFactory {
     static {
         List<@NonNull Class<? extends AbstractFunctionMetric<?>>> tmpList = new ArrayList<>();
         tmpList.add(DLoC.class);
+        tmpList.add(VariablesPerFunctionMetric.class);
         tmpList.add(TanglingDegree.class);
         
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);

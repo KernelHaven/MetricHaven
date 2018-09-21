@@ -8,6 +8,7 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.UsedVariabilityVarsVisitor;
@@ -25,20 +26,12 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetric<UsedVariabilityVarsVisitor> {
 
-    /**
-     * Specification which kind of variables shall be measured.
-     * @author El-Sharkawy
-     *
-     */
-    public static enum VarType {
-        INTERNAL,
-        EXTERNAL, EXTERNAL_WITH_BUILD_VARS,
-        ALL, ALL_WITH_BUILD_VARS;
-    }
-    
-    public static final @NonNull Setting<@NonNull VarType> VARIABLE_TYPE_SETTING
-        = new EnumSetting<>("metric.variables_per_function.measured_variables_type", VarType.class, true, 
-                VarType.ALL, "Defines which variables should be counted for a function.");
+    public static final @NonNull Setting<
+        net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunctionMetric.VarType> VARIABLE_TYPE_SETTING
+            = new EnumSetting<>("metric.variables_per_function.measured_variables_type",
+            net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunctionMetric.VarType.class, true, 
+            net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunctionMetric.VarType.ALL,
+            "Defines which variables should be counted for a function.");
     
     
     private @NonNull VarType measuredVars;

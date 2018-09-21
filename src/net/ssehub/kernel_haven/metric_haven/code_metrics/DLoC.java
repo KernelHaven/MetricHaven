@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -60,7 +61,7 @@ public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
     }
 
     @Override
-    protected Number computeResult(@NonNull LoCVisitor functionVisitor) {
+    protected Number computeResult(@NonNull LoCVisitor functionVisitor, CodeFunction func) {
         Number result;
         switch(type) {
         case DLOC:
