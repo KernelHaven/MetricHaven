@@ -2,7 +2,6 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +17,7 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
@@ -38,9 +38,9 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics;
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent;
-    private @NonNull AnalysisComponent<VariabilityModel> varModelComponent;
-    private @NonNull AnalysisComponent<BuildModel> bmComponent;
-    private @NonNull AnalysisComponent<ScatteringDegreeContainer> sdComponent;
+    private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
+    private @Nullable AnalysisComponent<BuildModel> bmComponent;
+    private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     
     private @NonNull String resultName;
     
@@ -53,10 +53,25 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @throws SetUpException If creating the metric instances fails.
      */
     public CodeMetricsRunner(@NonNull Configuration config,
+            @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent) throws SetUpException {
+        
+        this(config, codeFunctionComponent, null, null, null);
+        
+    }
+    
+    /**
+     * Creates this processing unit.
+     * 
+     * @param config The pipeline configuration.
+     * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
+     * 
+     * @throws SetUpException If creating the metric instances fails.
+     */
+    public CodeMetricsRunner(@NonNull Configuration config,
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
-        @NonNull AnalysisComponent<VariabilityModel> varModelComponent,
-        @NonNull AnalysisComponent<BuildModel> bmComponent,
-        @NonNull AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<BuildModel> bmComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
         
         super(config);
         
@@ -69,19 +84,26 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
 
     @Override
     protected void execute() {
-        VariabilityModel varModel = varModelComponent.getNextResult();
-        BuildModel bm = bmComponent.getNextResult();
-        ScatteringDegreeContainer sdContainer = sdComponent.getNextResult();
+        VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
+        BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
+        ScatteringDegreeContainer sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
         
         if (null == varModel || bm == null || null == sdContainer) {
             LOGGER.logError("Something was null, could not create weights: ");
-            return;
-        }
-        try {
-            allMetrics = MetricFactory.createAllVariations(varModel, bm , sdContainer);
-        } catch (SetUpException e) {
-            LOGGER.logException("Could not create instances", e);
-            return;
+            MetricFactory factory = new MetricFactory();
+            try {
+                allMetrics = factory.createAllDLoCVariations();
+            } catch (SetUpException e) {
+                LOGGER.logException("Could not create instances", e);
+                return;
+            }
+        } else {
+            try {
+                allMetrics = MetricFactory.createAllVariations(varModel, bm , sdContainer);
+            } catch (SetUpException e) {
+                LOGGER.logException("Could not create instances", e);
+                return;
+            }
         }
         
         this.resultName = METRICS_TO_CREATE.size() + " Metrics in " + allMetrics.size() + " Variations";
