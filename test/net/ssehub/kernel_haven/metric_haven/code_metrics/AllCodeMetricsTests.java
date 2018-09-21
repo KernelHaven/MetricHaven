@@ -11,8 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    CodeMetricsRunnerTest.class,
-})
+    CodeMetricsRunnerTest.class})
 public class AllCodeMetricsTests {
 
 }

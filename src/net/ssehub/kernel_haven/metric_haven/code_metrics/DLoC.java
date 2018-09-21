@@ -1,7 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
-import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -16,7 +16,16 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-class DLoC extends AbstractFunctionMetric<LoCVisitor> {
+public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
+
+    /**
+     * Specification which kind of LoC-metric shall be measured.
+     * @author El-Sharkawy
+     *
+     */
+    public static enum LoFType {
+        DLOC, LOF, PLOF;
+    }
 
     private @NonNull LoFType type;
     
@@ -25,15 +34,17 @@ class DLoC extends AbstractFunctionMetric<LoCVisitor> {
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
      *     model is involved in {@link CppBlock#getCondition()} expressions.
      * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
+     * @param buildModel May be <tt>null</tt> as it is not used by this metric.
      * @param type Specifies whether to measure only classical LoC, feature LoC, or the fraction of both.
      * @throws UnsupportedMetricVariationException In case that not {@link NoWeight} was used (this metric does not
      *     support any weights).
      */
-    DLoC(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight, @NonNull LoFType type)
-        throws UnsupportedMetricVariationException {
+    @PreferedConstructor
+    DLoC(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel, @NonNull IVariableWeight weight,
+        @NonNull LoFType type) throws UnsupportedMetricVariationException {
         
-        super(varModel, weight);
-        this.type = type;
+        super(varModel, buildModel, weight);
+        this.type = type;            
         
         if (weight != NoWeight.INSTANCE) {
             throw new UnsupportedMetricVariationException(getClass(), weight);
@@ -41,7 +52,9 @@ class DLoC extends AbstractFunctionMetric<LoCVisitor> {
     }
 
     @Override
-    protected @NonNull LoCVisitor createVisitor(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight) {
+    protected @NonNull LoCVisitor createVisitor(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
+        @NonNull IVariableWeight weight) {
+        
         // DLoC does not consider any IVariableWeights
         return new LoCVisitor(varModel);
     }

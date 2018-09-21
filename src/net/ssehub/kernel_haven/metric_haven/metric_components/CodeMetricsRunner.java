@@ -1,4 +1,4 @@
-package net.ssehub.kernel_haven.metric_haven.code_metrics;
+package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
@@ -9,6 +9,9 @@ import java.util.List;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
@@ -71,8 +74,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         CodeFunction function;
         while ((function = codeFunctionComponent.getNextResult()) != null) {
-            LOGGER.logDebug("Running for function " + function.getName() + " at " + function.getSourceFile()
-                   + ":" + function.getFunction().getLineStart());
+            LOGGER.logDebug2("Running for function ", function.getName(), " at ", function.getSourceFile(),
+                   ":", function.getFunction().getLineStart());
             
             int valuesIndex = 0;
             for (AbstractFunctionMetric<?> metric : allMetrics) {

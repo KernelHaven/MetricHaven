@@ -5,6 +5,7 @@ import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -19,25 +20,21 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
     
-    /**
-     * Specification which kind of LoC-metric shall be measured.
-     * @author El-Sharkawy
-     *
-     */
-    public static enum LoFType {
-        DLOC, LOF, PLOF;
-    }
-    
-    public static final @NonNull Setting<@NonNull LoFType> LOC_TYPE_SETTING
-        = new EnumSetting<>("metric.loc.measured_type", LoFType.class, true, 
-            LoFType.DLOC, "Defines which lines of code should be counted for a function:\n"
-                + " - " + LoFType.DLOC.name() + ": Counts all statements, i.e., all delivered Lines of Code\n"
+    public static final @NonNull Setting<net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType>
+        LOC_TYPE_SETTING = new EnumSetting<>("metric.loc.measured_type",
+            net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType.class, true, 
+                net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType.DLOC,
+                "Defines which lines of code should be counted for a function:\n"
+                + " - " + net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType.DLOC.name()
+                + ": Counts all statements, i.e., all delivered Lines of Code\n"
                 + "   (dLoC).\n"
-                + " - " + LoFType.LOF.name() + ": Counts all variable statements, sometimes refereed to as Lines\n"
+                + " - " + net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType.LOF.name()
+                + ": Counts all variable statements, sometimes refereed to as Lines\n"
                 + "   of Feature code (LoF).\n"
-                + " - " + LoFType.PLOF.name() + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
+                + " - " + net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType.PLOF.name()
+                + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
     
-    private @NonNull LoFType type;
+    private net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType type;
     
     /**
      * Creates this metric.

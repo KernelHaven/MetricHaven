@@ -17,7 +17,6 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctio
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.VariabilityCounter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric.NDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.VariablesPerFunctionMetric.VarType;
@@ -114,7 +113,8 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         unregisterVariabilityWeights();
         
         // All dLoC per Function metrics
-        addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics, LoFType.values());
+        addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, filteredFunctionSplitter, null, metrics,
+            net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType.values());
         
         // All internal ifdef block metrics
         addMetric(BlocksPerFunctionMetric.class, BlocksPerFunctionMetric.BLOCK_TYPE_SETTING, filteredFunctionSplitter,

@@ -14,6 +14,7 @@ import net.ssehub.kernel_haven.code_model.ast.AllAstTests;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.test_utils.AnalysisComponentExecuter;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
@@ -46,7 +47,7 @@ public class CodeMetricsRunnerTest {
         
         assertThat(result.size(), is(1));
         assertThat(result.get(0).getMetrics(), is(new String[] {
-            "LoC (No weight)", "LoF (No weight)", "PLoF (No weight)"}));
+            "LoC", "LoF", "PLoF"}));
         assertThat(result.get(0).getValues(), is(new Double[] {14.0, 0.0, 0.0}));
 
         assertThat(result.get(0).getMeasuredItem().getElement(), is("simpleFunction"));

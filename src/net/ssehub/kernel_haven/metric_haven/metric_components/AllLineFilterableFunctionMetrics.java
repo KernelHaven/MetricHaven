@@ -13,7 +13,6 @@ import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
-import net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric.NDType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
@@ -57,7 +56,8 @@ public class AllLineFilterableFunctionMetrics extends AbstractMultiFunctionMetri
         @NonNull List<@NonNull AnalysisComponent<MetricResult>> metrics = new LinkedList<>();
         
         // All dLoC per Function metrics
-        addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, functionSplitter, null, metrics, LoFType.values());
+        addMetric(DLoC.class, DLoC.LOC_TYPE_SETTING, functionSplitter, null, metrics,
+            net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType.values());
         
         // All Nesting Depth metrics
         addMetric(NestingDepthMetric.class, NestingDepthMetric.ND_TYPE_SETTING, functionSplitter, null, metrics,

@@ -1,9 +1,11 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -29,11 +31,14 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      * Sole constructor, to create a new code function metric. Creates also an appropriate function visitor.
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
      *     model is involved in {@link CppBlock#getCondition()} expressions.
+     * @param buildModel Some metrics require a build model, for others this may be <tt>null</tt>.
      * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
      */
-    AbstractFunctionMetric(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight) {
+    AbstractFunctionMetric(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
+        @NonNull IVariableWeight weight) {
+        
         this.weight = weight;
-        functionVisitor = createVisitor(varModel, weight);
+        functionVisitor = createVisitor(varModel, buildModel, weight);
     }
     
     /**
@@ -53,10 +58,12 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
      *     model is involved in {@link CppBlock#getCondition()} expressions.
      * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
+     * @param buildModel Some metrics require a build model, for others this may be <tt>null</tt>.
      * 
      * @return The visitor to be used by the metric.
      */
-    protected abstract @NonNull V createVisitor(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight);
+    protected abstract @NonNull V createVisitor(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
+        @NonNull IVariableWeight weight);
     
     /**
      * Collects the measured value and may performs a post processing of the values.
@@ -81,7 +88,9 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      * @return The name describing the output of this component.
      */
     public final @NonNull String getResultName() {
-        return getMetricName() + " (" + weight.getName() + ")";
+        return (weight != NoWeight.INSTANCE)
+            ? getMetricName() + " x " + weight.getName()
+            : getMetricName();
     }
 
 }
