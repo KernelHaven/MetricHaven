@@ -106,7 +106,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             }
         }
         
-        this.resultName = METRICS_TO_CREATE.size() + " Metrics in " + allMetrics.size() + " Variations";
+        this.resultName = " AllCodeFunctions";
         
         String[] metrics = new String[allMetrics.size()];
         int metricsIndex = 0;
