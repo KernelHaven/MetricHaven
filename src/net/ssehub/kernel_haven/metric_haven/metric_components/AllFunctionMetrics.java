@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric.BlockMeasureType;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -19,7 +20,6 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLine
 import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.VariabilityCounter;
-import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -94,7 +94,7 @@ public class AllFunctionMetrics extends AbstractMultiFunctionMetrics {
         
         // All Cyclomatic complexity metrics
         addMetric(CyclomaticComplexityMetric.class, CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING,
-            filteredFunctionSplitter, sdSplitter, metrics, CCType.values());
+            filteredFunctionSplitter, sdSplitter, metrics, CyclomaticComplexity.CCType.values());
 
         // All Variables per Function metrics
         addMetric(VariablesPerFunctionMetric.class, VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING,

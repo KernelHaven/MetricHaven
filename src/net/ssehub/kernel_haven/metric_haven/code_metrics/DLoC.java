@@ -34,9 +34,10 @@ public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
      * Creates a new DLoC metric, which can also be created by the {@link MetricFactory}.
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
      *     model is involved in {@link CppBlock#getCondition()} expressions.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
      * @param buildModel May be <tt>null</tt> as it is not used by this metric.
+     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
      * @param type Specifies whether to measure only classical LoC, feature LoC, or the fraction of both.
+     * 
      * @throws UnsupportedMetricVariationException In case that not {@link NoWeight} was used (this metric does not
      *     support any weights).
      */

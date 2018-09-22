@@ -10,13 +10,13 @@ import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunctionMetric.VarType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.VariabilityCounter;
-import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
@@ -80,7 +80,7 @@ public class AllNonLineFilterableFunctionMetrics extends AbstractMultiFunctionMe
         
         // All Cyclomatic complexity metrics
         addMetric(CyclomaticComplexityMetric.class, CyclomaticComplexityMetric.VARIABLE_TYPE_SETTING,
-            functionSplitter, sdSplitter, metrics, CCType.values());
+            functionSplitter, sdSplitter, metrics, CyclomaticComplexity.CCType.values());
         
         // All Variables per Function metrics
         addMetric(VariablesPerFunctionMetric.class, VariablesPerFunctionMetric.VARIABLE_TYPE_SETTING,

@@ -7,6 +7,8 @@ import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity.CCType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.McCabeVisitor;
@@ -28,15 +30,6 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author Adam
  */
 public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetric<McCabeVisitor> {
-    
-    /**
-     * Specification which kind of Cyclomatic Complexity shall be measured.
-     * @author El-Sharkawy
-     *
-     */
-    public static enum CCType {
-        MCCABE, VARIATION_POINTS, ALL;
-    }
     
     public static final @NonNull Setting<@NonNull CCType> VARIABLE_TYPE_SETTING
         = new EnumSetting<>("metric.cyclomatic_complexity.measured_type", CCType.class, true, 
@@ -64,6 +57,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
      *     {@link CCType#VARIATION_POINTS} and {@link CCType#ALL} will check if at least one variable of the variability
      *     model is involved in {@link net.ssehub.kernel_haven.code_model.ast.CppBlock#getCondition()} expressions to
      *     treat a {@link CppBlock} as variation point.
+     * 
      * @throws SetUpException In case of problems with the configuration of {@link #VARIABLE_TYPE_SETTING}.
      */
     public CyclomaticComplexityMetric(@NonNull Configuration config,
@@ -119,7 +113,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
         config.registerSetting(VARIABLE_TYPE_SETTING);
         measuredCode = config.getValue(VARIABLE_TYPE_SETTING);
         
-        checkVariabilityWeights(measuredCode != CCType.MCCABE, measuredCode);
+        checkVariabilityWeights(measuredCode != CyclomaticComplexity.CCType.MCCABE, measuredCode);
     }
 
     @Override
@@ -146,7 +140,7 @@ public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetr
 
     @Override
     protected @NonNull McCabeVisitor createVisitor(@Nullable VariabilityModel varModel) {
-        return (measuredCode == CCType.MCCABE) ? new McCabeVisitor(varModel)
+        return (measuredCode == CyclomaticComplexity.CCType.MCCABE) ? new McCabeVisitor(varModel)
             // getWeighter won't be null when the visitor is created
             : new McCabeVisitor(varModel, NullHelpers.notNull(getWeighter()));
     }

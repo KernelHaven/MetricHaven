@@ -3,8 +3,10 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.NestingDepthVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -66,14 +68,20 @@ public class NestingDepth extends AbstractFunctionMetric<NestingDepthVisitor> {
      * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
      * @param buildModel May be <tt>null</tt> as it is not used by this metric.
      * @param type Specifies whether to measure only classical/variation point nesting depth, or the fraction of both.
+     * @throws UnsupportedMetricVariationException In case that classical code structures shall be measured and a
+     *     different {@link IVariableWeight} was specified than {@link NoWeight#INSTANCE}.
      */
     @PreferedConstructor
     NestingDepth(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-        @NonNull IVariableWeight weight, @NonNull NDType type) {
+        @NonNull IVariableWeight weight, @NonNull NDType type) throws UnsupportedMetricVariationException {
         
         super(varModel, buildModel, weight);
         this.type = type;
 
+        if (!type.isVariabilityMetric && weight != NoWeight.INSTANCE) {
+            throw new UnsupportedMetricVariationException(getClass(), weight);
+        }
+        
         init();
     }
 

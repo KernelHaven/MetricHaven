@@ -14,8 +14,8 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.TestCaseGenerator;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
-import net.ssehub.kernel_haven.metric_haven.metric_components.CyclomaticComplexityMetric.CCType;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 
 /**
@@ -31,7 +31,7 @@ public class CyclomaticComplexityMetricTest {
     @Test
     public void testClassicalMcCabe() {
         Function testFunction = TestCaseGenerator.cyclomaticFunction();
-        double mcCabe = runMetricOnFunction(testFunction, CCType.MCCABE);
+        double mcCabe = runMetricOnFunction(testFunction, CyclomaticComplexity.CCType.MCCABE);
         
         Assert.assertEquals(4, (int) mcCabe);
     }
@@ -42,7 +42,7 @@ public class CyclomaticComplexityMetricTest {
     @Test
     public void testVPMcCabe() {
         Function testFunction = TestCaseGenerator.cyclomaticFunction();
-        double mcCabe = runMetricOnFunction(testFunction, CCType.VARIATION_POINTS);
+        double mcCabe = runMetricOnFunction(testFunction, CyclomaticComplexity.CCType.VARIATION_POINTS);
         
         Assert.assertEquals(2, (int) mcCabe);
     }
@@ -53,7 +53,7 @@ public class CyclomaticComplexityMetricTest {
     @Test
     public void testCombinedMcCabe() {
         Function testFunction = TestCaseGenerator.cyclomaticFunction();
-        double mcCabe = runMetricOnFunction(testFunction, CCType.ALL);
+        double mcCabe = runMetricOnFunction(testFunction, CyclomaticComplexity.CCType.ALL);
         
         Assert.assertEquals(6, (int) mcCabe);
     }
@@ -64,7 +64,7 @@ public class CyclomaticComplexityMetricTest {
      * @param type Specifies, which kind of code type should be used to measure the cyclomatic complexity.
      * @return The result of the Metric
      */
-    private double runMetricOnFunction(Function testFunc, CCType type) {
+    private double runMetricOnFunction(Function testFunc, CyclomaticComplexity.CCType type) {
         MetricResult result = null;
         try {
             // Configuration
