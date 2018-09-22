@@ -50,6 +50,8 @@ public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
         if (weight != NoWeight.INSTANCE) {
             throw new UnsupportedMetricVariationException(getClass(), weight);
         }
+        
+        init();
     }
 
     @Override

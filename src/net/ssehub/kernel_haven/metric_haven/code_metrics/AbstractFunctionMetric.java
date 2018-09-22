@@ -27,6 +27,9 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
     
     private @NonNull IVariableWeight weight;
     
+    private @Nullable VariabilityModel varModel;
+    private@Nullable BuildModel buildModel;
+    
     /**
      * Sole constructor, to create a new code function metric. Creates also an appropriate function visitor.
      * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
@@ -38,7 +41,15 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
         @NonNull IVariableWeight weight) {
         
         this.weight = weight;
-        functionVisitor = createVisitor(varModel, buildModel, weight);
+        this.varModel = varModel;
+        this.buildModel = buildModel;
+    }
+    
+    /**
+     * Initializes this metric. Needs to be called at the end of constructors of inherited classes.
+     */
+    protected void init() {
+        functionVisitor = createVisitor(varModel, buildModel, weight);        
     }
     
     /**

@@ -73,6 +73,8 @@ public class NestingDepth extends AbstractFunctionMetric<NestingDepthVisitor> {
         
         super(varModel, buildModel, weight);
         this.type = type;
+
+        init();
     }
 
     @Override

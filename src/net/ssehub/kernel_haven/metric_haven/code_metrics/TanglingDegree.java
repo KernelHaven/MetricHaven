@@ -28,6 +28,8 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
         @NonNull IVariableWeight weight) {
         super(varModel, buildModel, weight);
         // Always all weights are supported
+
+        init();
     }
 
     @Override

@@ -39,6 +39,8 @@ public class VariablesPerFunctionMetric extends AbstractFunctionMetric<UsedVaria
         super(varModel, buildModel, weight);
         this.measuredVars = measuredVars;
         // Always all weights are supported
+
+        init();
     }
 
     @Override
