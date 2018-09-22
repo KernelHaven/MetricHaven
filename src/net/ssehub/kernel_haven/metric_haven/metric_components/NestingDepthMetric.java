@@ -6,6 +6,8 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.NestingDepthVisitor;
@@ -30,27 +32,6 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<NestingDepthVisitor> {
     
-    /**
-     * Specification which kind of LoC-metric shall be measured.
-     * @author El-Sharkawy
-     *
-     */
-    public static enum NDType {
-        CLASSIC_ND_MAX(false), CLASSIC_ND_AVG(false),
-        VP_ND_MAX(true), VP_ND_AVG(true),
-        COMBINED_ND_MAX(true), COMBINED_ND_AVG(true);
-        
-        private boolean isVariabilityMetric;
-        
-        /**
-         * Private constructor to specify whether this enums denotes a metric operating on variability information.
-         * @param isVariabilityMetric <tt>true</tt> operates on variability, <tt>false</tt> classical code metric
-         */
-        private NDType(Boolean isVariabilityMetric) {
-            this.isVariabilityMetric = isVariabilityMetric;
-        }
-    }
-    
     public static final @NonNull Setting<@NonNull NDType> ND_TYPE_SETTING
         = new EnumSetting<>("metric.nesting_depth.measured_type", NDType.class, true, 
             NDType.CLASSIC_ND_MAX, "Defines what should be counteded as the nesting depth:\n"
@@ -63,7 +44,7 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
                 + " - " + NDType.VP_ND_AVG.name() + ": Counts the avg. nesting depth w.r.t variation points\n"
                 + "   (CPP-blocks).\n"
                 + " - " + NDType.COMBINED_ND_MAX.name() + ": " + NDType.CLASSIC_ND_MAX.name() + " + "
-                    + NDType.VP_ND_MAX.name() + "\n"
+                    + NestingDepth.NDType.VP_ND_MAX.name() + "\n"
                 + " - " + NDType.COMBINED_ND_AVG.name() + ": " + NDType.CLASSIC_ND_AVG.name() + " + "
                     + NDType.VP_ND_AVG.name());
     
@@ -144,7 +125,7 @@ public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<Nesti
         config.registerSetting(ND_TYPE_SETTING);
         type = config.getValue(ND_TYPE_SETTING);
         
-        checkVariabilityWeights(type.isVariabilityMetric, type);
+        checkVariabilityWeights(type.isVariabilityMetric(), type);
     }
     
     @Override

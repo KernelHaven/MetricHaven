@@ -52,7 +52,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private int nThreads;
     
     /**
-     * Creates this processing unit.
+     * Creates this processing unit for testing purpose only.
      * 
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
@@ -86,6 +86,13 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         this.varModelComponent = varModelComponent;
         this.bmComponent = bmComponent;
         this.sdComponent = sdComponent;
+        
+        try {
+            config.registerSetting(MAX_THREADS);
+            nThreads = config.getValue(MAX_THREADS);
+        } catch (SetUpException exc) {
+            LOGGER.logException("Could not load configuration setting " + MAX_THREADS.getKey(), exc);
+        }
         
     }
 

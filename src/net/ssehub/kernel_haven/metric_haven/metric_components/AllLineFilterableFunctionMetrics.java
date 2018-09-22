@@ -10,10 +10,11 @@ import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;
-import net.ssehub.kernel_haven.metric_haven.metric_components.NestingDepthMetric.NDType;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MetricsAggregator;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -61,7 +62,7 @@ public class AllLineFilterableFunctionMetrics extends AbstractMultiFunctionMetri
         
         // All Nesting Depth metrics
         addMetric(NestingDepthMetric.class, NestingDepthMetric.ND_TYPE_SETTING, functionSplitter, null, metrics,
-            NDType.values());
+            NestingDepth.NDType.values());
         
         // join the parallel metrics together
         @SuppressWarnings({ "null", "unchecked" })
