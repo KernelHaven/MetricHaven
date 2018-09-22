@@ -11,7 +11,6 @@ import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionFilter;

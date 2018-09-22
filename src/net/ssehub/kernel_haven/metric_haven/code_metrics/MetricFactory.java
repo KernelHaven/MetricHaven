@@ -34,7 +34,8 @@ public class MetricFactory {
         List<@NonNull Class<? extends AbstractFunctionMetric<?>>> tmpList = new ArrayList<>();
         tmpList.add(DLoC.class);
         tmpList.add(VariablesPerFunctionMetric.class);
-//        tmpList.add(NestingDepth.class);
+        tmpList.add(NestingDepth.class);
+        tmpList.add(BlocksPerFunctionMetric.class);
         tmpList.add(TanglingDegree.class);
         
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);
