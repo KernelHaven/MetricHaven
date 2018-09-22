@@ -29,9 +29,9 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     
-    public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
-        Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
-            + "executed in parallel.");
+//    public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
+//        Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
+//            + "executed in parallel.");
 
     // TODO: read from setting
     private static final List<@NonNull Class<? extends AbstractFunctionMetric<?>>> METRICS_TO_CREATE;
@@ -87,12 +87,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         this.bmComponent = bmComponent;
         this.sdComponent = sdComponent;
         
-        try {
-            config.registerSetting(MAX_THREADS);
-            nThreads = config.getValue(MAX_THREADS);
-        } catch (SetUpException exc) {
-            LOGGER.logException("Could not load configuration setting " + MAX_THREADS.getKey(), exc);
-        }
+//        try {
+//            config.registerSetting(MAX_THREADS);
+//            nThreads = config.getValue(MAX_THREADS);
+//        } catch (SetUpException exc) {
+//            LOGGER.logException("Could not load configuration setting " + MAX_THREADS.getKey(), exc);
+//        }
         
     }
 
