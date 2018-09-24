@@ -32,6 +32,14 @@ public class VariablesPerFunctionMetric extends AbstractFunctionMetric<UsedVaria
     
     private @NonNull VarType measuredVars;
 
+    /**
+     * Instantiates {@link VariabilityModel}-metric. 
+     * @param varModel The variability model to identify features.
+     * @param buildModel The build model if in case of external features also features from the build model
+     *     should be measured.
+     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
+     * @param measuredVars Specifies what kind of features should be measured.
+     */
     @PreferedConstructor
     VariablesPerFunctionMetric(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
         @NonNull IVariableWeight weight, @NonNull VarType measuredVars) {

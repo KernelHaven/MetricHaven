@@ -75,8 +75,18 @@ public class CachedWeightFactory {
             ? new FeatureDistanceWeight(varModel) : null;
     }
     
+    /**
+     * Creates a {@link TypeWeight} with the given {@link VariabilityModel} and specified <tt>typeWeights</tt>.
+     * @param varTypeWeightType Defines how to weight types.
+     * @param varModel The variability model to use, should not be <tt>null</tt>
+     *     unless {@link VariabilityTypeMeasureType#NO_TYPE_MEASURING} is passed to <tt>varTypeWeightType</tt>.
+     * @param typeWeights A 2-tuple specifying weight values for each type used in the variability model.
+     * 
+     * @return The {@link TypeWeight} or <tt>null</tt> in case that {@link VariabilityTypeMeasureType#NO_TYPE_MEASURING}
+     *     was specified.
+     */
     public static @Nullable TypeWeight createTypeWeight(@NonNull VariabilityTypeMeasureType varTypeWeightType,
-       @Nullable VariabilityModel varModel, @Nullable Map<String, Integer> typeWeights) {
+        @Nullable VariabilityModel varModel, @Nullable Map<String, Integer> typeWeights) {
         
         TypeWeight weight = null;
         if (varTypeWeightType != VariabilityTypeMeasureType.NO_TYPE_MEASURING && null != varModel
@@ -92,6 +102,19 @@ public class CachedWeightFactory {
         return weight;
     }
     
+    /**
+     * Creates a {@link HierarchyWeight} with the given {@link VariabilityModel} and specified
+     * <tt>hierarchyWeights</tt>.
+     * @param varHierarchyWeightType Defines how to weight hierarchies.
+     * @param varModel A variability model that contains information about feature hierarchies
+     *     ({@link Attribute#HIERARCHICAL}). Should not be <tt>null</tt>
+     *     unless {@link HierarchyType#NO_HIERARCHY_MEASURING} is passed to <tt>varHierarchyWeightType</tt>.
+     * @param hierarchyWeights A 2-tuple specifying weight values for each hierarchy type used in the variability model.
+     *      This must contain hierarchy values for <tt>top</tt>, <tt>intermediate</tt>, and <tt>leaf</tt>.
+     * 
+     * @return The {@link HierarchyWeight} or <tt>null</tt> in case that
+     *     {@link HierarchyType#NO_HIERARCHY_MEASURING} was specified.
+     */
     public static @Nullable HierarchyWeight createHierarchyWeight(@NonNull HierarchyType varHierarchyWeightType,
         @Nullable VariabilityModel varModel, @Nullable Map<String, Integer> hierarchyWeights) {
         
@@ -120,6 +143,14 @@ public class CachedWeightFactory {
         return weight;
     }
     
+    /**
+     * Creates a {@link StructuralWeight} with the specified {@link VariabilityModel}.
+     * @param structuralWeightType Defines which structures shall be used as weight.
+     * @param varModel The variability model to use.
+     * 
+     * @return The {@link StructuralWeight} or <tt>null</tt> in case that
+     *     {@link StructuralType#NO_STRUCTURAL_MEASUREMENT} was specified.
+     */
     public static @Nullable StructuralWeight createStructuralWeight(@NonNull StructuralType structuralWeightType,
         @Nullable VariabilityModel varModel) {
             

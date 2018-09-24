@@ -14,6 +14,8 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -69,14 +71,17 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * 
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
+     * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
      * 
      * @throws SetUpException If creating the metric instances fails.
      */
     public CodeMetricsRunner(@NonNull Configuration config,
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
-        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
-        @Nullable AnalysisComponent<BuildModel> bmComponent,
-        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        @NonNull AnalysisComponent<VariabilityModel> varModelComponent,
+        @NonNull AnalysisComponent<BuildModel> bmComponent,
+        @NonNull AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
         
         super(config);
         
@@ -100,22 +105,17 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         ScatteringDegreeContainer sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
         
-        if (null == varModel || bm == null || null == sdContainer) {
-            LOGGER.logError("Something was null, could not create weights: ");
-            MetricFactory factory = new MetricFactory();
-            try {
+        try {
+            if (null == varModel || bm == null || null == sdContainer) {
+                LOGGER.logError("Something was null, could not create weights: ");
+                MetricFactory factory = new MetricFactory();
                 allMetrics = factory.createAllDLoCVariations();
-            } catch (SetUpException e) {
-                LOGGER.logException("Could not create instances", e);
-                return;
-            }
-        } else {
-            try {
+            } else {
                 allMetrics = MetricFactory.createAllVariations(varModel, bm , sdContainer);
-            } catch (SetUpException e) {
-                LOGGER.logException("Could not create instances", e);
-                return;
             }
+        } catch (SetUpException e) {
+            LOGGER.logException("Could not create instances", e);
+            return;
         }
         
         this.resultName = "AllCodeFunctions";

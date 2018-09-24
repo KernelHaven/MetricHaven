@@ -79,6 +79,7 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
     /**
      * Collects the measured value and may performs a post processing of the values.
      * @param functionVisitor The visitor created by {@link #createVisitor(VariabilityModel, IVariableWeight)}.
+     * @param func The currently measured code function.
      * 
      * @return The value to be returned by {@link #compute(CodeFunction)}, or <tt>null</tt> if no valid value could be
      *     computed (should not happen).
@@ -92,6 +93,11 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      */
     public abstract @NonNull String getMetricName();
     
+    /**
+     * Returns the {@link IVariableWeight}, if it is required by the metric outside of the
+     * {@link AbstractFunctionVisitor}.
+     * @return The used {@link IVariableWeight}, instead of <tt>null</tt> it may use {@link NoWeight#INSTANCE}.
+     */
     protected @NonNull IVariableWeight getWeight() {
         return weight;
     }

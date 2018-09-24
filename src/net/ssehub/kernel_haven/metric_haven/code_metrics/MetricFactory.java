@@ -15,6 +15,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricV
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CachedWeightFactory;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -179,9 +180,10 @@ public class MetricFactory {
      * Creates all valid variations of all code function metrics, each variation will appear only once.
      * @param vm The variability model
      * @param bm The build model.
-     * @param sdContainer
-     * @return
-     * @throws SetUpException
+     * @param sdContainer A scattering degree container, which shall be used for {@link ScatteringWeight}.
+     * 
+     * @return All valid variations of all code function metrics
+     * @throws SetUpException In case that at least one metric instance throws a SetUpException.
      */
     public static @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllVariations(@NonNull VariabilityModel vm,
         @NonNull BuildModel bm, @NonNull ScatteringDegreeContainer sdContainer) throws SetUpException {
