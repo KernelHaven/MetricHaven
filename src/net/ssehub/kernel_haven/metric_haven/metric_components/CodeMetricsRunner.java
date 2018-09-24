@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -52,10 +53,13 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
      * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
      * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
+     * @param fmComponent {@link FunctionMap}, required to run {@link FanInOut}-metrics.
      * 
      * @throws SetUpException If creating the metric instances fails.
      */
+    //CHECKSTYLE:OFF // More than 5 parameters
     public CodeMetricsRunner(@NonNull Configuration config,
+    //CHECKSTYLE:ON
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
         @NonNull AnalysisComponent<VariabilityModel> varModelComponent,
         @NonNull AnalysisComponent<BuildModel> bmComponent,
@@ -73,7 +77,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         config.registerSetting(MAX_THREADS);
         nThreads = config.getValue(MAX_THREADS);
         if (nThreads <= 0) {
-            throw new SetUpException("Need at least one thread specified in " + MAX_THREADS.getKey() + " (got " + nThreads + ")");
+            throw new SetUpException("Need at least one thread specified in " + MAX_THREADS.getKey()
+                + " (got " + nThreads + ")");
         }
     }
 
@@ -125,9 +130,15 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         }
     }
 
+    /**
+     * Executes all metric variations for a single function.
+     * @param allMetrics All metric instances to run.
+     * @param metricNames The name of the metrics in the same order.
+     * @param values The result array, will be changed as side-effect. Must be as big as the array of metric instances.
+     * @param function The function to measure.
+     */
     private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function)
-        throws AssertionError {
+        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
         
         AtomicInteger valuesIndex = new AtomicInteger(0);
         

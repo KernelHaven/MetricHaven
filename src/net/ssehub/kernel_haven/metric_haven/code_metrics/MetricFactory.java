@@ -16,6 +16,9 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricV
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CachedWeightFactory;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -46,41 +49,74 @@ public class MetricFactory {
         
         private Object metricSpecificSettingValue;
         
+        /**
+         * Creates configuration parameters to instantiate a metric via the {@link MetricFactory}.
+         * @param varModel The {@link VariabilityModel}
+         * @param buildModel The {@link BuildModel}, required for the {@link VariablesPerFunctionMetric}
+         * @param sdContainer The {@link ScatteringDegreeContainer} as required by the {@link ScatteringWeight}.
+         */
         public MetricCreationParameters(@NonNull VariabilityModel varModel, @NonNull BuildModel buildModel,
-                @NonNull ScatteringDegreeContainer sdContainer) {
+            @NonNull ScatteringDegreeContainer sdContainer) {
+            
             this.varModel = varModel;
             this.buildModel = buildModel;
             this.sdContainer = sdContainer;
         }
         
+        /**
+         * Returns the {@link VariabilityModel}.
+         * @return The {@link VariabilityModel}.
+         */
         public @NonNull VariabilityModel getVarModel() {
             return varModel;
         }
         
+        /**
+         * Returns the {@link BuildModel}.
+         * @return The {@link BuildModel}.
+         */
         public @NonNull BuildModel getBuildModel() {
             return buildModel;
         }
         
+        /**
+         * Returns the {@link ScatteringDegreeContainer} as required by the {@link ScatteringWeight}.
+         * @return The {@link ScatteringDegreeContainer}.
+         */
         public @NonNull ScatteringDegreeContainer getSdContainer() {
             return sdContainer;
         }
         
+        /**
+         * Specifies the {@link IVariableWeight} to use. If multiple weights shall be used, use {@link MultiWeight}, if
+         * no weight shall be used, use {@link NoWeight#INSTANCE},
+         * @param weight The {@link IVariableWeight} to use.
+         */
         public void setWeight(IVariableWeight weight) {
             this.weight = weight;
         }
         
+        /**
+         * Returns the {@link IVariableWeight} to use, maybe {@link MultiWeight} or {@link NoWeight#INSTANCE}.
+         * @return The {@link IVariableWeight} to use.
+         */
         public IVariableWeight getWeight() {
             return weight;
         }
         
+        /**
+         * Specifies a setting value for a metric-specific setting.
+         * @param metricSpecificSettingValue The metric-specific setting value to use.
+         */
         public void setMetricSpecificSettingValue(Object metricSpecificSettingValue) {
             this.metricSpecificSettingValue = metricSpecificSettingValue;
         }
         
         /**
-         * 
-         * @param type
-         * @return
+         * Reads a value, which is specific for a single {@link AbstractFunctionMetric}.
+         * @param type The enumeration , which shall be retrieved.
+         * @param <T> The enumeration class of the setting to retrieve.
+         * @return A value of the individual metric setting.
          * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
          *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
          */
@@ -88,15 +124,24 @@ public class MetricFactory {
         public <T> T getMetricSpecificSettingValue(Class<T> type) throws SetUpException {
             if (metricSpecificSettingValue == null || !type.isAssignableFrom(metricSpecificSettingValue.getClass())) {
                 throw new SetUpException("Invalid metric specific type; expected " + type.getName() + " but got "
-                        + (metricSpecificSettingValue == null ? "null" : metricSpecificSettingValue.getClass().getName()));
+                    + (metricSpecificSettingValue == null ? "null" : metricSpecificSettingValue.getClass().getName()));
             }
             return (T) metricSpecificSettingValue;
         }
         
+        /**
+         * Sets a (reusable) function map, which is required by {@link FanInOut}-metrics.
+         * @param functionMap A {@link FunctionMap} containing information about all existing functions
+         * (even if only a subset shall be measured).
+         */
         public void setFunctionMap(FunctionMap functionMap) {
             this.functionMap = functionMap;
         }
         
+        /**
+         * Returns the {@link FunctionMap} as required for measuring {@link FanInOut}.
+         * @return The {@link FunctionMap} as required for measuring {@link FanInOut}.
+         */
         public FunctionMap getFunctionMap() {
             return functionMap;
         }
@@ -138,10 +183,8 @@ public class MetricFactory {
     /**
      * Creates a single metric instance. Illegal combinations will silently be dropped (method returns <tt>null</tt>).
      * @param constructor The constructor of the metric to use.
-     * @param vm The variability model
-     * @param bm The build model.
-     * @param weight The weight to use.
-     * @param individualSettingValue A enumeration literal defined by the metric class, may be <tt>null</tt>.
+     * @param params The parameters for creating the class ({@link VariabilityModel}, {@link BuildModel},
+     *     individual settings, ...)
      * 
      * @return The instantiated metric, may be <tt>null</tt> in case of an illegal combination of parameters.
      * @throws SetUpException In case the metric throws a SetUpException.
@@ -179,13 +222,14 @@ public class MetricFactory {
     
     /**
      * Creates all combinations for a given metric.
-     * @param vm The variability model
-     * @param bm The build model.
+     * @param params The parameters for creating the class ({@link VariabilityModel}, {@link BuildModel},
+     *     individual settings, ...)
      * @param metricClass The metric to instantiate.
-     * @param weight The weight to use.
      *
      * @return A list of all valid  metric combinations.
      * @throws SetUpException In case that at least one metric instance throws a SetUpException.
+     * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
+     *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
      */
     private static @NonNull List<@NonNull AbstractFunctionMetric<?>>
         createAllVariations(@NonNull MetricCreationParameters params,

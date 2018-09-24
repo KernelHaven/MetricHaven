@@ -40,7 +40,8 @@ public class MetricsRunner2 extends AbstractMultiFunctionMetrics {
         AnalysisComponent<FunctionMap> functionMapCreator = new FunctionMapCreator(config,
             functionSplitter.createOutputComponent());
         CodeMetricsRunner metricAnalysis
-            = new CodeMetricsRunner(config, functionSplitter.createOutputComponent(), getVmComponent(), getBmComponent(), sdAnalysis, functionMapCreator);
+            = new CodeMetricsRunner(config, functionSplitter.createOutputComponent(), getVmComponent(),
+                getBmComponent(), sdAnalysis, functionMapCreator);
         
         return metricAnalysis;
     }
