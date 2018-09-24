@@ -11,8 +11,9 @@ import java.util.Set;
 import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut.FanType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
-import net.ssehub.kernel_haven.metric_haven.metric_components.FanInOutMetric.FanType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.logic.Formula;
@@ -74,7 +75,7 @@ public class FanInOutVisitor extends AbstractFunctionVisitor {
         }
     }
     
-    private FanType type;
+    private FanInOut.FanType type;
     private Map<String, Set<FunctionCall>> functionCalls;
     private @NonNull VariableFinder varFinder;
     private IVariableWeight weight;
@@ -94,7 +95,7 @@ public class FanInOutVisitor extends AbstractFunctionVisitor {
      * @deprecated Use {@link #FanInOutVisitor(FunctionMap, VariabilityModel, FanType, IVariableWeight)} instead.
      */
     public FanInOutVisitor(@NonNull Collection<CodeFunction> functions,
-        @Nullable VariabilityModel varModel, FanType type, IVariableWeight weight) {
+        @Nullable VariabilityModel varModel, FanInOut.FanType type, IVariableWeight weight) {
         
         this(new FunctionMap(functions), varModel, type, weight);
     }
@@ -109,7 +110,7 @@ public class FanInOutVisitor extends AbstractFunctionVisitor {
      *     metric.
      */
     public FanInOutVisitor(@NonNull FunctionMap functions,
-        @Nullable VariabilityModel varModel, FanType type, IVariableWeight weight) {
+        @Nullable VariabilityModel varModel, FanInOut.FanType type, IVariableWeight weight) {
         
         super(varModel);
         allFunctions = functions;

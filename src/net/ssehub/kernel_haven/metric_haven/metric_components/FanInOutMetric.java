@@ -15,6 +15,8 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.MetricResult;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut.FanType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
@@ -32,49 +34,9 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutVisitor> {
 
-    /**
-     * Specification which kind of variables shall be measured.
-     * @author El-Sharkawy
-     *
-     */
-    public static enum FanType {
-        // Classical parameters
-        CLASSICAL_FAN_IN_GLOBALLY(false, false), CLASSICAL_FAN_IN_LOCALLY(true, false),
-        CLASSICAL_FAN_OUT_GLOBALLY(false, false), CLASSICAL_FAN_OUT_LOCALLY(true, false),
-        
-        // Only feature code
-        VP_FAN_IN_GLOBALLY(false, false), VP_FAN_IN_LOCALLY(true, false),
-        VP_FAN_OUT_GLOBALLY(false, false), VP_FAN_OUT_LOCALLY(true, false),
-        
-        // Classical + feature code: DegreeCentrality Metric
-        DEGREE_CENTRALITY_IN_GLOBALLY(false, true), DEGREE_CENTRALITY_IN_LOCALLY(true, true),
-        DEGREE_CENTRALITY_OUT_GLOBALLY(false, true), DEGREE_CENTRALITY_OUT_LOCALLY(true, true);
-        
-        private boolean isLocal;
-        private boolean isDegreeCentrality;
-        
-        /**
-         * Sole constructor.
-         * @param isLocal <tt>true</tt> if the metric measures fan-in/out only on the same file.
-         * @param isDegreeCentrality <tt>true</tt> if this metric measures degree centrality.
-         */
-        private FanType(boolean isLocal, boolean isDegreeCentrality) {
-            this.isLocal = isLocal;
-            this.isDegreeCentrality = isDegreeCentrality;
-        }
-        
-        /**
-         * Returns whether degree centrality shall be measured.
-         * @return <tt>true</tt> if degree centrality shall be measured.
-         */
-        public boolean isDegreeCentrality() {
-            return isDegreeCentrality;
-        }
-    }
-    
     public static final @NonNull Setting<@NonNull FanType> FAN_TYPE_SETTING
-        = new EnumSetting<>("metric.fan_in_out.type", FanType.class, true, 
-                FanType.CLASSICAL_FAN_IN_GLOBALLY, "Defines which type of fan in/out should be counted for a"
+        = new EnumSetting<>("metric.fan_in_out.type", FanInOut.FanType.class, true, 
+                FanInOut.FanType.CLASSICAL_FAN_IN_GLOBALLY, "Defines which type of fan in/out should be counted for a"
                     + " function.");
     
     private @NonNull FanType type;
@@ -157,7 +119,7 @@ public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutV
         type = config.getValue(FAN_TYPE_SETTING);
         
         try {
-            if (type.isLocal || type.name().contains("_OUT_")) {
+            if (type.isLocal() || type.name().contains("_OUT_")) {
                 config.registerSetting(MetricSettings.FILTER_BY_FILES);
                 List<String> filterList = config.getValue(MetricSettings.FILTER_BY_FILES);
                 if (null != filterList && !filterList.isEmpty()) {
@@ -176,7 +138,7 @@ public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutV
             LOGGER.logException("Could not load configuration setting " + MetricSettings.FILTER_BY_FILES.getKey(), exc);
         }
         
-        checkVariabilityWeights(type.isDegreeCentrality, type);
+        checkVariabilityWeights(type.isDegreeCentrality(), type);
     }
     
     /**
@@ -282,7 +244,7 @@ public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutV
         }
         
         resultName.append("(");
-        resultName.append((type.isLocal) ? "local" : "global");
+        resultName.append((type.isLocal()) ? "local" : "global");
         resultName.append(")");
         resultName.append(getWeightsName());
         
