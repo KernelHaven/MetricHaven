@@ -16,6 +16,7 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
@@ -39,6 +40,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @Nullable AnalysisComponent<BuildModel> bmComponent;
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
+    private @Nullable AnalysisComponent<FunctionMap> fmComponent;
     
     private int nThreads;
     
@@ -57,7 +59,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
         @NonNull AnalysisComponent<VariabilityModel> varModelComponent,
         @NonNull AnalysisComponent<BuildModel> bmComponent,
-        @NonNull AnalysisComponent<ScatteringDegreeContainer> sdComponent) throws SetUpException {
+        @NonNull AnalysisComponent<ScatteringDegreeContainer> sdComponent,
+        @NonNull AnalysisComponent<FunctionMap> fmComponent) throws SetUpException {
         
         super(config);
         
@@ -65,6 +68,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         this.varModelComponent = varModelComponent;
         this.bmComponent = bmComponent;
         this.sdComponent = sdComponent;
+        this.fmComponent = fmComponent;
         
         config.registerSetting(MAX_THREADS);
         nThreads = config.getValue(MAX_THREADS);
@@ -78,6 +82,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
         BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         ScatteringDegreeContainer sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
+        FunctionMap functionMap = (null != fmComponent) ? fmComponent.getNextResult() : null;
         
         List<@NonNull AbstractFunctionMetric<?>> allMetrics;
         try {
@@ -90,8 +95,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             if (sdContainer == null) {
                 throw new SetUpException("ScatteringDegreeContainer is null");
             }
+            if (functionMap == null) {
+                throw new SetUpException("FunctionMap is null");
+            }
             
             MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer);
+            params.setFunctionMap(functionMap);
             
             allMetrics = MetricFactory.createAllVariations(params);
             
@@ -116,20 +125,22 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         }
     }
 
-    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics, @NonNull String @NonNull [] metricNames,
-            @Nullable Double @NonNull [] values, @NonNull CodeFunction function) throws AssertionError {
+    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
+        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function)
+        throws AssertionError {
+        
         AtomicInteger valuesIndex = new AtomicInteger(0);
         
         OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
-                (metric) -> {
-                    Number n = metric.compute(function);
-                    Double result = null;
-                    if (n != null) {
-                        result = n.doubleValue();
-                    }
-                    return result;
-                    
-                }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
+            (metric) -> {
+                Number n = metric.compute(function);
+                Double result = null;
+                if (n != null) {
+                    result = n.doubleValue();
+                }
+                return result;
+                
+            }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
         
         for (AbstractFunctionMetric<?> metric : allMetrics) {
             prallelizer.add(metric);

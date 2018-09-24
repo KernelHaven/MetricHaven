@@ -47,12 +47,15 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
         
     }
     
+    /**
+     * Creates the visitor, must be called at the end of the constructor of inherited classes.
+     */
     protected void init() {
         functionVisitor = createVisitor(params.getVarModel(), params.getBuildModel(), weight);
     }
     
     /**
-     * Stateless measurement of a code function (public interface). 
+     * Atomic measurement of a code function (public interface). 
      * @param func The code function to measure.
      * 
      * @return The measured result &ge; 0.

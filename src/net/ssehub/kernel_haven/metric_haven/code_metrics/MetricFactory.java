@@ -10,6 +10,7 @@ import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
@@ -76,6 +77,13 @@ public class MetricFactory {
             this.metricSpecificSettingValue = metricSpecificSettingValue;
         }
         
+        /**
+         * 
+         * @param type
+         * @return
+         * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
+         *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
+         */
         @SuppressWarnings("unchecked")
         public <T> T getMetricSpecificSettingValue(Class<T> type) throws SetUpException {
             if (metricSpecificSettingValue == null || !type.isAssignableFrom(metricSpecificSettingValue.getClass())) {
@@ -101,9 +109,11 @@ public class MetricFactory {
         List<@NonNull Class<? extends AbstractFunctionMetric<?>>> tmpList = new ArrayList<>();
         tmpList.add(DLoC.class);
         tmpList.add(VariablesPerFunctionMetric.class);
+        tmpList.add(CyclomaticComplexity.class);
         tmpList.add(NestingDepth.class);
         tmpList.add(BlocksPerFunctionMetric.class);
         tmpList.add(TanglingDegree.class);
+        tmpList.add(FanInOut.class);
         
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);
     }

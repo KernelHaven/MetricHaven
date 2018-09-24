@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.BlockCounter;
@@ -35,6 +36,8 @@ public class BlocksPerFunctionMetric extends AbstractFunctionMetric<BlockCounter
      * Creates a new internal block metric, which can also be created by the {@link MetricFactory}.
      * 
      * @param params The parameters for creating this metric.
+     * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
+     *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
      */
     @PreferedConstructor
     BlocksPerFunctionMetric(@NonNull MetricCreationParameters params) throws SetUpException {

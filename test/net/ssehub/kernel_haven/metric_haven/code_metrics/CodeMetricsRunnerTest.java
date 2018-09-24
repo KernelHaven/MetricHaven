@@ -4,7 +4,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,6 +21,7 @@ import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.test_utils.AnalysisComponentExecuter;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
@@ -54,21 +57,20 @@ public class CodeMetricsRunnerTest {
         varModel.getDescriptor().addAttribute(Attribute.HIERARCHICAL);
         BuildModel bm = new BuildModel();
         ScatteringDegreeContainer sdc = new ScatteringDegreeContainer(new HashSet<>());
+        FunctionMap emptyMap = new FunctionMap(new LinkedList<>());
         
         List<MultiMetricResult> result = AnalysisComponentExecuter.executeComponent(CodeMetricsRunner.class,
                 new TestConfiguration(new Properties()),
                 new CodeFunction[] {f1},
                 new VariabilityModel[] {varModel},
                 new BuildModel[] {bm},
-                new ScatteringDegreeContainer[] {sdc});
+                new ScatteringDegreeContainer[] {sdc},
+                new FunctionMap[]{emptyMap});
         
         assertThat(result.size(), is(1));
         
-        assertThat(result.get(0).getMetrics().length, is(5189));
-        assertThat(result.get(0).getValues().length, is(5189));
-        // TODO: not all metrics are currently implemented, should be:
-//      assertThat(result.get(0).getMetrics().length, is(7358));
-//      assertThat(result.get(0).getValues().length, is(7358));
+        assertThat(result.get(0).getMetrics().length, is(7790));
+        assertThat(result.get(0).getValues().length, is(7790));
         
         assertThat(result.get(0).getValues()[0], is(14.0));
         assertThat(result.get(0).getValues()[1], is(0.0));
