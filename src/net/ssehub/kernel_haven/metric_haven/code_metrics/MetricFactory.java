@@ -175,6 +175,14 @@ public class MetricFactory {
         return createAllVariations(null, null, DLoC.class, NoWeight.INSTANCE);
     }
     
+    /**
+     * Creates all valid variations of all code function metrics, each variation will appear only once.
+     * @param vm The variability model
+     * @param bm The build model.
+     * @param sdContainer
+     * @return
+     * @throws SetUpException
+     */
     public static @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllVariations(@NonNull VariabilityModel vm,
         @NonNull BuildModel bm, @NonNull ScatteringDegreeContainer sdContainer) throws SetUpException {
         

@@ -27,6 +27,13 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attr
  */
 public class CachedWeightFactory {
     
+    /**
+     * Creates a {@link ScatteringWeight} with the given {@link ScatteringDegreeContainer}.
+     * @param sdType Defines what kind of scattering shall be used.
+     * @param sdContainer The scattering values to be used as weight, should not be <tt>null</tt>
+     *     unless {@link SDType#NO_SCATTERING} is passed to <tt>sdType</tt>.
+     * @return The {@link ScatteringWeight} or <tt>null</tt> in case that {@link SDType#NO_SCATTERING} was specified.
+     */
     public static @Nullable ScatteringWeight createSdWeight(@NonNull SDType sdType,
         @Nullable ScatteringDegreeContainer sdContainer) {
         
@@ -34,6 +41,15 @@ public class CachedWeightFactory {
         return (sdType != SDType.NO_SCATTERING) ? new ScatteringWeight(sdContainer, sdType) : null;
     }
     
+    /**
+     * Creates a {@link CtcrWeight} with the given {@link VariabilityModel}.
+     * @param ctcrType Defines what kind of cross-tree-constraints shall be used.
+     * @param varModel A variability model that contains informations about cross-tree constraints
+     *     ({@link Attribute#CONSTRAINT_USAGE}). Should not be <tt>null</tt>
+     *     unless {@link CTCRType#NO_CTCR} is passed to <tt>ctcrType</tt>.
+     * 
+     * @return The {@link CtcrWeight} or <tt>null</tt> in case that {@link CTCRType#NO_CTCR} was specified.
+     */
     public static @Nullable CtcrWeight createCtrcWeight(@NonNull CTCRType ctcrType,
         @Nullable VariabilityModel varModel) {
         
@@ -41,6 +57,16 @@ public class CachedWeightFactory {
         return (ctcrType != CTCRType.NO_CTCR && null != varModel) ? new CtcrWeight(varModel, ctcrType) : null;
     }
     
+    /**
+     * Creates a {@link FeatureDistanceWeight} with the given {@link VariabilityModel}.
+     * @param distanceType Defines what kind of feature distances shall be used.
+     * @param varModel A variability model that contains locations where features a defined in the file system
+     *     ({@link Attribute#SOURCE_LOCATIONS}). Should not be <tt>null</tt>
+     *     unless {@link FeatureDistanceType#NO_DISTANCE} is passed to <tt>ctcrType</tt>.
+     * 
+     * @return The {@link FeatureDistanceWeight} or <tt>null</tt> in case that
+     *     {@link SDType#NO_SCATTERING} was specified.
+     */
     public static @Nullable FeatureDistanceWeight createFeatureDistanceWeight(@NonNull FeatureDistanceType distanceType,
         @Nullable VariabilityModel varModel) {
         
@@ -110,6 +136,18 @@ public class CachedWeightFactory {
         return weight;
     }
     
+    /**
+     * Creates a distinct list of all valid {@link IVariableWeight} combinations. Requires type and hierarchy weight
+     * definitions.
+     * @param varModel The variability model.
+     * @param sdContainer A scattering degree container, which shall be used for {@link ScatteringWeight}.
+     * @param typeWeights A 2-tuple in the form of (variable type; weight value).
+     * @param hierarchyWeights A 2-tuple in the form of (hierarchy; weight value). This must contain hierarchy values
+     *     for <tt>top</tt>, <tt>intermediate</tt>, and <tt>leaf</tt>.
+     * 
+     * @return A distinct list of all valid {@link IVariableWeight} combinations,
+     *     contains also {@link NoWeight#INSTANCE}.
+     */
     public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@NonNull VariabilityModel varModel,
         @NonNull ScatteringDegreeContainer sdContainer, @NonNull Map<String, Integer> typeWeights,
         @NonNull Map<String, Integer> hierarchyWeights) {
@@ -123,7 +161,7 @@ public class CachedWeightFactory {
                     for (VariabilityTypeMeasureType varTypeValue : VariabilityTypeMeasureType.values()) {
                         for (HierarchyType hierarhcyValue : HierarchyType.values()) {
                             for (StructuralType structureValue : StructuralType.values()) {
-                                // Scatering Degree
+                                // Scattering Degree
                                 IVariableWeight tmpWeight = createSdWeight(NullHelpers.notNull(sdValue), sdContainer);
                                 if (null != tmpWeight) {
                                     tmpList.add(tmpWeight);
@@ -179,6 +217,15 @@ public class CachedWeightFactory {
         return weightCombinations;
     }
     
+    /**
+     * Creates a distinct list of all valid {@link IVariableWeight} combinations. Specifies default type and hierarchy
+     * values, which may be used for analyses of Linux.
+     * @param varModel The variability model.
+     * @param sdContainer A scattering degree container, which shall be used for {@link ScatteringWeight}.
+     * 
+     * @return A distinct list of all valid {@link IVariableWeight} combinations,
+     *     contains also {@link NoWeight#INSTANCE}.
+     */
     public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@NonNull VariabilityModel varModel,
         @NonNull ScatteringDegreeContainer sdContainer) {
         

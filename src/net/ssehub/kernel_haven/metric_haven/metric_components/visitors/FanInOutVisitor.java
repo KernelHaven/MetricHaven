@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -27,7 +28,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-public class FanInOutVisitor extends AbstractFanInOutVisitor {
+public class FanInOutVisitor extends AbstractFunctionVisitor {
 
     private static final Logger LOGGER = Logger.get();
     
@@ -78,6 +79,10 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
     private @NonNull VariableFinder varFinder;
     private IVariableWeight weight;
     
+    private @NonNull FunctionMap allFunctions;
+    
+    private @Nullable Function currentFunction;
+    
     /**
      * Sole constructor for this class.
      * @param functions A list of all functions (necessary to identify callers and callees.
@@ -86,11 +91,28 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
      * @param type Specifies which kind of fan-in / fan-out shall be measured by this class.
      * @param weight Specifies a weight for discovered features, only relevant for degree centrality variations of this
      *     metric.
+     * @deprecated Use {@link #FanInOutVisitor(FunctionMap, VariabilityModel, FanType, IVariableWeight)} instead.
      */
     public FanInOutVisitor(@NonNull Collection<CodeFunction> functions,
         @Nullable VariabilityModel varModel, FanType type, IVariableWeight weight) {
         
-        super(functions, varModel);
+        this(new FunctionMap(functions), varModel, type, weight);
+    }
+    
+    /**
+     * Preferred Constructor, allows sharing of function map.
+     * @param functions A list of all functions (necessary to identify callers and callees.
+     * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
+     *     model is involved in {@link CppBlock#getCondition()} expressions.
+     * @param type Specifies which kind of fan-in / fan-out shall be measured by this class.
+     * @param weight Specifies a weight for discovered features, only relevant for degree centrality variations of this
+     *     metric.
+     */
+    public FanInOutVisitor(@NonNull FunctionMap functions,
+        @Nullable VariabilityModel varModel, FanType type, IVariableWeight weight) {
+        
+        super(varModel);
+        allFunctions = functions;
         this.type = type;
         functionCalls = new HashMap<>();
         varFinder = new VariableFinder();
@@ -112,8 +134,13 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
         return calls;
     }
 
+    /**
+     * Informs an inherited visitors about the detection of a function call.
+     * @param caller The calling function.
+     * @param callee The called function (name).
+     * @param pc The presence condition of the function call.
+     */
     // CHECKSTYLE:OFF
-    @Override
     protected void functionCall(@NonNull Function caller, @NonNull String callee, Formula pc) {
     // CHECKSTYLE:ON
         
@@ -207,7 +234,12 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
         }
     }
 
-    @Override
+    /**
+     * Returns the result for the specified function, may only be called after the visitor was applied to <b>all</b>
+     * functions.
+     * @param functionName The function for which the result shall be returned.
+     * @return The result for the specified function (&ge; 0).
+     */
     public int getResult(@NonNull String functionName) {
         int result;
         if (type.isDegreeCentrality()) {
@@ -240,6 +272,57 @@ public class FanInOutVisitor extends AbstractFanInOutVisitor {
         }
             
         return result;
+    }
+    
+    /**
+     * Checks whether the given identifier is a defined function name.
+     * @param identifier A token to check.
+     * @return <tt>true</tt> if it is known to be a function, <tt>false</tt> otherwise.
+     */
+    protected final boolean isFunction(String identifier) {
+        return allFunctions.isFunction(identifier);
+    }
+    
+    /**
+     * Returns the {@link CodeFunction} for the specified function.
+     * @param functionName The name of the function for which the {@link CodeFunction} shall be returned.
+     * @return The (parsed) {@link CodeFunction}s of the specified function(name).
+     */
+    protected final @Nullable List<CodeFunction> getFunction(String functionName) {
+        return allFunctions.getFunction(functionName);
+    }
+    
+    /**
+     * Returns the current visited function.
+     * @return the current visited function, may be <tt>null</tt>.
+     */
+    protected @Nullable Function getCurrentfunction() {
+        return currentFunction;
+    }
+    
+    @Override
+    public void visitFunction(@NonNull Function function) {
+        Function previousFunction = this.currentFunction;
+        this.currentFunction = function;
+        
+        super.visitFunction(function);
+        
+        this.currentFunction = previousFunction;
+    }
+    
+    @Override
+    public void visitCode(@NonNull Code code) {
+        Function currentFunction = this.currentFunction;
+        
+        String[] unparsedCodeFragments = code.getText().split(" ");
+        for (int i = unparsedCodeFragments.length - 1; i >= 0; i--) {
+            String unparsedCode = unparsedCodeFragments[i];
+            if (null != unparsedCode && isFunction(unparsedCode) && null != currentFunction
+                && !unparsedCode.equals(currentFunction.getName())) {
+                
+                functionCall(currentFunction, unparsedCode, code.getPresenceCondition());
+            }            
+        }
     }
 
 }

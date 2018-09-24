@@ -2,11 +2,9 @@ package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -20,8 +18,6 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
  */
 public class FunctionMap {
 
-    private Set<String> allFunctionNames;
-    
     /**
      * Tuple of
      * <ul>
@@ -37,11 +33,9 @@ public class FunctionMap {
      * @param functions The functions to store.
      */
     public FunctionMap(@NonNull Collection<CodeFunction> functions) {
-        allFunctionNames = new HashSet<>(functions.size());
         functionMap = new HashMap<>(functions.size());
         
         for (CodeFunction function: functions) {
-            allFunctionNames.add(function.getName());
             List<CodeFunction> sameFunctions = functionMap.get(function.getName());
             if (null == sameFunctions) {
                 sameFunctions = new LinkedList<>();
@@ -57,7 +51,7 @@ public class FunctionMap {
      * @return <tt>true</tt> if it is known to be a function, <tt>false</tt> otherwise.
      */
     public final boolean isFunction(String identifier) {
-        return allFunctionNames.contains(identifier);
+        return functionMap.containsKey(identifier);
     }
     
     /**

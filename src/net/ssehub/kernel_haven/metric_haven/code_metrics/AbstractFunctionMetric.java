@@ -28,7 +28,7 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
     private @NonNull IVariableWeight weight;
     
     private @Nullable VariabilityModel varModel;
-    private@Nullable BuildModel buildModel;
+    private @Nullable BuildModel buildModel;
     
     /**
      * Sole constructor, to create a new code function metric. Creates also an appropriate function visitor.
