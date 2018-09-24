@@ -17,9 +17,6 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class MetricsRunner2 extends AbstractMultiFunctionMetrics {
     
-   
-    private Class<? extends AbstractFunctionVisitorBasedMetric<?>> metricClass;
-
     /**
      * Single constructor to instantiate and execute all variations of a single metric-analysis class.
      * @param config The global configuration.

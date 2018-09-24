@@ -3,6 +3,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -19,6 +20,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
+import net.ssehub.kernel_haven.util.OrderPreservingParallelizer;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -31,8 +33,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     
     public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
-        Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
-            + "executed in parallel.");
+        Type.INTEGER, true, "1", "Defines the number of threads to use for calculating metrics. Must be >= 1.");
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -65,13 +66,11 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         this.bmComponent = bmComponent;
         this.sdComponent = sdComponent;
         
-        try {
-            config.registerSetting(MAX_THREADS);
-            nThreads = config.getValue(MAX_THREADS);
-        } catch (SetUpException exc) {
-            LOGGER.logException("Could not load configuration setting " + MAX_THREADS.getKey(), exc);
+        config.registerSetting(MAX_THREADS);
+        nThreads = config.getValue(MAX_THREADS);
+        if (nThreads <= 0) {
+            throw new SetUpException("Need at least one thread specified in " + MAX_THREADS.getKey() + " (got " + nThreads + ")");
         }
-        
     }
 
     @Override
@@ -113,18 +112,38 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             LOGGER.logDebug2("Running for function ", function.getName(), " at ", function.getSourceFile(),
                    ":", function.getFunction().getLineStart());
             
-            int valuesIndex = 0;
-            for (AbstractFunctionMetric<?> metric : allMetrics) {
-                values[valuesIndex++] = metric.compute(function).doubleValue();
-            }
-            
-            MultiMetricResult result = new MultiMetricResult(
-                    new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-                            function.getFunction().getLineStart(), function.getName()),
-                    metrics, values);
-            
-            addResult(result);
+            runForSingleFunction(allMetrics, metrics, values, function);
         }
+    }
+
+    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics, @NonNull String @NonNull [] metricNames,
+            @Nullable Double @NonNull [] values, @NonNull CodeFunction function) throws AssertionError {
+        AtomicInteger valuesIndex = new AtomicInteger(0);
+        
+        OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
+                (metric) -> {
+                    Number n = metric.compute(function);
+                    Double result = null;
+                    if (n != null) {
+                        result = n.doubleValue();
+                    }
+                    return result;
+                    
+                }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
+        
+        for (AbstractFunctionMetric<?> metric : allMetrics) {
+            prallelizer.add(metric);
+        }
+        prallelizer.end();
+        
+        prallelizer.join();
+        
+        MultiMetricResult result = new MultiMetricResult(
+                new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
+                        function.getFunction().getLineStart(), function.getName()),
+                metricNames, values);
+        
+        addResult(result);
     }
 
     @Override
