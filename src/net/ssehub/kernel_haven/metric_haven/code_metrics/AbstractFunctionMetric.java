@@ -2,6 +2,7 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractFunctionVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -23,33 +24,31 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      */
     protected static final Logger LOGGER = Logger.get();
     
-    private @NonNull V functionVisitor;
+    private @NonNull V functionVisitor; // will be initialized in init()
     
     private @NonNull IVariableWeight weight;
     
-    private @Nullable VariabilityModel varModel;
-    private @Nullable BuildModel buildModel;
+    private @NonNull MetricCreationParameters params;
     
     /**
      * Sole constructor, to create a new code function metric. Creates also an appropriate function visitor.
-     * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
-     *     model is involved in {@link CppBlock#getCondition()} expressions.
-     * @param buildModel Some metrics require a build model, for others this may be <tt>null</tt>.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
+     * 
+     * @param params The parameters for creating this metric.
      */
-    AbstractFunctionMetric(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-        @NonNull IVariableWeight weight) {
+    @SuppressWarnings("null")
+    AbstractFunctionMetric(@NonNull MetricCreationParameters params) {
+        this.params = params;
         
+        IVariableWeight weight = params.getWeight();
+        if (weight == null) {
+            throw new IllegalArgumentException("Weight is null");
+        }
         this.weight = weight;
-        this.varModel = varModel;
-        this.buildModel = buildModel;
+        
     }
     
-    /**
-     * Initializes this metric. Needs to be called at the end of constructors of inherited classes.
-     */
     protected void init() {
-        functionVisitor = createVisitor(varModel, buildModel, weight);        
+        functionVisitor = createVisitor(params.getVarModel(), params.getBuildModel(), weight);
     }
     
     /**

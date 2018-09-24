@@ -2,7 +2,9 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import java.util.Set;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.UsedVariabilityVarsVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -34,20 +36,17 @@ public class VariablesPerFunctionMetric extends AbstractFunctionMetric<UsedVaria
 
     /**
      * Instantiates {@link VariabilityModel}-metric. 
-     * @param varModel The variability model to identify features.
-     * @param buildModel The build model if in case of external features also features from the build model
-     *     should be measured.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
-     * @param measuredVars Specifies what kind of features should be measured.
+     * 
+     * @param params The parameters for creating this metric.
      */
     @PreferedConstructor
-    VariablesPerFunctionMetric(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-        @NonNull IVariableWeight weight, @NonNull VarType measuredVars) {
+    VariablesPerFunctionMetric(@NonNull MetricCreationParameters params) throws SetUpException {
         
-        super(varModel, buildModel, weight);
-        this.measuredVars = measuredVars;
-        // Always all weights are supported
-
+        super(params);
+        this.measuredVars = params.getMetricSpecificSettingValue(VarType.class);
+        
+        // All weights are always supported
+        
         init();
     }
 
@@ -97,8 +96,7 @@ public class VariablesPerFunctionMetric extends AbstractFunctionMetric<UsedVaria
 
     @Override
     public @NonNull String getMetricName() {
-        // TODO Auto-generated method stub
-        return null;
+        return measuredVars.toString() + " Vars per Function";
     }
 
 

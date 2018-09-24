@@ -2,16 +2,17 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -29,42 +30,16 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  */
 public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     
-//    public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
-//        Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
-//            + "executed in parallel.");
-
-    // TODO: read from setting
-    private static final List<@NonNull Class<? extends AbstractFunctionMetric<?>>> METRICS_TO_CREATE;
-    
-    static {
-        METRICS_TO_CREATE = new LinkedList<>();
-        METRICS_TO_CREATE.add(DLoC.class);
-    }
-    
-    private @NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics;
+    public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
+        Type.INTEGER, true, "0", "If greater than 0, a thread pool is used to limit the maximum number of threads "
+            + "executed in parallel.");
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
     private @Nullable AnalysisComponent<BuildModel> bmComponent;
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     
-    private @NonNull String resultName;
     private int nThreads;
-    
-    /**
-     * Creates this processing unit for testing purpose only.
-     * 
-     * @param config The pipeline configuration.
-     * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
-     * 
-     * @throws SetUpException If creating the metric instances fails.
-     */
-    public CodeMetricsRunner(@NonNull Configuration config,
-            @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent) throws SetUpException {
-        
-        this(config, codeFunctionComponent, null, null, null);
-        
-    }
     
     /**
      * Creates this processing unit.
@@ -90,12 +65,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         this.bmComponent = bmComponent;
         this.sdComponent = sdComponent;
         
-//        try {
-//            config.registerSetting(MAX_THREADS);
-//            nThreads = config.getValue(MAX_THREADS);
-//        } catch (SetUpException exc) {
-//            LOGGER.logException("Could not load configuration setting " + MAX_THREADS.getKey(), exc);
-//        }
+        try {
+            config.registerSetting(MAX_THREADS);
+            nThreads = config.getValue(MAX_THREADS);
+        } catch (SetUpException exc) {
+            LOGGER.logException("Could not load configuration setting " + MAX_THREADS.getKey(), exc);
+        }
         
     }
 
@@ -105,20 +80,26 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         ScatteringDegreeContainer sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
         
+        List<@NonNull AbstractFunctionMetric<?>> allMetrics;
         try {
-            if (null == varModel || bm == null || null == sdContainer) {
-                LOGGER.logError("Something was null, could not create weights: ");
-                MetricFactory factory = new MetricFactory();
-                allMetrics = factory.createAllDLoCVariations();
-            } else {
-                allMetrics = MetricFactory.createAllVariations(varModel, bm , sdContainer);
+            if (varModel == null) {
+                throw new SetUpException("VariabilityModel is null");
             }
+            if (bm == null) {
+                throw new SetUpException("BuildModel is null");
+            }
+            if (sdContainer == null) {
+                throw new SetUpException("ScatteringDegreeContainer is null");
+            }
+            
+            MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer);
+            
+            allMetrics = MetricFactory.createAllVariations(params);
+            
         } catch (SetUpException e) {
-            LOGGER.logException("Could not create instances", e);
+            LOGGER.logException("Could not create metric instances", e);
             return;
         }
-        
-        this.resultName = "AllCodeFunctions";
         
         String[] metrics = new String[allMetrics.size()];
         int metricsIndex = 0;

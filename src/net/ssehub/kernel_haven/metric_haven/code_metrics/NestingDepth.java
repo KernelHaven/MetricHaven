@@ -1,7 +1,8 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.NestingDepthVisitor;
@@ -62,24 +63,20 @@ public class NestingDepth extends AbstractFunctionMetric<NestingDepthVisitor> {
     
     /**
      * Creates a new Nesting depth metric, which can also be created by the {@link MetricFactory}.
-     * @param varModel I not <tt>null</tt> this visitor check if at least one variable of the variability
-     *     model is involved in {@link CppBlock#getCondition()} expressions and supports also the usage of
-     *     {@link IVariableWeight}s.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
-     * @param buildModel May be <tt>null</tt> as it is not used by this metric.
-     * @param type Specifies whether to measure only classical/variation point nesting depth, or the fraction of both.
+     * 
+     * @param params The parameters for creating this metric.
+     * 
      * @throws UnsupportedMetricVariationException In case that classical code structures shall be measured and a
      *     different {@link IVariableWeight} was specified than {@link NoWeight#INSTANCE}.
      */
     @PreferedConstructor
-    NestingDepth(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-        @NonNull IVariableWeight weight, @NonNull NDType type) throws UnsupportedMetricVariationException {
+    NestingDepth(@NonNull MetricCreationParameters params) throws UnsupportedMetricVariationException, SetUpException {
         
-        super(varModel, buildModel, weight);
-        this.type = type;
+        super(params);
+        this.type = params.getMetricSpecificSettingValue(NDType.class);
 
-        if (!type.isVariabilityMetric && weight != NoWeight.INSTANCE) {
-            throw new UnsupportedMetricVariationException(getClass(), weight);
+        if (!type.isVariabilityMetric && params.getWeight() != NoWeight.INSTANCE) {
+            throw new UnsupportedMetricVariationException(getClass(), params.getWeight());
         }
         
         init();

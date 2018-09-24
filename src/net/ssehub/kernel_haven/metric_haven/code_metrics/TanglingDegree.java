@@ -1,7 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.TanglingVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -18,17 +18,14 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
 
     /**
      * Creates a new TanglingDegree metric.
-     * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
-     *     model is involved in {@link CppBlock#getCondition()} expressions.
-     * @param buildModel May be <tt>null</tt> as it is not used by this metric.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
+     * @param params The parameters for creating this metric.
      */
     @PreferedConstructor
-    TanglingDegree(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-        @NonNull IVariableWeight weight) {
-        super(varModel, buildModel, weight);
-        // Always all weights are supported
-
+    TanglingDegree(@NonNull MetricCreationParameters params) {
+        super(params);
+        
+        // All weights are always supported
+        
         init();
     }
 

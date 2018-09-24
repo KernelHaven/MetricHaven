@@ -1,15 +1,14 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.code_model.ast.CppBlock;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity.CCType;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.McCabeVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
-import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -40,24 +39,19 @@ public class CyclomaticComplexity extends AbstractFunctionMetric<McCabeVisitor> 
 
     /**
      * Creates a new DLoC metric, which can also be created by the {@link MetricFactory}.
-     * @param varModel The component to get the variability model from. If not <tt>null</tt>
-     *     {@link CCType#VARIATION_POINTS} and {@link CCType#ALL} will check if at least one variable of the variability
-     *     model is involved in {@link net.ssehub.kernel_haven.code_model.ast.CppBlock#getCondition()} expressions to
-     *     treat a {@link CppBlock} as variation point.
-     * @param buildModel May be <tt>null</tt> as it is not used by this metric.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
-     * @param measuredCode Specifies whether to measure McCabe for classical code, on variation points, or on both.
+     * 
+     * @param params The parameters for creating this metric.
+     * 
      * @throws UnsupportedMetricVariationException In case that classical code should be measured but a different
      *     {@link IVariableWeight} than {@link NoWeight#INSTANCE} was specified.
      */
     @PreferedConstructor
-    CyclomaticComplexity(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-        @NonNull IVariableWeight weight, @NonNull CCType measuredCode) throws UnsupportedMetricVariationException {
-        super(varModel, buildModel, weight);
-        this.measuredCode = measuredCode;
+    CyclomaticComplexity(@NonNull MetricCreationParameters params) throws UnsupportedMetricVariationException, SetUpException {
+        super(params);
+        this.measuredCode = params.getMetricSpecificSettingValue(CCType.class);
         
-        if (measuredCode == CCType.MCCABE && weight != NoWeight.INSTANCE) {
-            throw new UnsupportedMetricVariationException(getClass(), weight);
+        if (measuredCode == CCType.MCCABE && params.getWeight() != NoWeight.INSTANCE) {
+            throw new UnsupportedMetricVariationException(getClass(), params.getWeight());
         }
         
         init();

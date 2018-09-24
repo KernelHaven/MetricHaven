@@ -25,13 +25,11 @@ public class MetricsRunner2 extends AbstractMultiFunctionMetrics {
      * @param config The global configuration.
      * @throws SetUpException In case of problems with the configuration of {@link #METRICS_CLASS}.
      */
-    @SuppressWarnings("unchecked")
     public MetricsRunner2(@NonNull Configuration config) throws SetUpException {
         super(config);
     }
 
     @Override
-    @SuppressWarnings("null")
     protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
         AnalysisComponent<SourceFile> codeModel = getCmComponent();
         AnalysisComponent<CodeFunction> functionFilter = new OrderedCodeFunctionFilter(config, codeModel);

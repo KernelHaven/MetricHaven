@@ -1,7 +1,8 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FanInOutVisitor;
@@ -73,26 +74,25 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
     
     /**
      * Creates a new {@link FanInOut}-metric instance.
-     * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
-     *     model is involved in {@link CppBlock#getCondition()} expressions.
-     * @param buildModel May be <tt>null</tt> as it is not used by this metric.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
-     * @param functions A list of all existing functions (independent of which functions should be measured), may be
-     *     shared by different metric instances, won't be changed by the metrics.
-     * @param type Specifies what to measure: fan-in/-out, local/global, classical code / variation points. 
+     * 
+     * @param params The parameters for creating this metric.
+     * 
      * @throws UnsupportedMetricVariationException In case that classical code should be measured but a different
      *     {@link IVariableWeight} than {@link NoWeight#INSTANCE} was specified.
      */
     @PreferedConstructor
-    FanInOut(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel, @NonNull IVariableWeight weight,
-        @NonNull FunctionMap functions, @NonNull FanType type) throws UnsupportedMetricVariationException {
+    FanInOut(@NonNull MetricCreationParameters params) throws UnsupportedMetricVariationException, SetUpException {
         
-        super(varModel, buildModel, weight);
-        this.type = type;
-        this.functions = functions;
+        super(params);
+        this.type = params.getMetricSpecificSettingValue(FanType.class);
+        FunctionMap fMap = params.getFunctionMap();
+        if (fMap == null) {
+            throw new SetUpException("FanInOutMetric needs function FunctionMap, but was null");
+        }
+        this.functions = fMap;
         
-        if (!type.isDegreeCentrality && weight != NoWeight.INSTANCE) {
-            throw new UnsupportedMetricVariationException(getClass(), weight);
+        if (!type.isDegreeCentrality && params.getWeight() != NoWeight.INSTANCE) {
+            throw new UnsupportedMetricVariationException(getClass(), params.getWeight());
         }
         
         init();

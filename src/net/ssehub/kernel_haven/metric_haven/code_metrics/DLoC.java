@@ -1,7 +1,8 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
@@ -32,24 +33,20 @@ public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
     
     /**
      * Creates a new DLoC metric, which can also be created by the {@link MetricFactory}.
-     * @param varModel Optional, if not <tt>null</tt> this visitor check if at least one variable of the variability
-     *     model is involved in {@link CppBlock#getCondition()} expressions.
-     * @param buildModel May be <tt>null</tt> as it is not used by this metric.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
-     * @param type Specifies whether to measure only classical LoC, feature LoC, or the fraction of both.
+     * 
+     * @param params The metric creation parameters.
      * 
      * @throws UnsupportedMetricVariationException In case that not {@link NoWeight} was used (this metric does not
      *     support any weights).
      */
     @PreferedConstructor
-    DLoC(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel, @NonNull IVariableWeight weight,
-        @NonNull LoFType type) throws UnsupportedMetricVariationException {
+    DLoC(@NonNull MetricCreationParameters params) throws UnsupportedMetricVariationException, SetUpException {
         
-        super(varModel, buildModel, weight);
-        this.type = type;            
+        super(params);
+        this.type = params.getMetricSpecificSettingValue(LoFType.class);            
         
-        if (weight != NoWeight.INSTANCE) {
-            throw new UnsupportedMetricVariationException(getClass(), weight);
+        if (params.getWeight() != NoWeight.INSTANCE) {
+            throw new UnsupportedMetricVariationException(getClass(), params.getWeight());
         }
         
         init();

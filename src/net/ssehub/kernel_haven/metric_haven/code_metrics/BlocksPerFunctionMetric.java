@@ -1,7 +1,8 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.BlockCounter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -32,21 +33,17 @@ public class BlocksPerFunctionMetric extends AbstractFunctionMetric<BlockCounter
     
     /**
      * Creates a new internal block metric, which can also be created by the {@link MetricFactory}.
-     * @param varModel Used for the weights, but also to filter for {@link CppBlock}s based on features
-     *     from the variability model
-     * @param buildModel May be <tt>null</tt> as it is not used by this metric.
-     * @param weight A {@link IVariableWeight}to weight/measure the configuration complexity of variation points.
-     * @param measuredBlocks Specifies how to treat <tt>else</tt> and <tt>elif</tt> parts, are these extra blocks or
-     *     do they form together with the <tt>if</tt> one block?
+     * 
+     * @param params The parameters for creating this metric.
      */
     @PreferedConstructor
-    BlocksPerFunctionMetric(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-        @NonNull IVariableWeight weight, @NonNull BlockMeasureType measuredBlocks) {
+    BlocksPerFunctionMetric(@NonNull MetricCreationParameters params) throws SetUpException {
         
-        super(varModel, buildModel, weight);
-        this.measuredBlocks = measuredBlocks;
-        // Always all weights are supported
-
+        super(params);
+        this.measuredBlocks = params.getMetricSpecificSettingValue(BlockMeasureType.class);
+        
+        // All weights are always supported
+        
         init();
     }
 
