@@ -72,7 +72,6 @@ public class NestingDepth extends AbstractFunctionMetric<NestingDepthVisitor> {
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
      *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
      */
-    @PreferedConstructor
     NestingDepth(@NonNull MetricCreationParameters params) throws UnsupportedMetricVariationException, SetUpException {
         
         super(params);

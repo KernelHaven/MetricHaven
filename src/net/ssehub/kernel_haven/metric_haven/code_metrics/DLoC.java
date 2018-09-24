@@ -2,7 +2,6 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
@@ -42,7 +41,6 @@ public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
      *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
      */
-    @PreferedConstructor
     DLoC(@NonNull MetricCreationParameters params) throws UnsupportedMetricVariationException, SetUpException {
         
         super(params);

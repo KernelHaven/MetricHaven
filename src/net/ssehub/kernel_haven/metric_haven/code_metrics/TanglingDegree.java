@@ -20,7 +20,6 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
      * Creates a new TanglingDegree metric.
      * @param params The parameters for creating this metric.
      */
-    @PreferedConstructor
     TanglingDegree(@NonNull MetricCreationParameters params) {
         super(params);
         

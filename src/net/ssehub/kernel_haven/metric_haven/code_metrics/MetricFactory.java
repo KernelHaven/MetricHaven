@@ -1,6 +1,5 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -239,18 +238,11 @@ public class MetricFactory {
         List<Class<?>> enumSettings = getSettings(metricClass);
         
         try {
-            // Search for first constructor which is annotated with @PreferedConstructor
             Constructor<?> constructor = null;
-            for (Constructor<?> constr : metricClass.getDeclaredConstructors()) {
-                for (Annotation annotation : constr.getDeclaredAnnotations()) {
-                    if (annotation instanceof PreferedConstructor) {
-                        constructor = constr;
-                        break;
-                    }
-                }
-                if (null != constructor) {
-                    break;
-                }
+            try {
+                constructor = metricClass.getDeclaredConstructor(MetricCreationParameters.class);
+            } catch (NoSuchMethodException exc) {
+                Logger.get().logException("Could not load constructor for " + metricClass.getName(), exc);
             }
             
             // Create instances by instantiating all legal combinations

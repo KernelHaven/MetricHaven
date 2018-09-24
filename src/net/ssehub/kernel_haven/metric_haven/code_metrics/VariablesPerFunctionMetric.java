@@ -42,7 +42,6 @@ public class VariablesPerFunctionMetric extends AbstractFunctionMetric<UsedVaria
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
      *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
      */
-    @PreferedConstructor
     VariablesPerFunctionMetric(@NonNull MetricCreationParameters params) throws SetUpException {
         
         super(params);
