@@ -3,7 +3,6 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -22,7 +21,6 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
-import net.ssehub.kernel_haven.util.OrderPreservingParallelizer;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -31,11 +29,18 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * A processing unit for executing metrics.
  *  
  * @author Adam
+ * @author Sascha El-Sharkawy
  */
 public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     
     public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
         Type.INTEGER, true, "1", "Defines the number of threads to use for calculating metrics. Must be >= 1.");
+    
+    public static final @NonNull Setting<@NonNull Boolean> ROUND_RESULTS = new Setting<>("metrics.round_results",
+        Type.BOOLEAN, true, "false", "If turned on, results will be limited to 2 digits after the comma (0.005 will be "
+            + "rounded up). This is maybe neccessary to limit the disk usage.");
+    
+    private boolean round = false;
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -44,6 +49,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @Nullable AnalysisComponent<FunctionMap> fmComponent;
     
     private int nThreads;
+    
+    private long time = 0;
     
     /**
      * Creates this processing unit.
@@ -79,6 +86,13 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         if (nThreads <= 0) {
             throw new SetUpException("Need at least one thread specified in " + MAX_THREADS.getKey()
                 + " (got " + nThreads + ")");
+        }
+        
+        try {
+            config.registerSetting(ROUND_RESULTS);
+            round = config.getValue(ROUND_RESULTS);
+        } catch (SetUpException exc) {
+            throw new SetUpException("Could not load configuration setting " + ROUND_RESULTS.getKey());
         }
     }
 
@@ -128,6 +142,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             
             runForSingleFunction2(allMetrics, metrics, values, function);
         }
+        
+        LOGGER.logStatusLines("Execution of metrics took " + time, " ms in total.");
     }
 
     /**
@@ -139,8 +155,9 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      */
     @SuppressWarnings("null")
     private void runForSingleFunction2(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-            @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
+        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
         
+        long start = System.currentTimeMillis();
         Thread[] threads = new Thread[nThreads];
         // Rounds down
         int partitionSize = allMetrics.size() / nThreads;
@@ -154,7 +171,11 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 
                 for (int j = partionStart; j < partitionEnd; j++) {
                     Number result = allMetrics.get(j).compute(function);
-                    values[j] = (null != result) ? result.doubleValue() : null;
+                    if (result instanceof Double && round) {
+                        values[j] = Math.floor(result.doubleValue() * 100) / 100;
+                    } else {
+                        values[j] = (null != result) ? result.doubleValue() : null;
+                    }
                 }
                 
             });
@@ -170,51 +191,52 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             }
         }
         
-        MultiMetricResult result = new MultiMetricResult(
-            new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-                function.getFunction().getLineStart(), function.getName()),
-                metricNames, values);
+        time += System.currentTimeMillis() - start;
+        
+        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
+            function.getFunction().getLineStart(), function.getName());
+        MultiMetricResult result = new MultiMetricResult(funcDescription, metricNames, values);
         
         addResult(result);
     }
     
-    /**
-     * Executes all metric variations for a single function.
-     * @param allMetrics All metric instances to run.
-     * @param metricNames The name of the metrics in the same order.
-     * @param values The result array, will be changed as side-effect. Must be as big as the array of metric instances.
-     * @param function The function to measure.
-     */
-    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
-        
-        AtomicInteger valuesIndex = new AtomicInteger(0);
-        
-        OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
-            (metric) -> {
-                Number n = metric.compute(function);
-                Double result = null;
-                if (n != null) {
-                    result = n.doubleValue();
-                }
-                return result;
-                
-            }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
-        
-        for (AbstractFunctionMetric<?> metric : allMetrics) {
-            prallelizer.add(metric);
-        }
-        prallelizer.end();
-        
-        prallelizer.join();
-        
-        MultiMetricResult result = new MultiMetricResult(
-                new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-                        function.getFunction().getLineStart(), function.getName()),
-                metricNames, values);
-        
-        addResult(result);
-    }
+//    /**
+//     * Executes all metric variations for a single function.
+//     * @param allMetrics All metric instances to run.
+//     * @param metricNames The name of the metrics in the same order.
+//     * @param values The result array, will be changed as side-effect. Must be as big as the array of metric instances.
+//     * @param function The function to measure.
+//     */
+//    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
+//        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
+//        
+//        AtomicInteger valuesIndex = new AtomicInteger(0);
+//        
+//        OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
+//            (metric) -> {
+//                Number n = metric.compute(function);
+//                Double result = null;
+//                if (n != null) {
+//                    result = n.doubleValue();
+//                }
+//                return result;
+//                
+//            }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
+//        
+//        for (AbstractFunctionMetric<?> metric : allMetrics) {
+//            prallelizer.add(metric);
+//        }
+//        prallelizer.end();
+//        
+//        prallelizer.join();
+//        
+//        MultiMetricResult result = new MultiMetricResult(
+//                new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
+//                        function.getFunction().getLineStart(), function.getName()),
+//                metricNames, values);
+//        
+//        addResult(result);
+//    }
 
     @Override
     public @NonNull String getResultName() {
