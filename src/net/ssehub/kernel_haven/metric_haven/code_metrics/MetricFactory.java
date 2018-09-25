@@ -51,7 +51,7 @@ public class MetricFactory {
         /**
          * Creates configuration parameters to instantiate a metric via the {@link MetricFactory}.
          * @param varModel The {@link VariabilityModel}
-         * @param buildModel The {@link BuildModel}, required for the {@link VariablesPerFunctionMetric}
+         * @param buildModel The {@link BuildModel}, required for the {@link VariablesPerFunction}
          * @param sdContainer The {@link ScatteringDegreeContainer} as required by the {@link ScatteringWeight}.
          */
         public MetricCreationParameters(@NonNull VariabilityModel varModel, @NonNull BuildModel buildModel,
@@ -152,7 +152,7 @@ public class MetricFactory {
     static {
         List<@NonNull Class<? extends AbstractFunctionMetric<?>>> tmpList = new ArrayList<>();
         tmpList.add(DLoC.class);
-        tmpList.add(VariablesPerFunctionMetric.class);
+        tmpList.add(VariablesPerFunction.class);
         tmpList.add(CyclomaticComplexity.class);
         tmpList.add(NestingDepth.class);
         tmpList.add(BlocksPerFunctionMetric.class);

@@ -20,7 +20,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-public class VariablesPerFunctionMetric extends AbstractFunctionMetric<UsedVariabilityVarsVisitor> {
+public class VariablesPerFunction extends AbstractFunctionMetric<UsedVariabilityVarsVisitor> {
 
     /**
      * Specification which kind of variables shall be measured.
@@ -42,7 +42,7 @@ public class VariablesPerFunctionMetric extends AbstractFunctionMetric<UsedVaria
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
      *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
      */
-    VariablesPerFunctionMetric(@NonNull MetricCreationParameters params) throws SetUpException {
+    VariablesPerFunction(@NonNull MetricCreationParameters params) throws SetUpException {
         
         super(params);
         this.measuredVars = params.getMetricSpecificSettingValue(VarType.class);
