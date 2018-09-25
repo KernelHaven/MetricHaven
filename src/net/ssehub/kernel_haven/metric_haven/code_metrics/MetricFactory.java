@@ -152,12 +152,12 @@ public class MetricFactory {
     static {
         List<@NonNull Class<? extends AbstractFunctionMetric<?>>> tmpList = new ArrayList<>();
         tmpList.add(DLoC.class);
-        tmpList.add(VariablesPerFunction.class);
-        tmpList.add(CyclomaticComplexity.class);
-        tmpList.add(NestingDepth.class);
-        tmpList.add(BlocksPerFunctionMetric.class);
+//        tmpList.add(VariablesPerFunction.class);
+//        tmpList.add(CyclomaticComplexity.class);
+//        tmpList.add(NestingDepth.class);
+//        tmpList.add(BlocksPerFunctionMetric.class);
         tmpList.add(TanglingDegree.class);
-        tmpList.add(FanInOut.class);
+//        tmpList.add(FanInOut.class);
         
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);
     }

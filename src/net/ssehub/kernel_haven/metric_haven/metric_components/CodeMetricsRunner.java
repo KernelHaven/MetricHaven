@@ -126,10 +126,56 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             LOGGER.logDebug2("Running for function ", function.getName(), " at ", function.getSourceFile(),
                    ":", function.getFunction().getLineStart());
             
-            runForSingleFunction(allMetrics, metrics, values, function);
+            runForSingleFunction2(allMetrics, metrics, values, function);
         }
     }
 
+    /**
+     * Executes all metric variations for a single function.
+     * @param allMetrics All metric instances to run.
+     * @param metricNames The name of the metrics in the same order.
+     * @param values The result array, will be changed as side-effect. Must be as big as the array of metric instances.
+     * @param function The function to measure.
+     */
+    @SuppressWarnings("null")
+    private void runForSingleFunction2(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
+            @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
+        
+        Thread[] threads = new Thread[nThreads];
+        // Rounds down
+        int partitionSize = allMetrics.size() / nThreads;
+        for (int i = 0; i < nThreads; i++) {
+            final int partionStart = i * partitionSize;
+            final int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
+            
+            threads[i] = new Thread(() -> {
+                
+                for (int j = partionStart; j < partitionEnd; j++) {
+                    Number result = allMetrics.get(j).compute(function);
+                    values[j] = (null != result) ? result.doubleValue() : null;
+                }
+                
+            });
+            
+            threads[i].start();
+        }
+        
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                LOGGER.logException("Could not join metric threads for joining the result", e);
+            }
+        }
+        
+        MultiMetricResult result = new MultiMetricResult(
+            new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
+                function.getFunction().getLineStart(), function.getName()),
+                metricNames, values);
+        
+        addResult(result);
+    }
+    
     /**
      * Executes all metric variations for a single function.
      * @param allMetrics All metric instances to run.
