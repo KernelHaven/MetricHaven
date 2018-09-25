@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,7 +27,7 @@ public class FunctionMap {
      *   CPP blocks.</li>
      * </ul>
      */
-    private Map<String, List<CodeFunction>> functionMap;
+    private Map<String, List<File>> functionMap;
     
     /**
      * Creates a new Function map that sores all existing functions.
@@ -36,12 +37,12 @@ public class FunctionMap {
         functionMap = new HashMap<>(functions.size());
         
         for (CodeFunction function: functions) {
-            List<CodeFunction> sameFunctions = functionMap.get(function.getName());
+            List<File> sameFunctions = functionMap.get(function.getName());
             if (null == sameFunctions) {
                 sameFunctions = new LinkedList<>();
                 functionMap.put(function.getName(), sameFunctions);
             }
-            sameFunctions.add(function);
+            sameFunctions.add(function.getSourceFile().getPath());
         }
     }
     
@@ -57,9 +58,9 @@ public class FunctionMap {
     /**
      * Returns the {@link CodeFunction} for the specified function.
      * @param functionName The name of the function for which the {@link CodeFunction} shall be returned.
-     * @return The (parsed) {@link CodeFunction}s of the specified function(name).
+     * @return Sources files declaring/implementing the file.
      */
-    public final @Nullable List<CodeFunction> getFunction(String functionName) {
+    public final @Nullable List<File> getFunction(String functionName) {
         return functionMap.get(functionName);
     }
 }

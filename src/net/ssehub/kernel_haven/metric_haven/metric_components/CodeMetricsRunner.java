@@ -145,7 +145,9 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         // Rounds down
         int partitionSize = allMetrics.size() / nThreads;
         for (int i = 0; i < nThreads; i++) {
+            // Start of interval (inclusive)
             final int partionStart = i * partitionSize;
+            // End of interval (exclusive)
             final int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
             
             threads[i] = new Thread(() -> {

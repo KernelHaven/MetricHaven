@@ -145,14 +145,14 @@ public class FanInOutVisitor extends AbstractFunctionVisitor {
     protected void functionCall(@NonNull Function caller, @NonNull String callee, Formula pc) {
     // CHECKSTYLE:ON
         
-        List<CodeFunction> others = getFunction(callee);
+        List<File> others = getFunction(callee);
         boolean isSameFile = false;
         
         File calleFile = null;
         File callerFile = caller.getSourceFile();
         if (null != others) {
-            for (CodeFunction otherFunction : others) {
-                calleFile = otherFunction != null ? otherFunction.getSourceFile().getPath() : null;
+            for (File otherFunction : others) {
+                calleFile = otherFunction;
                 isSameFile = (null != calleFile && calleFile.equals(callerFile));
                 if (isSameFile) {
                     break;
@@ -285,11 +285,11 @@ public class FanInOutVisitor extends AbstractFunctionVisitor {
     }
     
     /**
-     * Returns the {@link CodeFunction} for the specified function.
+     * Returns the source locations for the specified function.
      * @param functionName The name of the function for which the {@link CodeFunction} shall be returned.
-     * @return The (parsed) {@link CodeFunction}s of the specified function(name).
+     * @return The (locations) of the specified function(name).
      */
-    protected final @Nullable List<CodeFunction> getFunction(String functionName) {
+    protected final @Nullable List<File> getFunction(String functionName) {
         return allFunctions.getFunction(functionName);
     }
     
