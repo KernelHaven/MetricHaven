@@ -81,13 +81,15 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
                             
                             List<FunctionLocation> locations = functionLocations.get(fragments[i]);
                             if (!locations.isEmpty()) {
-                                if (locations.size() > 0) {
-                                    LOGGER.logWarning("Got " + locations.size() + " locations for function "
-                                            + fragments[i], "Using first one");
-                                }
+//                                if (locations.size() > 1) {
+//                                    LOGGER.logWarning2("Got ", locations.size(), " locations for function ",
+//                                        fragments[i], "Using first one");
+//                                }
                                 
-                                FunctionLocation target = notNull(locations.get(0));
-                                result.addFunctionCall(new FunctionCall(source, target));
+                                // TODO SE: Check if correct
+                                for (FunctionLocation target : locations) {
+                                    result.addFunctionCall(new FunctionCall(source, notNull(target)));
+                                }
                             }
                         }
                         
