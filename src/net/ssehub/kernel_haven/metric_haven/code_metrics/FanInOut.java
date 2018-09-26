@@ -129,7 +129,8 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
     @Override
     protected Number computeResult(@NonNull FanInOutVisitor functionVisitor, CodeFunction func) {
     // CHECKSTYLE:ON
-        List<@NonNull FunctionCall> functionCalls = functions.getFunctionCalls(func.getName());
+        List</*@NonNull*/ FunctionCall> functionCalls = functions.getFunctionCalls(func.getName());
+        // TODO: @NonNull is commented out, because jacoco fails (probably https://github.com/jacoco/jacoco/issues/585)
         
         // Compute desired values
         boolean validResult = true;
