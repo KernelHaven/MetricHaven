@@ -115,5 +115,15 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
             ? getMetricName() + " x " + weight.getName()
             : getMetricName();
     }
-
+    
+    /**
+     * Returns whether this function metric need to run on all code functions or may run on a filtered sub set if
+     * desired.
+     * 
+     * @return <tt>true</tt> if it may run on a filtered sub set, <tt>false</tt> if it needs always to be executed on
+     *     all elements.
+     */
+    public boolean isFilterable() {
+        return true;
+    }
 }

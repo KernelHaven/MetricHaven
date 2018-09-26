@@ -162,5 +162,18 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         
         return NullHelpers.notNull(resultName.toString());
     }
+    
+    @Override
+    public boolean isFilterable() {
+        /*
+         * Filterable variations are:
+         * - Local metrics require only the complete file for its computation
+         * - FanOut metrics can be computed by means of the Function map and won't need to run over all ASTs
+         * 
+         * Non filterable variations are:
+         * - Global FanIn metric, they need to gather all function calls in other functions
+         */
+        return type.isLocal() || type.name().contains("_OUT_");
+    }
 
 }
