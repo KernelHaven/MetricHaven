@@ -5,7 +5,11 @@ import java.util.List;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity.CCType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
@@ -133,5 +137,38 @@ public class MetricSettings {
             + "   of Feature code (LoF).\n"
             + " - " + DLoC.LoFType.PLOF.name()
             + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
+    
+    
+    public static final @NonNull Setting<FanInOut.@NonNull FanType> FAN_TYPE_SETTING
+        = new EnumSetting<>("metric.fan_in_out.type", FanInOut.FanType.class, true, 
+            FanInOut.FanType.CLASSICAL_FAN_IN_GLOBALLY, "Defines which type of fan in/out should be counted for a"
+            + " function.");
+    
+    public static final @NonNull Setting<@NonNull CCType> CC_VARIABLE_TYPE_SETTING
+        = new EnumSetting<>("metric.cyclomatic_complexity.measured_type", CCType.class, true, 
+                CCType.MCCABE, "Defines which variables should be counted for a function.");
+    
+    public static final @NonNull Setting<@NonNull NDType> ND_TYPE_SETTING
+        = new EnumSetting<>("metric.nesting_depth.measured_type", NDType.class, true, 
+        NDType.CLASSIC_ND_MAX, "Defines what should be counteded as the nesting depth:\n"
+            + " - " + NDType.CLASSIC_ND_MAX.name() + ": Counts the max. nesting depth w.r.t classical\n"
+            + "   control structures.\n"
+            + " - " + NDType.CLASSIC_ND_AVG.name() + ": Counts the avg. nesting depth w.r.t classical\n"
+            + "   control structures.\n"
+            + " - " + NDType.VP_ND_MAX.name() + ": Counts the max. nesting depth w.r.t variation points\n"
+            + "   (CPP-blocks).\n"
+            + " - " + NDType.VP_ND_AVG.name() + ": Counts the avg. nesting depth w.r.t variation points\n"
+            + "   (CPP-blocks).\n"
+            + " - " + NDType.COMBINED_ND_MAX.name() + ": " + NDType.CLASSIC_ND_MAX.name() + " + "
+                + NestingDepth.NDType.VP_ND_MAX.name() + "\n"
+            + " - " + NDType.COMBINED_ND_AVG.name() + ": " + NDType.CLASSIC_ND_AVG.name() + " + "
+            + NDType.VP_ND_AVG.name());
+    
+    public static final @NonNull Setting<
+        net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction.VarType> VARIABLE_TYPE_SETTING
+            = new EnumSetting<>("metric.variables_per_function.measured_variables_type",
+            net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction.VarType.class, true, 
+            net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction.VarType.ALL,
+                    "Defines which variables should be counted for a function.");
     
 }
