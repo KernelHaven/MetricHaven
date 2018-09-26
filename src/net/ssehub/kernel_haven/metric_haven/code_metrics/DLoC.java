@@ -5,6 +5,7 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
@@ -78,8 +79,7 @@ public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
             break;
         default:
             LOGGER.logError("Unsupported value setting for ", getClass().getName(), "-analysis: ",
-                net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LOC_TYPE_SETTING.getKey(),
-                "=", type.name());
+                    MetricSettings.LOC_TYPE_SETTING.getKey(), "=", type.name());
             result = null;
             break;
         }
@@ -103,8 +103,7 @@ public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
         default:
             resultName = "Unsupported metric specified";
             LOGGER.logError("Unsupported value setting for ", getClass().getName(), "-analysis: ",
-                net.ssehub.kernel_haven.metric_haven.metric_components.DLoC.LOC_TYPE_SETTING.getKey(),
-                "=", type.name());
+                MetricSettings.LOC_TYPE_SETTING.getKey(), "=", type.name());
             break;
         }
         

@@ -5,6 +5,7 @@ import java.util.List;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
@@ -120,4 +121,17 @@ public class MetricSettings {
                 + " - " + StructuralType.NUMBER_OF_CHILDREN.name() + ": Count number of children (inspired by RoV).\n"
                 + " - " + StructuralType.COC.name() + ": Count all edges (inspired by CoC).");
 
+    public static final @NonNull Setting<DLoC.LoFType>
+            LOC_TYPE_SETTING = new EnumSetting<>("metric.loc.measured_type", DLoC.LoFType.class, true, 
+            DLoC.LoFType.DLOC,
+            "Defines which lines of code should be counted for a function:\n"
+            + " - " + DLoC.LoFType.DLOC.name()
+            + ": Counts all statements, i.e., all delivered Lines of Code\n"
+            + "   (dLoC).\n"
+            + " - " + DLoC.LoFType.LOF.name()
+            + ": Counts all variable statements, sometimes refereed to as Lines\n"
+            + "   of Feature code (LoF).\n"
+            + " - " + DLoC.LoFType.PLOF.name()
+            + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
+    
 }

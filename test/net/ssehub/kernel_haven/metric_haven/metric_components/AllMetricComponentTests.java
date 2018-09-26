@@ -11,7 +11,6 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    CyclomaticComplexityMetricTest.class,
     VariationPointerCounterTest.class,
     })
 public class AllMetricComponentTests {
