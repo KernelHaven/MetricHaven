@@ -41,7 +41,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             + "rounded up). This is maybe neccessary to limit the disk usage.");
     
     public static final @NonNull Setting<@Nullable List<@NonNull String>> METRICS_SETTING = new Setting<>(
-            "metrics.metrics", Type.SETTING_LIST, false, null,
+            "metrics.metrics", Type.STRING_LIST, false, null,
             "Defines a list of fully qualified class names of metrics that the "
             + CodeMetricsRunner.class.getName() + " component should execute.");
     
