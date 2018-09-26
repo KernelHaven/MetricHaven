@@ -24,7 +24,8 @@ public class MultiMetricResult implements ITableRow {
     private @Nullable Double @NonNull [] values;
 
     /**
-     * Creates a new instance and shares the header information with the previous result of the same result.
+     * Creates a new instance and shares the header information with the previous result of the <b>same</b> kind of
+     * result.
      * 
      * @param measuredItem The item that was measured.
      * 
