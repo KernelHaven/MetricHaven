@@ -157,7 +157,7 @@ public class MetricFactory {
         tmpList.add(NestingDepth.class);
         tmpList.add(BlocksPerFunctionMetric.class);
         tmpList.add(TanglingDegree.class);
-        tmpList.add(FanInOut.class);
+//        tmpList.add(FanInOut.class);
         
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);
     }
