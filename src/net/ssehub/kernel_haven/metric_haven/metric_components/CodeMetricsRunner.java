@@ -40,7 +40,14 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         Type.BOOLEAN, true, "false", "If turned on, results will be limited to 2 digits after the comma (0.005 will be "
             + "rounded up). This is maybe neccessary to limit the disk usage.");
     
+    public static final @NonNull Setting<@Nullable List<@NonNull String>> METRICS_SETTING = new Setting<>(
+            "metrics.metrics", Type.SETTING_LIST, false, null,
+            "Defines a list of fully qualified class names of metrics that the "
+            + CodeMetricsRunner.class.getName() + " component should execute.");
+    
     private boolean round = false;
+    
+    private @Nullable Class<? extends AbstractFunctionMetric<?>> metricClass;
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -65,6 +72,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @throws SetUpException If creating the metric instances fails.
      */
     //CHECKSTYLE:OFF // More than 5 parameters
+    @SuppressWarnings("unchecked")
     public CodeMetricsRunner(@NonNull Configuration config,
     //CHECKSTYLE:ON
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
@@ -80,6 +88,25 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         this.bmComponent = bmComponent;
         this.sdComponent = sdComponent;
         this.fmComponent = fmComponent;
+        
+        config.registerSetting(METRICS_SETTING);
+        List<@NonNull String> metricClassNames = config.getValue(METRICS_SETTING);
+        if (metricClassNames != null) {
+            if (metricClassNames.size() > 1) {
+                throw new SetUpException("Specifying more than one metric in " + METRICS_SETTING.getKey() + " is "
+                        + "currently unsupported; either specify one or none (i.e. run all metrics)");
+            }
+            if (metricClassNames.isEmpty()) {
+                throw new SetUpException(METRICS_SETTING.getKey() + " contains no metrics");
+            }
+            
+            try {
+                this.metricClass = (Class<? extends AbstractFunctionMetric<?>>)
+                        ClassLoader.getSystemClassLoader().loadClass(metricClassNames.get(0));
+            } catch (ReflectiveOperationException e) {
+                throw new SetUpException("Can't load metric class", e);
+            }
+        }
         
         config.registerSetting(MAX_THREADS);
         nThreads = config.getValue(MAX_THREADS);
@@ -121,7 +148,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer);
             params.setFunctionMap(functionMap);
             
-            allMetrics = MetricFactory.createAllVariations(params);
+            
+            if (metricClass == null) {
+                allMetrics = MetricFactory.createAllVariations(params);
+            } else {
+                allMetrics = MetricFactory.createAllVarations(notNull(metricClass), params);
+            }
             
         } catch (SetUpException e) {
             LOGGER.logException("Could not create metric instances", e);

@@ -301,4 +301,30 @@ public class MetricFactory {
         return result;
     }
     
+    /**
+     * Creates all valid variations of the given code function metric, each variation will appear only once.
+     * 
+     * @param metricClass The metric class to create all variations for.
+     * @param params The parameters for creating metrics.
+     * 
+     * @return All valid variations of the given code function metric.
+     * @throws SetUpException In case that at least one metric instance throws a SetUpException.
+     */
+    public static @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllVarations(
+            @NonNull Class<? extends AbstractFunctionMetric<?>> metricClass, @NonNull MetricCreationParameters params)
+            throws SetUpException {
+        
+        List<@NonNull AbstractFunctionMetric<?>> result = new ArrayList<>();
+        List<IVariableWeight> weights
+            = CachedWeightFactory.createAllCombinations(params.getVarModel(), params.getSdContainer());
+        
+        for (IVariableWeight weight : weights) {
+            params.setWeight(weight);
+            result.addAll(createAllVariations(params, metricClass));
+        }
+        
+        return result;
+        
+    }
+    
 }

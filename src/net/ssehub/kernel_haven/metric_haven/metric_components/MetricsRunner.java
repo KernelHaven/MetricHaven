@@ -15,16 +15,19 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionM
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
- * Runs all variations of all metric-analysis classes.
+ * Runs metrics.
  * 
  * @author El-Sharkawy
+ * @author Adam
  */
 public class MetricsRunner extends PipelineAnalysis {
     
     /**
      * Single constructor to instantiate and execute all variations of a single metric-analysis class.
+     * 
      * @param config The global configuration.
-     * @throws SetUpException In case of problems with the configuration of {@link #METRICS_CLASS}.
+     * 
+     * @throws SetUpException In case of problems with the configuration.
      */
     public MetricsRunner(@NonNull Configuration config) throws SetUpException {
         super(config);
