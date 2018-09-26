@@ -51,6 +51,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private int nThreads;
     
     private long time = 0;
+    private MultiMetricResult firstResult;
     
     /**
      * Creates this processing unit.
@@ -195,24 +196,30 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
             function.getFunction().getLineStart(), function.getName());
-        MultiMetricResult result = new MultiMetricResult(funcDescription, metricNames, values);
-        
-        addResult(result);
+        if (null == firstResult) {
+            // Initializes header
+            firstResult = new MultiMetricResult(funcDescription, metricNames, values);
+            addResult(firstResult);
+        } else {
+            // Less memory/time consuming
+            MultiMetricResult result = new MultiMetricResult(funcDescription, firstResult, values);
+            addResult(result);
+        }
     }
     
 //    /**
 //     * Executes all metric variations for a single function.
 //     * @param allMetrics All metric instances to run.
 //     * @param metricNames The name of the metrics in the same order.
-//     * @param values The result array, will be changed as side-effect. Must be as big as the array of metric instances.
+//   * @param values The result array, will be changed as side-effect. Must be as big as the array of metric instances.
 //     * @param function The function to measure.
 //     */
 //    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-//        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
+//      @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
 //        
 //        AtomicInteger valuesIndex = new AtomicInteger(0);
 //        
-//        OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
+//      OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
 //            (metric) -> {
 //                Number n = metric.compute(function);
 //                Double result = null;
