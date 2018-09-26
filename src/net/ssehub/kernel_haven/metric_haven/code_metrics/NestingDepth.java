@@ -85,8 +85,10 @@ public class NestingDepth extends AbstractFunctionMetric<NestingDepthVisitor> {
     }
 
     @Override
+    // CHECKSTYLE:OFF
     protected @NonNull NestingDepthVisitor createVisitor(@Nullable VariabilityModel varModel,
         @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
+    // CHECKSTYLE:ON
         return type.isVariabilityMetric ? new NestingDepthVisitor(varModel, weight)
             : new NestingDepthVisitor(varModel);
     }

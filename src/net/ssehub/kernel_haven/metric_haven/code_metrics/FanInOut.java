@@ -106,8 +106,10 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
     }
 
     @Override
+    // CHECKSTYLE:OFF
     protected @NonNull FanInOutVisitor createVisitor(@Nullable VariabilityModel varModel,
         @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
+    // CHECKSTYLE:ON
         
         this.weight = weight;
         return new FanInOutVisitor(varModel);

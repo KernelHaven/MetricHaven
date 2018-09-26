@@ -54,8 +54,10 @@ public class DLoC extends AbstractFunctionMetric<LoCVisitor> {
     }
 
     @Override
+    // CHECKSTYLE:OFF
     protected @NonNull LoCVisitor createVisitor(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
         @NonNull IVariableWeight weight) {
+    // CHECKSTYLE:ON
         
         // DLoC does not consider any IVariableWeights
         return new LoCVisitor(varModel);

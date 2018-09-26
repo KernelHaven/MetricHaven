@@ -50,7 +50,9 @@ public class BlocksPerFunctionMetric extends AbstractFunctionMetric<BlockCounter
     }
 
     @Override
+    // CHECKSTYLE:OFF
     protected @NonNull BlockCounter createVisitor(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
+    // CHECKSTYLE:ON
         @NonNull IVariableWeight weight) {
         
         return new BlockCounter(measuredBlocks, varModel);

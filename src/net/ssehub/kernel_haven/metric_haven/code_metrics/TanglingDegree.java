@@ -29,8 +29,10 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
     }
 
     @Override
+    // CHECKSTYLE:OFF
     protected @NonNull TanglingVisitor createVisitor(@Nullable VariabilityModel varModel,
         @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
+    // CHECKSTYLE:ON
         
         return new TanglingVisitor(varModel, weight);
     }

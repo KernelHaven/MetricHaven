@@ -53,8 +53,10 @@ public class VariablesPerFunction extends AbstractFunctionMetric<UsedVariability
     }
 
     @Override
+    // CHECKSTYLE:OFF
     protected @NonNull UsedVariabilityVarsVisitor createVisitor(@Nullable VariabilityModel varModel,
         @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
+    // CHECKSTYLE:ON
         
         UsedVariabilityVarsVisitor visitor;
         if (measuredVars == VarType.INTERNAL || measuredVars == VarType.EXTERNAL || measuredVars == VarType.ALL) {
