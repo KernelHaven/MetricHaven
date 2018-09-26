@@ -157,7 +157,6 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     break;
                 case DEGREE_CENTRALITY_OUT_GLOBALLY:
                     // falls through
-                    break;
                 case DEGREE_CENTRALITY_OUT_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
                     if (isDesiredFunction(call.getSource(), func)) {
@@ -168,7 +167,6 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                 // Functions CALLING the specified function (target)
                 case CLASSICAL_FAN_IN_GLOBALLY:
                     // falls through
-                    break;
                 case CLASSICAL_FAN_IN_LOCALLY:
                     // Measures (locally/globally) the number of CALLING functions for a specified function
                     if (isDesiredFunction(call.getTarget(), func)) {
@@ -177,7 +175,6 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     break;
                 case VP_FAN_IN_GLOBALLY:
                     // falls through
-                    break;
                 case VP_FAN_IN_LOCALLY:
                     // Measures the number of CALLING functions for a specified function, which have a different PC
                     if (isDesiredFunction(call.getTarget(), func) && !haveSamePC(call.getTarget(), func)) {
@@ -186,7 +183,6 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     break;
                 case DEGREE_CENTRALITY_IN_GLOBALLY:
                     // falls through
-                    break;
                 case DEGREE_CENTRALITY_IN_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
                     if (isDesiredFunction(call.getTarget(), func)) {
