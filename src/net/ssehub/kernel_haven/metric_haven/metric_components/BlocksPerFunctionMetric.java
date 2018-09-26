@@ -22,6 +22,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
+@Deprecated
 public class BlocksPerFunctionMetric extends AbstractFunctionVisitorBasedMetric<BlockCounter> {
 
     public static final @NonNull Setting<@NonNull BlockMeasureType> BLOCK_TYPE_SETTING

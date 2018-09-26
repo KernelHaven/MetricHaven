@@ -30,6 +30,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
+@Deprecated
 public class NestingDepthMetric extends AbstractFunctionVisitorBasedMetric<NestingDepthVisitor> {
     
     public static final @NonNull Setting<@NonNull NDType> ND_TYPE_SETTING

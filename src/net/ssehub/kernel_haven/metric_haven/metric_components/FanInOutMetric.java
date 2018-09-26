@@ -20,7 +20,7 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut.FanType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
-import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FanInOutVisitor;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.OldFanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
@@ -32,7 +32,8 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutVisitor> {
+@Deprecated
+public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<OldFanInOutVisitor> {
 
     public static final @NonNull Setting<@NonNull FanType> FAN_TYPE_SETTING
         = new EnumSetting<>("metric.fan_in_out.type", FanInOut.FanType.class, true, 
@@ -159,13 +160,13 @@ public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutV
     }
 
     @Override
-    protected final @NonNull FanInOutVisitor createVisitor(@Nullable VariabilityModel varModel) {
+    protected final @NonNull OldFanInOutVisitor createVisitor(@Nullable VariabilityModel varModel) {
         throw new IllegalArgumentException("Wrong factory for visitor creation called: createVisitor(VariabilityModel),"
             + " but should be createVisitor(List<CodeFunction>, VariabilityModel, IVariableWeight)");
     }
     
     @Override
-    protected final double computeResult(@NonNull FanInOutVisitor visitor) {
+    protected final double computeResult(@NonNull OldFanInOutVisitor visitor) {
         throw new IllegalArgumentException("Wrong computation method called: computeResult(VariabilityModel),"
             + " but should be computeResult(List<CodeFunction>, VariabilityModel)");
     }
@@ -178,7 +179,7 @@ public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutV
      * @return The computed value or {@link Double#NaN} if no result could be computed an this metric should not
      *     mention the result.
      */
-    private double computeResult(@NonNull FanInOutVisitor visitor, CodeFunction function) {
+    private double computeResult(@NonNull OldFanInOutVisitor visitor, CodeFunction function) {
         return visitor.getResult(function.getName());
     }
 
@@ -192,11 +193,11 @@ public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutV
      * @return The visitor to compute the fan-in fan-out metric by the inherited metric analysis.
      */
     // CHECKSTYLE:OFF checkstyle can't parse the annotations properly...
-    private @NonNull FanInOutVisitor createVisitor(@NonNull List<CodeFunction> functions,
+    private @NonNull OldFanInOutVisitor createVisitor(@NonNull List<CodeFunction> functions,
         @Nullable VariabilityModel varModel, IVariableWeight weight) {
     // CHECKSTYLE:ON
         
-        return new FanInOutVisitor(functions, varModel, type, weight);
+        return new OldFanInOutVisitor(functions, varModel, type, weight);
     }
 
     @Override
@@ -267,7 +268,7 @@ public class FanInOutMetric extends AbstractFunctionVisitorBasedMetric<FanInOutV
         // Looses threading for sub analyses, but should not be a big issue
         
         // Gather function calls for all functions
-        FanInOutVisitor visitor = createVisitor(functions, varModel, getWeighter());
+        OldFanInOutVisitor visitor = createVisitor(functions, varModel, getWeighter());
         for (CodeFunction func : functions) {
             if (filter(func)) {
                 func.getFunction().accept(visitor);

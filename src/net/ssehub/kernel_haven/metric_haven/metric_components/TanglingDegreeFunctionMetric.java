@@ -17,6 +17,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
+@Deprecated
 public class TanglingDegreeFunctionMetric extends AbstractFunctionVisitorBasedMetric<TanglingVisitor> {
 
     /**

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -56,7 +55,7 @@ public class CodeMetricsRunnerTest {
         varModel.getDescriptor().addAttribute(Attribute.HIERARCHICAL);
         BuildModel bm = new BuildModel();
         ScatteringDegreeContainer sdc = new ScatteringDegreeContainer(new HashSet<>());
-        FunctionMap emptyMap = new FunctionMap(new LinkedList<>());
+        FunctionMap emptyMap = new FunctionMap();
         
         List<MultiMetricResult> result = AnalysisComponentExecuter.executeComponent(CodeMetricsRunner.class,
                 new TestConfiguration(new Properties()),

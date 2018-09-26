@@ -29,6 +29,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  * @author Adam
  */
+@Deprecated
 public class CyclomaticComplexityMetric extends AbstractFunctionVisitorBasedMetric<McCabeVisitor> {
     
     public static final @NonNull Setting<@NonNull CCType> VARIABLE_TYPE_SETTING

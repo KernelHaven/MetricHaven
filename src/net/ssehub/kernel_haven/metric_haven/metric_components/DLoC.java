@@ -18,6 +18,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
+@Deprecated
 public class DLoC extends AbstractFunctionVisitorBasedMetric<LoCVisitor> {
     
     public static final @NonNull Setting<net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType>

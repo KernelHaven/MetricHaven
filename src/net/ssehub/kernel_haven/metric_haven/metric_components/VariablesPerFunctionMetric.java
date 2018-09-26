@@ -24,6 +24,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
+@Deprecated
 public class VariablesPerFunctionMetric extends AbstractFunctionVisitorBasedMetric<UsedVariabilityVarsVisitor> {
 
     public static final @NonNull Setting<

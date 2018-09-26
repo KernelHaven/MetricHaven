@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import java.util.List;
+
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
@@ -8,6 +10,7 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FanInOutVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionCall;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -17,8 +20,9 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
  * Measurement of various fan-in/fan-out metrics based on function calls.
+ * 
  * @author El-Sharkawy
- *
+ * @author Adam
  */
 public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
 
@@ -72,6 +76,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
     
     private @NonNull FanType type;
     private @NonNull FunctionMap functions;
+    private IVariableWeight weight;
     
     /**
      * Creates a new {@link FanInOut}-metric instance.
@@ -104,12 +109,19 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
     protected @NonNull FanInOutVisitor createVisitor(@Nullable VariabilityModel varModel,
         @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
         
-        return new FanInOutVisitor(functions, varModel, type, weight);
+        this.weight = weight;
+        return new FanInOutVisitor(varModel);
     }
 
     @Override
     protected Number computeResult(@NonNull FanInOutVisitor functionVisitor, CodeFunction func) {
-        return functionVisitor.getResult(func.getName());
+
+        String functionName = func.getName();
+        List<FunctionCall> functionCalls = functions.getFunctionCalls(functionName);
+        
+        // TODO: calculate metric
+        
+        return 0;
     }
 
     @Override

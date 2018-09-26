@@ -1,66 +1,146 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
- * Container that stores all functions to easily detect whether an identifier is a function and to retrieve all
- * {@link CodeFunction}s for a given function name.
- * @author El-Sharkawy
+ * Container that stores {@link FunctionCall}s for each function.
  *
+ * @author Adam
  */
 public class FunctionMap {
 
     /**
-     * Tuple of
-     * <ul>
-     *   <li>Unique name of function</li>
-     *   <li>Locations of function (maybe there exist multiple definitions of the same function, e.g., in different
-     *   CPP blocks.</li>
-     * </ul>
+     * Represents a function and it's location.
      */
-    private Map<String, List<File>> functionMap;
-    
-    /**
-     * Creates a new Function map that sores all existing functions.
-     * @param functions The functions to store.
-     */
-    public FunctionMap(@NonNull Collection<CodeFunction> functions) {
-        functionMap = new HashMap<>(functions.size());
+    public static class FunctionLocation {
         
-        for (CodeFunction function: functions) {
-            List<File> sameFunctions = functionMap.get(function.getName());
-            if (null == sameFunctions) {
-                sameFunctions = new LinkedList<>();
-                functionMap.put(function.getName(), sameFunctions);
-            }
-            sameFunctions.add(function.getSourceFile().getPath());
+        private @NonNull String name;
+        
+        private @NonNull File file;
+        
+        private @NonNull Formula presenceCondition;
+
+        /**
+         * Creates a new {@link FunctionLocation}.
+         * 
+         * @param name The name of the function.
+         * @param file The source file of the function.
+         * @param presenceCondition The presence condition of the functino.
+         */
+        public FunctionLocation(@NonNull String name, @NonNull File file, @NonNull Formula presenceCondition) {
+            this.name = name;
+            this.file = file;
+            this.presenceCondition = presenceCondition;
         }
+
+        /**
+         * Returns the name of the function.
+         * 
+         * @return The name of the function.
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * Returns the source file of the function.
+         * 
+         * @return The file of the function.
+         */
+        public File getFile() {
+            return file;
+        }
+
+        /**
+         * Returns the presence condition of the function.
+         * 
+         * @return The PC of the function.
+         */
+        public Formula getPresenceCondition() {
+            return presenceCondition;
+        }
+        
     }
     
     /**
-     * Checks whether the given identifier is a defined function name.
-     * @param identifier A token to check.
-     * @return <tt>true</tt> if it is known to be a function, <tt>false</tt> otherwise.
+     * Represents a function call from a source function to a target function.
      */
-    public final boolean isFunction(String identifier) {
-        return functionMap.containsKey(identifier);
+    public static class FunctionCall {
+        
+        private @NonNull FunctionLocation source;
+        
+        private @NonNull FunctionLocation target;
+
+        /**
+         * Creates a new function call.
+         * 
+         * @param source The source function.
+         * @param target The target function.
+         */
+        public FunctionCall(@NonNull FunctionLocation source, @NonNull FunctionLocation target) {
+            this.source = source;
+            this.target = target;
+        }
+        
+        /**
+         * Returns the source function (i.e. the function that is calling).
+         * 
+         * @return The source function.
+         */
+        public FunctionLocation getSource() {
+            return source;
+        }
+        
+        /**
+         * Returns the target function (i.e. the function that is called).
+         * 
+         * @return The target function.
+         */
+        public FunctionLocation getTarget() {
+            return target;
+        }
+        
+    }
+
+    private @NonNull Map<String, List<@NonNull FunctionCall>> functionCalls;
+    
+    /**
+     * Creates an empty {@link FunctionMap}.
+     */
+    public FunctionMap() {
+        this.functionCalls = new HashMap<>();
     }
     
     /**
-     * Returns the {@link CodeFunction} for the specified function.
-     * @param functionName The name of the function for which the {@link CodeFunction} shall be returned.
-     * @return Sources files declaring/implementing the file.
+     * Adds a {@link FunctionCall} to this map.
+     * 
+     * @param call The function call to add.
      */
-    public final @Nullable List<File> getFunction(String functionName) {
-        return functionMap.get(functionName);
+    public void addFunctionCall(@NonNull FunctionCall call) {
+        this.functionCalls.putIfAbsent(call.getSource().getName(), new ArrayList<>());
+        this.functionCalls.get(call.getSource().getName()).add(call);
+        
+        this.functionCalls.putIfAbsent(call.getTarget().getName(), new ArrayList<>());
+        this.functionCalls.get(call.getTarget().getName()).add(call);
     }
+    
+    /**
+     * Retrieves all {@link FunctionCall}s where the given function is either source or target.
+     * 
+     * @param functionName The name of the function to get calls for.
+     * 
+     * @return A list of {@link FunctionCall}s. <code>null</code> if the given name does not describe a function.
+     */
+    public @Nullable List<@NonNull FunctionCall> getFunctionCalls(@NonNull String functionName) {
+        return this.functionCalls.get(functionName);
+    }
+    
 }

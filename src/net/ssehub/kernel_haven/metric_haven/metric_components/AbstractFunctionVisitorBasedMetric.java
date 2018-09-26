@@ -45,6 +45,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attr
  * @param <V> The {@link AbstractFunctionVisitor}-<b>visitor</b>
  *     which is used for all (derivations) of the metric to compute.
  */
+@Deprecated
 abstract class AbstractFunctionVisitorBasedMetric<V extends AbstractFunctionVisitor>
     extends AnalysisComponent<MetricResult> {
 

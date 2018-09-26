@@ -33,6 +33,7 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
  * @author El-Sharkawy
  *
  */
+@Deprecated
 abstract class AbstractMultiFunctionMetrics extends PipelineAnalysis {
 
     /**

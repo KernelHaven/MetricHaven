@@ -38,6 +38,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  * @author El-Sharkawy
  *
  */
+@Deprecated
 public class MetricsRunner extends AbstractMultiFunctionMetrics {
     
     public static final @NonNull Setting<@NonNull String> METRICS_CLASS

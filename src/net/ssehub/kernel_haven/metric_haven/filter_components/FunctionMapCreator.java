@@ -1,20 +1,26 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
-import java.util.LinkedList;
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
+import net.ssehub.kernel_haven.code_model.ast.Code;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionCall;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionLocation;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
- * Creates from filtered {@link CodeFunction}s a {@link FunctionMap}, required for
- * {@link net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut}-metrics.
- * {@link OrderedCodeFunctionFilter} and {@link CodeFunctionFilter}
- * @see {@link CodeFunctionFilter}, {@link CodeFunctionByLineFilter}, and {@link OrderedCodeFunctionFilter}
- * @author El-Sharkawy
- *
+ * Creates a {@link FunctionMap} for the given code model. Requires an unfiltered list of {@link CodeFunction}s (i.e.
+ * a complete code model for the whole source tree).
+ * 
+ * @author Adam
  */
 public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
 
@@ -36,13 +42,65 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
     
     @Override
     protected void execute() {
-        List<CodeFunction> functions = new LinkedList<>();
+        List<CodeFunction> allFunctions = new ArrayList<>();
+        Map<String, List<FunctionLocation>> functionLocations = new HashMap<>();
+        
+        /*
+         * Step one: Collect FunctionLocations for all functions
+         * (also store allFunctions since we need to iterate over it again)
+         */
+        
         CodeFunction function;
         while ((function = cmProvider.getNextResult()) != null)  {
-            functions.add(function);
+            allFunctions.add(function);
+            
+            String name = function.getName();
+            functionLocations.putIfAbsent(name, new ArrayList<>());
+            functionLocations.get(name).add(new FunctionLocation(name, function.getSourceFile().getPath(),
+                    function.getFunction().getPresenceCondition()));
         }
         
-        addResult(new FunctionMap(functions));
+        /*
+         * Step two: visit all functions to find function calls
+         */
+        FunctionMap result = new FunctionMap();
+        
+        for (CodeFunction func : allFunctions) {
+            FunctionLocation source = new FunctionLocation(func.getName(), func.getSourceFile().getPath(),
+                    func.getFunction().getPresenceCondition());
+            
+            func.getFunction().accept(new ISyntaxElementVisitor() {
+                
+                @Override
+                public void visitCode(@NonNull Code code) {
+                    
+                    String[] fragments = code.getText().split(" ");
+                    for (int i = 0; i < fragments.length - 1; i++) {
+                        
+                        if (fragments[i + 1].equals("(") && functionLocations.containsKey(fragments[i])) {
+                            
+                            List<FunctionLocation> locations = functionLocations.get(fragments[i]);
+                            if (!locations.isEmpty()) {
+                                if (locations.size() > 0) {
+                                    LOGGER.logWarning("Got " + locations.size() + " locations for function "
+                                            + fragments[i], "Using first one");
+                                }
+                                
+                                FunctionLocation target = notNull(locations.get(0));
+                                result.addFunctionCall(new FunctionCall(source, target));
+                            }
+                        }
+                        
+                    }
+                    
+                    ISyntaxElementVisitor.super.visitCode(code);
+                }
+                
+            });
+            
+        }
+        
+        addResult(result);
     }
 
     @Override

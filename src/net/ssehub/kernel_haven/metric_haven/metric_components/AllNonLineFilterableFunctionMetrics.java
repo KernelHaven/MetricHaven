@@ -30,6 +30,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  * 
  * @author Adam
  */
+@Deprecated
 public class AllNonLineFilterableFunctionMetrics extends AbstractMultiFunctionMetrics {
 
     /**
