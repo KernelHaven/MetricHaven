@@ -50,7 +50,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     
     private int nThreads;
     
-    private long time = 0;
     private MultiMetricResult firstResult;
     
     /**
@@ -143,8 +142,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             
             runForSingleFunction2(allMetrics, metrics, values, function);
         }
-        
-        LOGGER.logStatusLines("Execution of metrics took " + time, " ms in total.");
     }
 
     /**
@@ -158,7 +155,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private void runForSingleFunction2(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
         @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
         
-        long start = System.currentTimeMillis();
         Thread[] threads = new Thread[nThreads];
         // Rounds down
         int partitionSize = allMetrics.size() / nThreads;
@@ -191,8 +187,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 LOGGER.logException("Could not join metric threads for joining the result", e);
             }
         }
-        
-        time += System.currentTimeMillis() - start;
         
         MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
             function.getFunction().getLineStart(), function.getName());
