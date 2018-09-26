@@ -38,7 +38,6 @@ public class CodeMetricsRunnerTest {
      * 
      * @throws SetUpException unwanted.
      */
-    @SuppressWarnings("null")
     @Test
     public void testSimple() throws SetUpException {
         

@@ -55,6 +55,7 @@ public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
         boolean isFeatureDependent = true;
         
         Formula condition = block.getCondition();
+        VariabilityModel varModel = this.varModel;
         if (null != varModel && null != condition) {
             isFeatureDependent = false;
             VariableFinder varFinder = new VariableFinder();
