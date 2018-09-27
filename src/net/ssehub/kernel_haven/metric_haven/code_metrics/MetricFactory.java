@@ -4,14 +4,25 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CachedWeightFactory;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -48,6 +59,15 @@ public class MetricFactory {
         
         private Object metricSpecificSettingValue;
         
+        private @Nullable SDType sdValue;
+        private @Nullable CTCRType ctcrValue;
+        private @Nullable FeatureDistanceType distanceValue;
+        private @Nullable VariabilityTypeMeasureType varTypeValue;
+        private @Nullable HierarchyType hierarhcyValue;
+        private @Nullable StructuralType structureValue;
+        private boolean singleMetricExecution;
+        
+        
         /**
          * Creates configuration parameters to instantiate a metric via the {@link MetricFactory}.
          * @param varModel The {@link VariabilityModel}
@@ -60,6 +80,7 @@ public class MetricFactory {
             this.varModel = varModel;
             this.buildModel = buildModel;
             this.sdContainer = sdContainer;
+            singleMetricExecution = false;
         }
         
         /**
@@ -145,9 +166,26 @@ public class MetricFactory {
             return functionMap;
         }
         
+        public void setScatteringDegree(SDType sdSpecification) {
+            this.sdValue = sdSpecification;
+        }
+        
+        public SDType getScatteringDegree() {
+            return sdValue;
+        }
+        
+        public void setSingleMetricExecution(boolean singleMetricExecution) {
+            this.singleMetricExecution = singleMetricExecution;
+        }
+        
+        public boolean isSingleMetricExecution() {
+            return singleMetricExecution;
+        }
     }
     
     private static final List<@NonNull Class<? extends AbstractFunctionMetric<?>>> SUPPORTED_METRICS;
+    private static final Map<@NonNull Class<? extends AbstractFunctionMetric<?>>, Setting<?>>
+        METRIC_SPECIFIC_SETTINGS;
     
     static {
         List<@NonNull Class<? extends AbstractFunctionMetric<?>>> tmpList = new ArrayList<>();
@@ -158,8 +196,17 @@ public class MetricFactory {
         tmpList.add(BlocksPerFunctionMetric.class);
         tmpList.add(TanglingDegree.class);
 //        tmpList.add(FanInOut.class);
-        
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);
+        
+        Map<@NonNull Class<? extends AbstractFunctionMetric<?>>, Setting<?>> settings = new HashMap<>();
+        settings.put(BlocksPerFunctionMetric.class, MetricSettings.BLOCK_TYPE_SETTING);
+        settings.put(CyclomaticComplexity.class, MetricSettings.CC_VARIABLE_TYPE_SETTING);
+        settings.put(DLoC.class, MetricSettings.LOC_TYPE_SETTING);
+        settings.put(FanInOut.class, MetricSettings.FAN_TYPE_SETTING);
+        settings.put(NestingDepth.class, MetricSettings.ND_TYPE_SETTING);
+        // Tangling degree does not specify metric-specific settings
+        settings.put(VariablesPerFunction.class, MetricSettings.VARIABLE_TYPE_SETTING);
+        METRIC_SPECIFIC_SETTINGS = Collections.unmodifiableMap(settings);
     }
     
     /**
@@ -226,7 +273,6 @@ public class MetricFactory {
      * @param metricClass The metric to instantiate.
      *
      * @return A list of all valid  metric combinations.
-     * @throws SetUpException In case that at least one metric instance throws a SetUpException.
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
      *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
      */
@@ -277,6 +323,43 @@ public class MetricFactory {
     }
     
     /**
+     * 
+     * @param params The parameters for creating the class ({@link VariabilityModel}, {@link BuildModel},
+     *     individual settings, ...)
+     * @param metricClass The metric to instantiate.
+     *
+     * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
+     *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
+     */
+    private static @Nullable AbstractFunctionMetric<?> createMetric(@NonNull MetricCreationParameters params,
+        @NonNull Class<? extends AbstractFunctionMetric<?>> metricClass)
+        throws SetUpException {
+        
+        AbstractFunctionMetric<?> result = null;
+        
+        try {
+            Constructor<?> constructor = null;
+            try {
+                constructor = metricClass.getDeclaredConstructor(MetricCreationParameters.class);
+            } catch (NoSuchMethodException exc) {
+                Logger.get().logException("Could not load constructor for " + metricClass.getName(), exc);
+            }
+            
+            // Create instances by instantiating all legal combinations
+            if (null != constructor) {
+                result = createInstance(constructor, params);
+            } else {
+                Logger.get().logError2("Could not detect constructors of metric: ", metricClass.getName());
+            }
+        } catch (SecurityException e) {
+            Logger.get().logError2("Was not allowed to instantiate metric: ", metricClass.getName());
+        }
+        
+        
+        return result;
+    }
+    
+    /**
      * Creates all valid variations of all code function metrics, each variation will appear only once.
      * 
      * @param params The parameters for creating metrics.
@@ -310,21 +393,51 @@ public class MetricFactory {
      * @return All valid variations of the given code function metric.
      * @throws SetUpException In case that at least one metric instance throws a SetUpException.
      */
-    public static @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllVarations(
+    public static @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllVariations(
             @NonNull Class<? extends AbstractFunctionMetric<?>> metricClass, @NonNull MetricCreationParameters params)
             throws SetUpException {
         
         List<@NonNull AbstractFunctionMetric<?>> result = new ArrayList<>();
-        List<IVariableWeight> weights
-            = CachedWeightFactory.createAllCombinations(params.getVarModel(), params.getSdContainer());
         
-        for (IVariableWeight weight : weights) {
-            params.setWeight(weight);
-            result.addAll(createAllVariations(params, metricClass));
+        if (params.isSingleMetricExecution()) {
+            List<IVariableWeight> weights
+                = CachedWeightFactory.createVariabilityWeight(params.getVarModel(), params.getSdContainer(), params);
+            for (IVariableWeight weight : weights) {
+                params.setWeight(weight);
+                AbstractFunctionMetric<?> metric = createMetric(params, metricClass);
+                if (null != metric) {
+                    result.add(metric);
+                }
+            }
+        } else {
+            List<IVariableWeight> weights =
+                CachedWeightFactory.createAllCombinations(params.getVarModel(), params.getSdContainer());
+            for (IVariableWeight weight : weights) {
+                params.setWeight(weight);
+                result.addAll(createAllVariations(params, metricClass));
+            }
         }
+        
         
         return result;
         
     }
     
+    public static @Nullable Object configureAndReadMetricSpecificSetting(Configuration config,
+        @NonNull Class<? extends AbstractFunctionMetric<?>> metricClass) {
+        
+        Object result = null;
+        Setting<?> setting = METRIC_SPECIFIC_SETTINGS.get(metricClass);
+        if (null != setting) {
+            try {
+                config.registerSetting(setting);
+                result = config.getValue(setting);
+            } catch (SetUpException exc) {
+                Logger.get().logException("Could not load metric-specific setting for metric: " + metricClass.getName(),
+                    exc);
+            }
+        }
+        
+        return result;
+    }
 }

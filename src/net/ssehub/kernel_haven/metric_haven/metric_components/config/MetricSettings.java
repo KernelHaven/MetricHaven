@@ -5,6 +5,7 @@ import java.util.List;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity.CCType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
@@ -30,6 +31,11 @@ public class MetricSettings {
             + "for. Each element in the list should have a colon separated file path and line number (e.g. "
             + "kernel/kernel.c:51 for line 51 in the file kernel/kernel.c). File paths are relative to the source "
             + "tree. The filter will pass on only the functions that contain one of the file and line number pairs.");
+
+    public static final @NonNull Setting<@NonNull Boolean> ALL_METRIC_VARIATIONS = new Setting<>(
+            "metrics.function_measures.all_variations", Type.BOOLEAN, false, "true", "Specifies whether to run all"
+                + "variations of a metric in parallel (true) or only a single variation (false). If not specified,"
+                + " all variations will be measured by default.");
     
     /**
      * Configuration of variability weight (for features): <b>Scattering Degree</b>.
@@ -125,6 +131,13 @@ public class MetricSettings {
                 + " - " + StructuralType.NUMBER_OF_CHILDREN.name() + ": Count number of children (inspired by RoV).\n"
                 + " - " + StructuralType.COC.name() + ": Count all edges (inspired by CoC).");
 
+    /*
+     * Metric-specific settings
+     */
+    public static final @NonNull Setting<@NonNull BlockMeasureType> BLOCK_TYPE_SETTING
+        = new EnumSetting<>("metric.blocks_per_function.measured_block_type", BlockMeasureType.class, true, 
+        BlockMeasureType.BLOCK_AS_ONE, "Defines whether partial blocks (#elif/#else) are also counted.");
+    
     public static final @NonNull Setting<DLoC.LoFType>
             LOC_TYPE_SETTING = new EnumSetting<>("metric.loc.measured_type", DLoC.LoFType.class, true, 
             DLoC.LoFType.DLOC,
@@ -137,7 +150,6 @@ public class MetricSettings {
             + "   of Feature code (LoF).\n"
             + " - " + DLoC.LoFType.PLOF.name()
             + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
-    
     
     public static final @NonNull Setting<FanInOut.@NonNull FanType> FAN_TYPE_SETTING
         = new EnumSetting<>("metric.fan_in_out.type", FanInOut.FanType.class, true, 

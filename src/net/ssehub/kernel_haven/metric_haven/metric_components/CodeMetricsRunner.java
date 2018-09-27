@@ -16,6 +16,13 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
@@ -55,13 +62,14 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     private @Nullable AnalysisComponent<FunctionMap> fmComponent;
     
-//    private @Nullable SDType sdValue;
-//    private @Nullable CTCRType ctcrValue;
+    private @Nullable SDType sdValue;
+    private @Nullable CTCRType ctcrValue;
 //    private @Nullable FeatureDistanceType distanceValue;
 //    private @Nullable VariabilityTypeMeasureType varTypeValue;
 //    private @Nullable HierarchyType hierarhcyValue;
 //    private @Nullable StructuralType structureValue;
-//    private boolean variabilitySettingsDefined;
+    private boolean singleVariationSpecified;
+    private Object metricSpecificValue;
 //    
     private int nThreads;
     
@@ -114,6 +122,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             } catch (ReflectiveOperationException e) {
                 throw new SetUpException("Can't load metric class", e);
             }
+            
+            loadVariabilityWeightSettings(config);
         }
         
         config.registerSetting(MAX_THREADS);
@@ -131,14 +141,23 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         }
     }
     
-//    private void loadVariabilityWeightSettings(@NonNull Configuration config) throws SetUpException {
-//        variabilitySettingsDefined = false;
-//        
-//        // Scattering Degree
-//        config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
-//        sdValue = config.getValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
-//        variabilitySettingsDefined |= (null != sdValue);
-//    }
+    private void loadVariabilityWeightSettings(@NonNull Configuration config) throws SetUpException {
+        config.registerSetting(MetricSettings.ALL_METRIC_VARIATIONS);
+        singleVariationSpecified = !config.getValue(MetricSettings.ALL_METRIC_VARIATIONS);
+        
+        if (singleVariationSpecified) {
+            // Scattering Degree
+            config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
+            sdValue = config.getValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
+            
+            // Cross-Tree Constraint Ratio
+            config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
+            ctcrValue = config.getValue(MetricSettings.CTCR_USAGE_SETTING);
+            
+            // This method is called inside the constructor, after the class was specified
+            metricSpecificValue = MetricFactory.configureAndReadMetricSpecificSetting(config, notNull(metricClass));
+        }
+    }
 
     @Override
     protected void execute() {
@@ -164,12 +183,16 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             
             MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer);
             params.setFunctionMap(functionMap);
-            
+            params.setSingleMetricExecution(singleVariationSpecified);
+            if (singleVariationSpecified) {
+                params.setScatteringDegree(sdValue);
+                params.setMetricSpecificSettingValue(metricSpecificValue);
+            }
             
             if (metricClass == null) {
                 allMetrics = MetricFactory.createAllVariations(params);
             } else {
-                allMetrics = MetricFactory.createAllVarations(notNull(metricClass), params);
+                allMetrics = MetricFactory.createAllVariations(notNull(metricClass), params);
             }
             
         } catch (SetUpException e) {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
@@ -308,6 +309,35 @@ public class CachedWeightFactory {
 
         tmpList.clear();
         return tmpWeight;
+    }
+    
+    public static @NonNull List<@NonNull IVariableWeight> createVariabilityWeight(@NonNull VariabilityModel varModel,
+        @NonNull ScatteringDegreeContainer sdContainer, @NonNull MetricCreationParameters params) {
+        
+        
+        @NonNull List<@NonNull IVariableWeight> result;
+        if (params.isSingleMetricExecution()) {
+            Map<String, Integer> typeWeights = new HashMap<>();
+            typeWeights.put("bool", 1);
+            typeWeights.put("tristate", 10);
+            typeWeights.put("string", 100);
+            typeWeights.put("int", 100);
+            typeWeights.put("integer", 100);
+            typeWeights.put("hex", 100);
+            
+            Map<String, Integer> hierarchyWeights = new HashMap<>();
+            hierarchyWeights.put("top", 1);
+            hierarchyWeights.put("intermediate", 10);
+            hierarchyWeights.put("leaf", 100);
+            
+            result = new ArrayList<>();
+            result.add(createVariabilityWeight(new ArrayList<>(6), varModel, sdContainer, params.getScatteringDegree(),
+                null, null, null, null, null, typeWeights, hierarchyWeights));
+        } else {
+            result = createAllCombinations(varModel, sdContainer);
+        }
+        
+        return result;
     }
     
     /**
