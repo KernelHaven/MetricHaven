@@ -4,13 +4,14 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.analysis.PipelineAnalysis;
 import net.ssehub.kernel_haven.analysis.SplitComponent;
-import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.FunctionMapCreator;
 import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.VariabilityCounter;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
@@ -23,6 +24,12 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 public class MetricsRunner extends PipelineAnalysis {
     
     /**
+     * Whether a line filter has been configured. If this is <code>true</code>, a {@link CodeFunctionByLineFilter}
+     * should be added in the pipeline.
+     */
+    private boolean lineFilter;
+    
+    /**
      * Single constructor to instantiate and execute all variations of a single metric-analysis class.
      * 
      * @param config The global configuration.
@@ -31,21 +38,62 @@ public class MetricsRunner extends PipelineAnalysis {
      */
     public MetricsRunner(@NonNull Configuration config) throws SetUpException {
         super(config);
+        
+        lineFilter = false;
+        config.registerSetting(MetricSettings.LINE_NUMBER_SETTING);
+        Object value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
+        if (null != value) {
+            lineFilter = true;
+        }
     }
 
     @Override
     protected @NonNull AnalysisComponent<?> createPipeline() throws SetUpException {
-        AnalysisComponent<SourceFile> codeModel = getCmComponent();
-        AnalysisComponent<CodeFunction> functionFilter = new OrderedCodeFunctionFilter(config, codeModel);
-        SplitComponent<CodeFunction> functionSplitter = new SplitComponent<>(config, functionFilter);
         
-        AnalysisComponent<ScatteringDegreeContainer> sdAnalysis
+        /*
+         * Unfiltered:
+         * 
+         * Code Model -+-> OrderedCodeFunctionFilter -> Split -+-> FunctionMapCreator -> |
+         *             |                                       |                         |
+         *             +-> |                                   +-----------------------> |
+         *                 | VariabilityCounter -+                                       |
+         *             +-> |                     +-------------------------------------> | CodeMetricsRunner
+         *             |                                                                 |
+         * Var Model --+---------------------------------------------------------------> |
+         *                                                                               |
+         * Build Model ----------------------------------------------------------------> |
+         */
+        
+        /*
+         * Filtered:
+         * 
+         * Code Model -+-> OrderedCodeFunctionFilter -> Split -+-> FunctionMapCreator -------> |
+         *             |                                       |                               |
+         *             +-> |                                   +-> CodeFunctionByLineFilter -> |
+         *                 | VariabilityCounter -+                                             |
+         *             +-> |                     +-------------------------------------------> | CodeMetricsRunner
+         *             |                                                                       |
+         * Var Model --+---------------------------------------------------------------------> |
+         *                                                                                     |
+         * Build Model ----------------------------------------------------------------------> |
+         */
+        
+        AnalysisComponent<CodeFunction> orderedFunctionFilter = new OrderedCodeFunctionFilter(config, getCmComponent());
+        SplitComponent<CodeFunction> split = new SplitComponent<>(config, orderedFunctionFilter);
+        
+        AnalysisComponent<ScatteringDegreeContainer> variabilityCounter
             = new VariabilityCounter(config, getVmComponent(), getCmComponent());
         AnalysisComponent<FunctionMap> functionMapCreator = new FunctionMapCreator(config,
-            functionSplitter.createOutputComponent());
+            split.createOutputComponent());
+        
+        AnalysisComponent<CodeFunction> functionInput = split.createOutputComponent();
+        if (lineFilter) {
+            functionInput = new CodeFunctionByLineFilter(config, functionInput);
+        }
+        
         CodeMetricsRunner metricAnalysis
-            = new CodeMetricsRunner(config, functionSplitter.createOutputComponent(), getVmComponent(),
-                getBmComponent(), sdAnalysis, functionMapCreator);
+            = new CodeMetricsRunner(config, functionInput, getVmComponent(),
+                getBmComponent(), variabilityCounter, functionMapCreator);
         
         return metricAnalysis;
     }
