@@ -129,7 +129,9 @@ public class CachedWeightFactory {
             if (null == weight) {
                 if (null != varModel) {
                     if (varModel.getDescriptor().hasAttribute(Attribute.HIERARCHICAL)) {
-                        weight = new HierarchyWeight(varModel, hierarchyWeights);
+                        weight = new HierarchyWeight(varModel,
+                                (varHierarchyWeightType == HierarchyType.HIERARCHY_WEIGHTS_BY_LEVEL
+                                        ? null : hierarchyWeights));
                         WeigthsCache.INSTANCE.add(varHierarchyWeightType, weight);
                     } else {
                         Logger.get().logError2("Hierarchy of features should be measured \"",
