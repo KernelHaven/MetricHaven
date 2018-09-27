@@ -32,7 +32,7 @@ public class MultiWeight implements IVariableWeight {
     }
     
     @Override
-    public synchronized int getWeight(String variable) {
+    public int getWeight(String variable) {
         int weight = 1;
         for (int i = 0; i < weights.length; i++) {
             weight *= weights[i].getWeight(variable);
@@ -42,7 +42,7 @@ public class MultiWeight implements IVariableWeight {
     }
     
     @Override
-    public synchronized int getWeight(String variable, File codefile) {
+    public int getWeight(String variable, File codefile) {
         int weight = 1;
         for (int i = 0; i < weights.length; i++) {
             weight *= weights[i].getWeight(variable, codefile);
