@@ -63,7 +63,7 @@ public class MetricFactory {
         private @Nullable CTCRType ctcrValue;
         private @Nullable FeatureDistanceType distanceValue;
         private @Nullable VariabilityTypeMeasureType varTypeValue;
-        private @Nullable HierarchyType hierarhcyValue;
+        private @Nullable HierarchyType hierarchyValue;
         private @Nullable StructuralType structureValue;
         private boolean singleMetricExecution;
         
@@ -167,6 +167,8 @@ public class MetricFactory {
             return functionMap;
         }
         
+        // Values / settings for running a single metric variation
+        
         /**
          * Specifies that a specific scattering degree setting shall be used.
          * @param sdSpecification The setting which shall be used.
@@ -181,6 +183,86 @@ public class MetricFactory {
          */
         public @Nullable SDType getScatteringDegree() {
             return sdValue;
+        }
+        
+        /**
+         * Specifies that a specific cross-tree constraint ratio setting shall be used.
+         * @param ctcrSpecification The setting which shall be used.
+         */
+        public void setCTCR(@Nullable CTCRType ctcrSpecification) {
+            this.ctcrValue = ctcrSpecification;
+        }
+        
+        /**
+         * Specifies that a cross-tree constraint ratio setting shall be used.
+         * @return The setting which shall be used.
+         */
+        public @Nullable CTCRType getCTCR() {
+            return ctcrValue;
+        }
+        
+        /**
+         * Specifies that a feature distances setting shall be used.
+         * @param distanceSpecification The setting which shall be used.
+         */
+        public void setDistance(@Nullable FeatureDistanceType distanceSpecification) {
+            this.distanceValue = distanceSpecification;
+        }
+        
+        /**
+         * Specifies that a feature distances setting shall be used.
+         * @return The setting which shall be used.
+         */
+        public @Nullable FeatureDistanceType getDistance() {
+            return distanceValue;
+        }
+        
+        /**
+         * Specifies that a feature types setting shall be used.
+         * @param typeSpecification The setting which shall be used.
+         */
+        public void setFeatureTypes(@Nullable VariabilityTypeMeasureType typeSpecification) {
+            this.varTypeValue = typeSpecification;
+        }
+        
+        /**
+         * Specifies that a feature types setting shall be used.
+         * @return The setting which shall be used.
+         */
+        public @Nullable VariabilityTypeMeasureType getFeatureTypes() {
+            return varTypeValue;
+        }
+        
+        /**
+         * Specifies that a feature hierarchies setting shall be used.
+         * @param hierarchySpecification The setting which shall be used.
+         */
+        public void setHierarchyType(@Nullable HierarchyType hierarchySpecification) {
+            this.hierarchyValue = hierarchySpecification;
+        }
+        
+        /**
+         * Specifies that a feature hierarchies setting shall be used.
+         * @return The setting which shall be used.
+         */
+        public @Nullable HierarchyType getHierarchyType() {
+            return hierarchyValue;
+        }
+        
+        /**
+         * Specifies that a feature structure setting shall be used.
+         * @param structuralSpecification The setting which shall be used.
+         */
+        public void setStructuralType(@Nullable StructuralType structuralSpecification) {
+            this.structureValue = structuralSpecification;
+        }
+        
+        /**
+         * Specifies that a feature structure setting shall be used.
+         * @return The setting which shall be used.
+         */
+        public @Nullable StructuralType getStructuralType() {
+            return structureValue;
         }
         
         /**

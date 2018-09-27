@@ -17,8 +17,12 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCre
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
@@ -60,10 +64,10 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     
     private @Nullable SDType sdValue;
     private @Nullable CTCRType ctcrValue;
-//    private @Nullable FeatureDistanceType distanceValue;
-//    private @Nullable VariabilityTypeMeasureType varTypeValue;
-//    private @Nullable HierarchyType hierarhcyValue;
-//    private @Nullable StructuralType structureValue;
+    private @Nullable FeatureDistanceType distanceValue;
+    private @Nullable VariabilityTypeMeasureType varTypeValue;
+    private @Nullable HierarchyType hierarchyValue;
+    private @Nullable StructuralType structureValue;
     private boolean singleVariationSpecified;
     private Object metricSpecificValue;
 //    
@@ -170,7 +174,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 throw new SetUpException("Can't load metric class", e);
             }
             
-            loadVariabilityWeightSettings(config);
+            loadSingleVariationSettings(config);
         }
         
         config.registerSetting(MAX_THREADS);
@@ -188,7 +192,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         }
     }
     
-    private void loadVariabilityWeightSettings(@NonNull Configuration config) throws SetUpException {
+    /**
+     * Checks if a single variation should be executed and reads the individual settings if desired.
+     * @param config The pipeline configuration.
+     * @throws SetUpException If a mandatory settings could not be read.
+     */
+    private void loadSingleVariationSettings(@NonNull Configuration config) throws SetUpException {
         config.registerSetting(MetricSettings.ALL_METRIC_VARIATIONS);
         singleVariationSpecified = !config.getValue(MetricSettings.ALL_METRIC_VARIATIONS);
         
@@ -200,6 +209,22 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             // Cross-Tree Constraint Ratio
             config.registerSetting(MetricSettings.CTCR_USAGE_SETTING);
             ctcrValue = config.getValue(MetricSettings.CTCR_USAGE_SETTING);
+           
+            // Feature distances
+            config.registerSetting(MetricSettings.LOCATION_DISTANCE_SETTING);
+            distanceValue = config.getValue(MetricSettings.LOCATION_DISTANCE_SETTING);
+            
+            // Feature distances
+            config.registerSetting(MetricSettings.TYPE_MEASURING_SETTING);
+            varTypeValue = config.getValue(MetricSettings.TYPE_MEASURING_SETTING);
+            
+            // Feature hierarchies
+            config.registerSetting(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING);
+            hierarchyValue = config.getValue(MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING);
+            
+            // Structures
+            config.registerSetting(MetricSettings.STRUCTURE_MEASURING_SETTING);
+            structureValue = config.getValue(MetricSettings.STRUCTURE_MEASURING_SETTING);
             
             // This method is called inside the constructor, after the class was specified
             metricSpecificValue = MetricFactory.configureAndReadMetricSpecificSetting(config, notNull(metricClass));
@@ -220,6 +245,11 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             params.setSingleMetricExecution(singleVariationSpecified);
             if (singleVariationSpecified) {
                 params.setScatteringDegree(sdValue);
+                params.setCTCR(ctcrValue);
+                params.setDistance(distanceValue);
+                params.setFeatureTypes(varTypeValue);
+                params.setHierarchyType(hierarchyValue);
+                params.setStructuralType(structureValue);
                 params.setMetricSpecificSettingValue(metricSpecificValue);
             }
             

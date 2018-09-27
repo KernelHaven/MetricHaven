@@ -352,8 +352,16 @@ public class CachedWeightFactory {
             hierarchyWeights.put("leaf", 100);
             
             result = new ArrayList<>();
-            result.add(createVariabilityWeight(new ArrayList<>(6), varModel, sdContainer, params.getScatteringDegree(),
-                null, null, null, null, null, typeWeights, hierarchyWeights));
+            result.add(createVariabilityWeight(new ArrayList<>(6), varModel, sdContainer,
+                
+                params.getScatteringDegree(),
+                params.getCTCR(),
+                params.getDistance(),
+                params.getFeatureTypes(),
+                params.getHierarchyType(),
+                params.getStructuralType(),
+                
+                typeWeights, hierarchyWeights));
         } else {
             result = createAllCombinations(varModel, sdContainer);
         }
