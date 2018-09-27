@@ -77,7 +77,7 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
                     String[] fragments = code.getText().split(" ");
                     for (int i = 0; i < fragments.length - 1; i++) {
                         
-                        if (fragments[i + 1].equals("(") && functionLocations.containsKey(fragments[i])) {
+                        if (fragments[i + 1].startsWith("(") && functionLocations.containsKey(fragments[i])) {
                             
                             List<FunctionLocation> locations = functionLocations.get(fragments[i]);
                             if (!locations.isEmpty()) {
