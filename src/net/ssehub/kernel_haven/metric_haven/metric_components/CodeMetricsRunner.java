@@ -41,7 +41,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             + "rounded up). This is maybe neccessary to limit the disk usage.");
     
     public static final @NonNull Setting<@Nullable List<@NonNull String>> METRICS_SETTING = new Setting<>(
-            "metrics.metrics", Type.STRING_LIST, false, null,
+            "metrics.code_metrics", Type.STRING_LIST, false, null,
             "Defines a list of fully qualified class names of metrics that the "
             + CodeMetricsRunner.class.getName() + " component should execute.");
     
@@ -55,6 +55,14 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     private @Nullable AnalysisComponent<FunctionMap> fmComponent;
     
+//    private @Nullable SDType sdValue;
+//    private @Nullable CTCRType ctcrValue;
+//    private @Nullable FeatureDistanceType distanceValue;
+//    private @Nullable VariabilityTypeMeasureType varTypeValue;
+//    private @Nullable HierarchyType hierarhcyValue;
+//    private @Nullable StructuralType structureValue;
+//    private boolean variabilitySettingsDefined;
+//    
     private int nThreads;
     
     private MultiMetricResult firstResult;
@@ -122,6 +130,15 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             throw new SetUpException("Could not load configuration setting " + ROUND_RESULTS.getKey());
         }
     }
+    
+//    private void loadVariabilityWeightSettings(@NonNull Configuration config) throws SetUpException {
+//        variabilitySettingsDefined = false;
+//        
+//        // Scattering Degree
+//        config.registerSetting(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
+//        sdValue = config.getValue(MetricSettings.SCATTERING_DEGREE_USAGE_SETTING);
+//        variabilitySettingsDefined |= (null != sdValue);
+//    }
 
     @Override
     protected void execute() {

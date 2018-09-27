@@ -186,58 +186,19 @@ public class CachedWeightFactory {
         List<@NonNull IVariableWeight> weightCombinations = new ArrayList<>();
         List<@NonNull IVariableWeight> tmpList = new ArrayList<>();
         
+        // Iterate through all existing combinations
         for (SDType sdValue : SDType.values()) {
             for (CTCRType ctcrValue : CTCRType.values()) {
                 for (FeatureDistanceType distanceValue : FeatureDistanceType.values()) {
                     for (VariabilityTypeMeasureType varTypeValue : VariabilityTypeMeasureType.values()) {
                         for (HierarchyType hierarhcyValue : HierarchyType.values()) {
                             for (StructuralType structureValue : StructuralType.values()) {
-                                // Scattering Degree
-                                IVariableWeight tmpWeight = createSdWeight(NullHelpers.notNull(sdValue), sdContainer);
-                                if (null != tmpWeight) {
-                                    tmpList.add(tmpWeight);
-                                }
                                 
-                                // Cross-Tree Constraint Ratio
-                                tmpWeight = createCtrcWeight(NullHelpers.notNull(ctcrValue), varModel);
-                                if (null != tmpWeight) {
-                                    tmpList.add(tmpWeight);
-                                }
+                                // Create the weight combination
+                                weightCombinations.add(createVariabilityWeight(tmpList, varModel, sdContainer,
+                                    sdValue, ctcrValue, distanceValue, varTypeValue, hierarhcyValue, structureValue,
+                                    typeWeights, hierarchyWeights));
                                 
-                                // Feature Distance
-                                tmpWeight = createFeatureDistanceWeight(NullHelpers.notNull(distanceValue), varModel);
-                                if (null != tmpWeight) {
-                                    tmpList.add(tmpWeight);
-                                }
-                                
-                                // Variability Types
-                                tmpWeight = createTypeWeight(NullHelpers.notNull(varTypeValue), varModel, typeWeights);
-                                if (null != tmpWeight) {
-                                    tmpList.add(tmpWeight);
-                                }
-                                
-                                // Hierarchy Types
-                                tmpWeight = createHierarchyWeight(NullHelpers.notNull(hierarhcyValue),
-                                    varModel, hierarchyWeights);
-                                if (null != tmpWeight) {
-                                    tmpList.add(tmpWeight);
-                                }
-                                
-                                // Structure Types
-                                tmpWeight = createStructuralWeight(NullHelpers.notNull(structureValue), varModel);
-                                if (null != tmpWeight) {
-                                    tmpList.add(tmpWeight);
-                                }
-                                
-                                // Smart aggregation
-                                if (tmpList.size() == 1) {
-                                    weightCombinations.add(tmpList.get(0));
-                                } else if (tmpList.size() > 1) {
-                                    weightCombinations.add(new MultiWeight(tmpList));
-                                } else {
-                                    weightCombinations.add(NoWeight.INSTANCE);
-                                }
-                                tmpList.clear();
                             }
                         }
                     }
@@ -246,6 +207,107 @@ public class CachedWeightFactory {
         }
         
         return weightCombinations;
+    }
+    
+    /**
+     * Creates a (compound) {@link IVariableWeight} based on the passed enumeration values. <tt>null</tt> elements will
+     * be treated as deselection.
+     * @param tmpList An empty list which will be used to aggregate {@link IVariableWeight}. This list will be cleared
+     *     as a side effect. This allows to re-use allocated resources.
+     * @param varModel The variability model.
+     * @param sdContainer A scattering degree container, which shall be used for {@link ScatteringWeight}.
+     * @param sdValue Defines what kind of scattering shall be used.
+     * @param ctcrValue Defines what kind of cross-tree-constraints shall be used.
+     * @param distanceValue Defines what kind of feature distances shall be used.
+     * @param varTypeValue Defines how to weight types.
+     * @param hierarhcyValue Defines how to weight hierarchies.
+     * @param structureValue Defines which structures shall be used as weight.
+     * @param typeWeights A 2-tuple specifying weight values for each type used in the variability model.
+     * @param hierarchyWeights A 2-tuple in the form of (hierarchy; weight value). This must contain hierarchy values
+     *     for <tt>top</tt>, <tt>intermediate</tt>, and <tt>leaf</tt>.
+     * 
+     * @return A variability weight instance either, maybe {@link NoWeight#INSTANCE} if no weight was specified, or
+     *     {@link MultiWeight} if multiple individual weights are selected.
+     */
+    // CHECKSTYLE:OFF
+    private static @NonNull IVariableWeight createVariabilityWeight(List<@NonNull IVariableWeight> tmpList,
+        VariabilityModel varModel, @NonNull ScatteringDegreeContainer sdContainer,
+        
+        // Specification of weights
+        @Nullable SDType sdValue,
+        @Nullable CTCRType ctcrValue,
+        @Nullable FeatureDistanceType distanceValue,
+        @Nullable VariabilityTypeMeasureType varTypeValue,
+        @Nullable HierarchyType hierarhcyValue,
+        @Nullable StructuralType structureValue,
+        
+        // Value configuration of weights
+        @Nullable Map<String, Integer> typeWeights,
+        @Nullable Map<String, Integer> hierarchyWeights) {
+    // CHECKSTYLE:ON
+        
+        
+        IVariableWeight tmpWeight = null;
+        
+        // Scattering Degree
+        if (null != sdValue) {
+            tmpWeight = createSdWeight(sdValue, sdContainer);
+            if (null != tmpWeight) {
+                tmpList.add(tmpWeight);
+            }
+        }
+        
+        // Cross-Tree Constraint Ratio
+        if (null != ctcrValue) {
+            tmpWeight = createCtrcWeight(ctcrValue, varModel);
+            if (null != tmpWeight) {
+                tmpList.add(tmpWeight);
+            }
+        }
+        
+        // Feature Distance
+        if (null != distanceValue) {
+            tmpWeight = createFeatureDistanceWeight(distanceValue, varModel);
+            if (null != tmpWeight) {
+                tmpList.add(tmpWeight);
+            }
+        }
+        
+        // Variability Types
+        if (null != varTypeValue) {
+            tmpWeight = createTypeWeight(varTypeValue, varModel, typeWeights);
+            if (null != tmpWeight) {
+                tmpList.add(tmpWeight);
+            }
+        }
+        
+        // Hierarchy Types
+        if (null != hierarhcyValue) {
+            tmpWeight = createHierarchyWeight(hierarhcyValue, varModel, hierarchyWeights);
+            if (null != tmpWeight) {
+                tmpList.add(tmpWeight);
+            }
+        }
+        
+        // Structure Types
+        if (null != structureValue) {
+            tmpWeight = createStructuralWeight(structureValue, varModel);
+            if (null != tmpWeight) {
+                tmpList.add(tmpWeight);
+            }
+        }
+        
+        // Smart aggregation
+        if (tmpList.size() == 1) {
+            tmpWeight = NullHelpers.notNull(tmpList.get(0));
+        } else if (tmpList.size() > 1) {
+            tmpWeight = new MultiWeight(tmpList);
+        } else {
+            tmpWeight = NoWeight.INSTANCE;
+        }
+
+        tmpList.clear();
+        return tmpWeight;
     }
     
     /**
