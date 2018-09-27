@@ -46,10 +46,11 @@ public class FeatureDistanceWeight implements IVariableWeight {
     @Override
     public int getWeight(String variable, File codeFile) {
         int result = -1;
-        Path codefolder = codeFile.getAbsoluteFile().getParentFile().toPath();
         
         List<SourceLocation> srcLocations = varMap.get(variable).getSourceLocations();
         if (null != srcLocations) {
+            Path codefolder = codeFile.getAbsoluteFile().getParentFile().toPath();
+            
             for (SourceLocation location : srcLocations) {
                 Path srcFolder = location.getSource().getAbsoluteFile().getParentFile().toPath();
                 Path delta = codefolder.relativize(srcFolder);
@@ -58,6 +59,10 @@ public class FeatureDistanceWeight implements IVariableWeight {
                 int distance = delta.toString().isEmpty() ? 0 : delta.getNameCount();
                 if (distance < result || result == -1) {
                     result = distance;
+                }
+                
+                if (distance <= 0) {
+                    break;
                 }
             }
         }
