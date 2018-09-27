@@ -68,6 +68,11 @@ public class FunctionMap {
             return presenceCondition;
         }
         
+        @Override
+        public String toString() {
+            return name;
+        }
+        
     }
     
     /**
@@ -106,6 +111,11 @@ public class FunctionMap {
          */
         public FunctionLocation getTarget() {
             return target;
+        }
+        
+        @Override
+        public String toString() {
+            return source + " calls " + target;
         }
         
     }

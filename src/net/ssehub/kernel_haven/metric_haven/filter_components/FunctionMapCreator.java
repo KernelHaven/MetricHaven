@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.ast.Code;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
@@ -69,36 +70,38 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
             FunctionLocation source = new FunctionLocation(func.getName(), func.getSourceFile().getPath(),
                     func.getFunction().getPresenceCondition());
             
-            func.getFunction().accept(new ISyntaxElementVisitor() {
-                
-                @Override
-                public void visitCode(@NonNull Code code) {
+            for (int i = 0; i < func.getFunction().getNestedElementCount(); i++) {
+                ((ISyntaxElement) func.getFunction().getNestedElement(i)).accept(new ISyntaxElementVisitor() {
                     
-                    String[] fragments = code.getText().split(" ");
-                    for (int i = 0; i < fragments.length - 1; i++) {
+                    @Override
+                    public void visitCode(@NonNull Code code) {
                         
-                        if (fragments[i + 1].startsWith("(") && functionLocations.containsKey(fragments[i])) {
+                        String[] fragments = code.getText().split(" ");
+                        for (int i = 0; i < fragments.length - 1; i++) {
                             
-                            List<FunctionLocation> locations = functionLocations.get(fragments[i]);
-                            if (!locations.isEmpty()) {
-//                                if (locations.size() > 1) {
-//                                    LOGGER.logWarning2("Got ", locations.size(), " locations for function ",
-//                                        fragments[i], "Using first one");
-//                                }
+                            if (fragments[i + 1].startsWith("(") && functionLocations.containsKey(fragments[i])) {
                                 
-                                // TODO SE: Check if correct
-                                for (FunctionLocation target : locations) {
-                                    result.addFunctionCall(new FunctionCall(source, notNull(target)));
+                                List<FunctionLocation> locations = functionLocations.get(fragments[i]);
+                                if (!locations.isEmpty()) {
+//                                    if (locations.size() > 1) {
+//                                        LOGGER.logWarning2("Got ", locations.size(), " locations for function ",
+//                                            fragments[i], "Using first one");
+//                                    }
+                                    
+                                    // TODO SE: Check if correct
+                                    for (FunctionLocation target : locations) {
+                                        result.addFunctionCall(new FunctionCall(source, notNull(target)));
+                                    }
                                 }
                             }
+                            
                         }
                         
+                        ISyntaxElementVisitor.super.visitCode(code);
                     }
                     
-                    ISyntaxElementVisitor.super.visitCode(code);
-                }
-                
-            });
+                });
+            }
             
         }
         
