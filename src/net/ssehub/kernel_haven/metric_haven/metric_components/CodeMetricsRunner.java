@@ -3,6 +3,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -28,6 +29,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
+import net.ssehub.kernel_haven.util.OrderPreservingParallelizer;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -269,111 +271,119 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         for (AbstractFunctionMetric<?> metric : allMetrics) {
             metrics[metricsIndex++] = metric.getResultName();
         }
-        Double[] values = new Double[allMetrics.size()];
         
         CodeFunction function;
         while ((function = codeFunctionComponent.getNextResult()) != null) {
             LOGGER.logDebug2("Running for function ", function.getName(), " at ", function.getSourceFile(),
                    ":", function.getFunction().getLineStart());
             
-            runForSingleFunction2(allMetrics, metrics, values, function);
+            runForSingleFunction(allMetrics, metrics, function);
         }
     }
 
-    /**
-     * Executes all metric variations for a single function.
-     * @param allMetrics All metric instances to run.
-     * @param metricNames The name of the metrics in the same order.
-     * @param values The result array, will be changed as side-effect. Must be as big as the array of metric instances.
-     * @param function The function to measure.
-     */
-    @SuppressWarnings("null")
-    private void runForSingleFunction2(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
-        
-        Thread[] threads = new Thread[nThreads];
-        // Rounds down
-        int partitionSize = allMetrics.size() / nThreads;
-        for (int i = 0; i < nThreads; i++) {
-            // Start of interval (inclusive)
-            final int partionStart = i * partitionSize;
-            // End of interval (exclusive)
-            final int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
-            
-            threads[i] = new Thread(() -> {
-                
-                for (int j = partionStart; j < partitionEnd; j++) {
-                    Number result = allMetrics.get(j).compute(function);
-                    if (result instanceof Double && round) {
-                        values[j] = Math.floor(result.doubleValue() * 100) / 100;
-                    } else {
-                        values[j] = (null != result) ? result.doubleValue() : null;
-                    }
-                }
-                
-            });
-            
-            threads[i].start();
-        }
-        
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                LOGGER.logException("Could not join metric threads for joining the result", e);
-            }
-        }
-        
-        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-            function.getFunction().getLineStart(), function.getName());
-        if (null == firstResult) {
-            // Initializes header
-            firstResult = new MultiMetricResult(funcDescription, metricNames, values);
-            addResult(firstResult);
-        } else {
-            // Less memory/time consuming
-            MultiMetricResult result = new MultiMetricResult(funcDescription, firstResult, values);
-            addResult(result);
-        }
-    }
-    
 //    /**
 //     * Executes all metric variations for a single function.
 //     * @param allMetrics All metric instances to run.
 //     * @param metricNames The name of the metrics in the same order.
-//   * @param values The result array, will be changed as side-effect. Must be as big as the array of metric instances.
+//     * @param values The result array, will be changed as side-effect. Must be as big as the array of metric
+//     *      instances.
 //     * @param function The function to measure.
 //     */
-//    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-//      @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values, @NonNull CodeFunction function) {
+//    @SuppressWarnings("null")
+//    private void runForSingleFunction2(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
+//        @NonNull String @NonNull [] metricNames, @Nullable Double @NonNull [] values,
+//        @NonNull CodeFunction function) {
 //        
-//        AtomicInteger valuesIndex = new AtomicInteger(0);
-//        
-//      OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
-//            (metric) -> {
-//                Number n = metric.compute(function);
-//                Double result = null;
-//                if (n != null) {
-//                    result = n.doubleValue();
-//                }
-//                return result;
+//        Thread[] threads = new Thread[nThreads];
+//        // Rounds down
+//        int partitionSize = allMetrics.size() / nThreads;
+//        for (int i = 0; i < nThreads; i++) {
+//            // Start of interval (inclusive)
+//            final int partionStart = i * partitionSize;
+//            // End of interval (exclusive)
+//            final int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
+//            
+//            threads[i] = new Thread(() -> {
 //                
-//            }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
-//        
-//        for (AbstractFunctionMetric<?> metric : allMetrics) {
-//            prallelizer.add(metric);
+//                for (int j = partionStart; j < partitionEnd; j++) {
+//                    Number result = allMetrics.get(j).compute(function);
+//                    if (result instanceof Double && round) {
+//                        values[j] = Math.floor(result.doubleValue() * 100) / 100;
+//                    } else {
+//                        values[j] = (null != result) ? result.doubleValue() : null;
+//                    }
+//                }
+//                
+//            });
+//            
+//            threads[i].start();
 //        }
-//        prallelizer.end();
 //        
-//        prallelizer.join();
+//        for (Thread thread : threads) {
+//            try {
+//                thread.join();
+//            } catch (InterruptedException e) {
+//                LOGGER.logException("Could not join metric threads for joining the result", e);
+//            }
+//        }
 //        
-//        MultiMetricResult result = new MultiMetricResult(
-//                new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-//                        function.getFunction().getLineStart(), function.getName()),
-//                metricNames, values);
-//        
-//        addResult(result);
+//        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
+//            function.getFunction().getLineStart(), function.getName());
+//        if (null == firstResult) {
+//            // Initializes header
+//            firstResult = new MultiMetricResult(funcDescription, metricNames, values);
+//            addResult(firstResult);
+//        } else {
+//            // Less memory/time consuming
+//            MultiMetricResult result = new MultiMetricResult(funcDescription, firstResult, values);
+//            addResult(result);
+//        }
 //    }
+    
+    /**
+     * Executes all metric variations for a single function.
+     * @param allMetrics All metric instances to run.
+     * @param metricNames The name of the metrics in the same order.
+     * @param function The function to measure.
+     */
+    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
+        @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
+        
+        @Nullable Double[] values = new @Nullable Double[allMetrics.size()];
+        AtomicInteger valuesIndex = new AtomicInteger(0);
+        
+        OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
+            (metric) -> {
+                Number n = metric.compute(function);
+                Double result = null;
+                if (n != null) {
+                    result = n.doubleValue();
+                }
+                return result;
+                
+            }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
+        
+        for (AbstractFunctionMetric<?> metric : allMetrics) {
+            prallelizer.add(metric);
+        }
+        prallelizer.end();
+        
+        prallelizer.join();
+        
+        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
+                function.getFunction().getLineStart(), function.getName());
+        MultiMetricResult result;
+        if (null == firstResult) {
+            // Initializes header
+            result = new MultiMetricResult(funcDescription, metricNames, values);
+            firstResult = result;
+        } else {
+            // Less memory/time consuming
+            result = new MultiMetricResult(funcDescription, notNull(firstResult), values);
+        }
+        
+        addResult(result);
+    }
 
     @Override
     public @NonNull String getResultName() {
