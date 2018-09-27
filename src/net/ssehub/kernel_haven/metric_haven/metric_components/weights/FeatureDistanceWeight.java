@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.SourceLocation;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -24,12 +25,14 @@ public class FeatureDistanceWeight implements IVariableWeight {
      * Creates a new weight based on cross-tree constraint ratios.
      * @param varModel Must be a variability model, which has the ability to provide information about the location
      *     where a variable/feature was defined.
+     *     
+     * @throws SetUpException If the var model does not fit the configuration.
      */
-    public FeatureDistanceWeight(@NonNull VariabilityModel varModel) {
+    public FeatureDistanceWeight(@NonNull VariabilityModel varModel) throws SetUpException {
         if (varModel.getDescriptor().hasAttribute(Attribute.SOURCE_LOCATIONS)) {
             varMap = varModel.getVariableMap();
         } else {
-            throw new UnsupportedOperationException("FeatureDistanceWeight without an approriate "
+            throw new SetUpException("FeatureDistanceWeight without an approriate "
                 + "variability model created.");
         }
     }

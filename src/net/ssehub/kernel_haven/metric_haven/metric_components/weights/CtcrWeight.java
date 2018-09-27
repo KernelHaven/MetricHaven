@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -31,14 +32,16 @@ public class CtcrWeight implements IVariableWeight {
      *     May only be <tt>null</tt> if <tt>ctcrType</tt> is {@link CTCRType#NO_CTCR}, but than {@link NoWeight} is
      *     recommended as it produces the same result with less overhead.
      * @param ctcrType Specifies which kind of cross-tree constraint ratio shall be used.
+     * 
+     * @throws SetUpException If the var model does not match the configuration.
      */
-    public CtcrWeight(@Nullable VariabilityModel varModel, @NonNull CTCRType ctcrType) {
+    public CtcrWeight(@Nullable VariabilityModel varModel, @NonNull CTCRType ctcrType) throws SetUpException {
         this.ctcrType = ctcrType;
         if (null != varModel && varModel.getDescriptor().hasAttribute(Attribute.CONSTRAINT_USAGE)) {
             varMapping = varModel.getVariableMap();
             varWeights = new HashMap<>(varMapping.size());
         } else {
-            throw new UnsupportedOperationException("CtcrWeight without an approriate variability model created.");
+            throw new SetUpException("CtcrWeight without an approriate variability model created.");
         }
     }
 

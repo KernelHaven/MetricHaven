@@ -15,7 +15,6 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSetti
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
-import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -53,9 +52,11 @@ public class CachedWeightFactory {
      *     unless {@link CTCRType#NO_CTCR} is passed to <tt>ctcrType</tt>.
      * 
      * @return The {@link CtcrWeight} or <tt>null</tt> in case that {@link CTCRType#NO_CTCR} was specified.
+     * 
+     * @throws SetUpException If the var model does not fit the configuration.
      */
     public static @Nullable CtcrWeight createCtrcWeight(@NonNull CTCRType ctcrType,
-        @Nullable VariabilityModel varModel) {
+        @Nullable VariabilityModel varModel) throws SetUpException {
         
         // Uncached weight (doesn't make sense to cache this)
         return (ctcrType != CTCRType.NO_CTCR && null != varModel) ? new CtcrWeight(varModel, ctcrType) : null;
@@ -70,9 +71,11 @@ public class CachedWeightFactory {
      * 
      * @return The {@link FeatureDistanceWeight} or <tt>null</tt> in case that
      *     {@link SDType#NO_SCATTERING} was specified.
+     *     
+     * @throws SetUpException If the var model does not fit the configuration.
      */
     public static @Nullable FeatureDistanceWeight createFeatureDistanceWeight(@NonNull FeatureDistanceType distanceType,
-        @Nullable VariabilityModel varModel) {
+        @Nullable VariabilityModel varModel) throws SetUpException {
         
         // Uncachable weight
         return (distanceType != FeatureDistanceType.NO_DISTANCE && null != varModel)
@@ -88,13 +91,18 @@ public class CachedWeightFactory {
      * 
      * @return The {@link TypeWeight} or <tt>null</tt> in case that {@link VariabilityTypeMeasureType#NO_TYPE_MEASURING}
      *     was specified.
+     * 
+     * @throws SetUpException If the var model does not fit the configuration.
      */
     public static @Nullable TypeWeight createTypeWeight(@NonNull VariabilityTypeMeasureType varTypeWeightType,
-        @Nullable VariabilityModel varModel, @Nullable Map<String, Integer> typeWeights) {
+        @Nullable VariabilityModel varModel, @Nullable Map<String, Integer> typeWeights) throws SetUpException {
         
         TypeWeight weight = null;
-        if (varTypeWeightType != VariabilityTypeMeasureType.NO_TYPE_MEASURING && null != varModel
-            && null != typeWeights) {
+        if (varTypeWeightType != VariabilityTypeMeasureType.NO_TYPE_MEASURING && null != typeWeights) {
+            
+            if (varModel == null) {
+                throw new SetUpException("TypeWeight requires a VariabilityModel");
+            }
             
             weight = (TypeWeight) WeigthsCache.INSTANCE.getWeight(varTypeWeightType);
             if (null == weight) {
@@ -118,9 +126,11 @@ public class CachedWeightFactory {
      * 
      * @return The {@link HierarchyWeight} or <tt>null</tt> in case that
      *     {@link HierarchyType#NO_HIERARCHY_MEASURING} was specified.
+     *     
+     * @throws SetUpException If the var model does not fit the configuration.
      */
     public static @Nullable HierarchyWeight createHierarchyWeight(@NonNull HierarchyType varHierarchyWeightType,
-        @Nullable VariabilityModel varModel, @Nullable Map<String, Integer> hierarchyWeights) {
+        @Nullable VariabilityModel varModel, @Nullable Map<String, Integer> hierarchyWeights) throws SetUpException {
         
         // Weights for hierarchy level of a feature
         HierarchyWeight weight = null;
@@ -134,14 +144,14 @@ public class CachedWeightFactory {
                                         ? null : hierarchyWeights));
                         WeigthsCache.INSTANCE.add(varHierarchyWeightType, weight);
                     } else {
-                        Logger.get().logError2("Hierarchy of features should be measured \"",
-                            MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING, "=" + varHierarchyWeightType.name(),
-                            "\", but the variability model does not store hierarchy information.");
+                        throw new SetUpException("Hierarchy of features should be measured \""
+                            + MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING + "=" + varHierarchyWeightType.name()
+                            + "\", but the variability model does not store hierarchy information.");
                     }
                 } else {
-                    Logger.get().logError2("Hierarchy of features should be measured \"",
-                        MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING, "=" + varHierarchyWeightType.name(),
-                        "\", but no variability model was passed to the analysis.");
+                    throw new SetUpException("Hierarchy of features should be measured \""
+                        + MetricSettings.HIERARCHY_TYPE_MEASURING_SETTING + "=" + varHierarchyWeightType.name()
+                        + "\", but no variability model was passed to the analysis.");
                 }
             }
         }
@@ -156,13 +166,19 @@ public class CachedWeightFactory {
      * 
      * @return The {@link StructuralWeight} or <tt>null</tt> in case that
      *     {@link StructuralType#NO_STRUCTURAL_MEASUREMENT} was specified.
+     * 
+     * @throws SetUpException If the var model does not fit the configuration.
      */
     public static @Nullable StructuralWeight createStructuralWeight(@NonNull StructuralType structuralWeightType,
-        @Nullable VariabilityModel varModel) {
+        @Nullable VariabilityModel varModel) throws SetUpException {
             
         // Weights for the structure of the variability model
         StructuralWeight weight = null;
-        if (structuralWeightType != StructuralType.NO_STRUCTURAL_MEASUREMENT  && null != varModel) {
+        if (structuralWeightType != StructuralType.NO_STRUCTURAL_MEASUREMENT) {
+            if (varModel == null || !varModel.getDescriptor().hasAttribute(Attribute.HIERARCHICAL)) {
+                throw new SetUpException("StructuralWeight requires a VariabilityModel with hierarchy information");
+            }
+            
             weight = (StructuralWeight) WeigthsCache.INSTANCE.getWeight(structuralWeightType);
             if (null == weight) {
                 weight = new StructuralWeight(varModel, structuralWeightType);
@@ -187,8 +203,8 @@ public class CachedWeightFactory {
      *     
      * @throws SetUpException If there is a misconfiguartion.
      */
-    public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@NonNull VariabilityModel varModel,
-        @NonNull ScatteringDegreeContainer sdContainer, @NonNull Map<String, Integer> typeWeights,
+    public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@Nullable VariabilityModel varModel,
+        @Nullable ScatteringDegreeContainer sdContainer, @NonNull Map<String, Integer> typeWeights,
         @NonNull Map<String, Integer> hierarchyWeights) throws SetUpException {
         
         List<@NonNull IVariableWeight> weightCombinations = new ArrayList<>();
@@ -241,7 +257,7 @@ public class CachedWeightFactory {
      */
     // CHECKSTYLE:OFF
     private static @NonNull IVariableWeight createVariabilityWeight(List<@NonNull IVariableWeight> tmpList,
-        VariabilityModel varModel, @NonNull ScatteringDegreeContainer sdContainer,
+        @Nullable VariabilityModel varModel, @Nullable ScatteringDegreeContainer sdContainer,
         
         // Specification of weights
         @Nullable SDType sdValue,
@@ -334,8 +350,8 @@ public class CachedWeightFactory {
      * 
      * @throws SetUpException If there is a misconfiguartion.
      */
-    public static @NonNull List<@NonNull IVariableWeight> createVariabilityWeight(@NonNull VariabilityModel varModel,
-        @NonNull ScatteringDegreeContainer sdContainer, @NonNull MetricCreationParameters params)
+    public static @NonNull List<@NonNull IVariableWeight> createVariabilityWeight(@Nullable VariabilityModel varModel,
+            @Nullable ScatteringDegreeContainer sdContainer, @NonNull MetricCreationParameters params)
         throws SetUpException {
         
         @NonNull List<@NonNull IVariableWeight> result;
@@ -382,8 +398,8 @@ public class CachedWeightFactory {
      * 
      * @throws SetUpException If there is a misconfiguartion.
      */
-    public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@NonNull VariabilityModel varModel,
-        @NonNull ScatteringDegreeContainer sdContainer) throws SetUpException {
+    public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@Nullable VariabilityModel varModel,
+            @Nullable ScatteringDegreeContainer sdContainer) throws SetUpException {
         
         Map<String, Integer> typeWeights = new HashMap<>();
         typeWeights.put("bool", 1);
