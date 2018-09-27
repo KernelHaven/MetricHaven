@@ -358,6 +358,9 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 Double result = null;
                 if (n != null) {
                     result = n.doubleValue();
+                    if (round) {
+                        result = Math.floor(result * 100) / 100;
+                    }
                 }
                 return result;
                 
