@@ -311,9 +311,18 @@ public class CachedWeightFactory {
         return tmpWeight;
     }
     
+    /**
+     * Creates a distinct list of all valid {@link IVariableWeight} combinations. Specifies default type and hierarchy
+     * values, which may be used for analyses of Linux. May also be used if a specifics weight is desired (if
+     * {@link MetricCreationParameters#isSingleMetricExecution()} is selected).
+     * @param varModel The variability model.
+     * @param sdContainer A scattering degree container, which shall be used for {@link ScatteringWeight}.
+     * @param params Specifies whether a single {@link IVariableWeight} shall be created or all valid combinations.
+     * @return A distinct list of all valid {@link IVariableWeight} combinations,
+     *     contains also {@link NoWeight#INSTANCE}.
+     */
     public static @NonNull List<@NonNull IVariableWeight> createVariabilityWeight(@NonNull VariabilityModel varModel,
         @NonNull ScatteringDegreeContainer sdContainer, @NonNull MetricCreationParameters params) {
-        
         
         @NonNull List<@NonNull IVariableWeight> result;
         if (params.isSingleMetricExecution()) {

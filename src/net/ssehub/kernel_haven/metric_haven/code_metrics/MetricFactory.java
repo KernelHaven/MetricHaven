@@ -166,18 +166,36 @@ public class MetricFactory {
             return functionMap;
         }
         
-        public void setScatteringDegree(SDType sdSpecification) {
+        /**
+         * Specifies that a specific scattering degree setting shall be used.
+         * @param sdSpecification The setting which shall be used.
+         */
+        public void setScatteringDegree(@Nullable SDType sdSpecification) {
             this.sdValue = sdSpecification;
         }
         
-        public SDType getScatteringDegree() {
+        /**
+         * Specifies that a specific scattering degree setting shall be used.
+         * @return The setting which shall be used.
+         */
+        public @Nullable SDType getScatteringDegree() {
             return sdValue;
         }
         
+        /**
+         * Specifies whether to execute all metric variations or only a single instance.
+         * @param singleMetricExecution <tt>true</tt> only one specific variation shall be executed, <tt>true</tt> all
+         *     variations shall be executed.
+         */
         public void setSingleMetricExecution(boolean singleMetricExecution) {
             this.singleMetricExecution = singleMetricExecution;
         }
         
+        /**
+         * Returns whether only a single metric variation or all valid variations shall be executed.
+         * @return <tt>true</tt> only one specific variation shall be executed, <tt>true</tt> all
+         *     variations shall be executed.
+         */
         public boolean isSingleMetricExecution() {
             return singleMetricExecution;
         }
@@ -323,11 +341,12 @@ public class MetricFactory {
     }
     
     /**
-     * 
+     * Creates a single metric instance if this was configured via the {@link MetricCreationParameters}.
      * @param params The parameters for creating the class ({@link VariabilityModel}, {@link BuildModel},
      *     individual settings, ...)
      * @param metricClass The metric to instantiate.
      *
+     * @return The configured single metric instance or <tt>null</tt> in case invalid combinations have been selected.
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
      *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
      */
@@ -423,6 +442,12 @@ public class MetricFactory {
         
     }
     
+    /**
+     * Configures a metric-specific setting and tries to read the specified value.
+     * @param config The configuration to use.
+     * @param metricClass The metric class, which shall be executed.
+     * @return Its specific value if the class specifies a specific value <b>and</b> it was specified by the user.
+     */
     public static @Nullable Object configureAndReadMetricSpecificSetting(Configuration config,
         @NonNull Class<? extends AbstractFunctionMetric<?>> metricClass) {
         
