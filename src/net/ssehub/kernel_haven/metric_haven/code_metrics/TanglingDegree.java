@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -19,8 +20,10 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
     /**
      * Creates a new TanglingDegree metric.
      * @param params The parameters for creating this metric.
+     * 
+     * @throws SetUpException If creating the metric fails.
      */
-    TanglingDegree(@NonNull MetricCreationParameters params) {
+    TanglingDegree(@NonNull MetricCreationParameters params) throws SetUpException {
         super(params);
         
         // All weights are always supported

@@ -47,15 +47,15 @@ public class MetricFactory {
      */
     public static class MetricCreationParameters {
         
-        private @NonNull VariabilityModel varModel;
+        private @Nullable VariabilityModel varModel;
         
-        private @NonNull BuildModel buildModel;
+        private @Nullable BuildModel buildModel;
         
-        private @NonNull ScatteringDegreeContainer sdContainer;
+        private @Nullable ScatteringDegreeContainer sdContainer;
         
         private IVariableWeight weight;
         
-        private FunctionMap functionMap; // for FanInOutmetric
+        private @Nullable FunctionMap functionMap; // for FanInOutmetric
         
         private Object metricSpecificSettingValue;
         
@@ -74,8 +74,8 @@ public class MetricFactory {
          * @param buildModel The {@link BuildModel}, required for the {@link VariablesPerFunction}
          * @param sdContainer The {@link ScatteringDegreeContainer} as required by the {@link ScatteringWeight}.
          */
-        public MetricCreationParameters(@NonNull VariabilityModel varModel, @NonNull BuildModel buildModel,
-            @NonNull ScatteringDegreeContainer sdContainer) {
+        public MetricCreationParameters(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
+                @Nullable ScatteringDegreeContainer sdContainer) {
             
             this.varModel = varModel;
             this.buildModel = buildModel;
@@ -87,7 +87,7 @@ public class MetricFactory {
          * Returns the {@link VariabilityModel}.
          * @return The {@link VariabilityModel}.
          */
-        public @NonNull VariabilityModel getVarModel() {
+        public @Nullable VariabilityModel getVarModel() {
             return varModel;
         }
         
@@ -95,7 +95,7 @@ public class MetricFactory {
          * Returns the {@link BuildModel}.
          * @return The {@link BuildModel}.
          */
-        public @NonNull BuildModel getBuildModel() {
+        public @Nullable BuildModel getBuildModel() {
             return buildModel;
         }
         
@@ -103,7 +103,7 @@ public class MetricFactory {
          * Returns the {@link ScatteringDegreeContainer} as required by the {@link ScatteringWeight}.
          * @return The {@link ScatteringDegreeContainer}.
          */
-        public @NonNull ScatteringDegreeContainer getSdContainer() {
+        public @Nullable ScatteringDegreeContainer getSdContainer() {
             return sdContainer;
         }
         
@@ -151,10 +151,11 @@ public class MetricFactory {
         
         /**
          * Sets a (reusable) function map, which is required by {@link FanInOut}-metrics.
+         * 
          * @param functionMap A {@link FunctionMap} containing information about all existing functions
          * (even if only a subset shall be measured).
          */
-        public void setFunctionMap(FunctionMap functionMap) {
+        public void setFunctionMap(@Nullable FunctionMap functionMap) {
             this.functionMap = functionMap;
         }
         
@@ -162,7 +163,7 @@ public class MetricFactory {
          * Returns the {@link FunctionMap} as required for measuring {@link FanInOut}.
          * @return The {@link FunctionMap} as required for measuring {@link FanInOut}.
          */
-        public FunctionMap getFunctionMap() {
+        public @Nullable FunctionMap getFunctionMap() {
             return functionMap;
         }
         
@@ -390,8 +391,18 @@ public class MetricFactory {
             @NonNull MetricCreationParameters params) throws SetUpException {
         
         List<@NonNull AbstractFunctionMetric<?>> result = new ArrayList<>();
+        
+        VariabilityModel varModel = params.getVarModel();
+        ScatteringDegreeContainer sdContainer = params.getSdContainer();
+        if (varModel == null) {
+            throw new SetUpException("All weight variations requires a variability model");
+        }
+        if (sdContainer == null) {
+            throw new SetUpException("All weight variations requires a scattering degree container");
+        }
+        
         List<IVariableWeight> weights
-            = CachedWeightFactory.createAllCombinations(params.getVarModel(), params.getSdContainer());
+            = CachedWeightFactory.createAllCombinations(varModel, sdContainer);
         
         for (Class<? extends AbstractFunctionMetric<?>> metricClass : SUPPORTED_METRICS) {
             for (IVariableWeight weight : weights) {

@@ -17,12 +17,8 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCre
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
@@ -80,6 +76,57 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * 
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
+     * 
+     * @throws SetUpException If creating the metric instances fails.
+     */
+    public CodeMetricsRunner(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent) throws SetUpException {
+        
+        this(config, codeFunctionComponent, null, null, null, null);
+        
+    }
+    
+    /**
+     * Creates this processing unit.
+     * 
+     * @param config The pipeline configuration.
+     * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
+     * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
+     * 
+     * @throws SetUpException If creating the metric instances fails.
+     */
+    public CodeMetricsRunner(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
+        @NonNull AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
+        
+        this(config, codeFunctionComponent, varModelComponent, null, null, null);
+        
+    }
+    
+    /**
+     * Creates this processing unit.
+     * 
+     * @param config The pipeline configuration.
+     * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
+     * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * 
+     * @throws SetUpException If creating the metric instances fails.
+     */
+    public CodeMetricsRunner(@NonNull Configuration config,
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
+        @NonNull AnalysisComponent<VariabilityModel> varModelComponent,
+        @NonNull AnalysisComponent<BuildModel> bmComponent) throws SetUpException {
+        
+        this(config, codeFunctionComponent, varModelComponent, bmComponent, null, null);
+        
+    }
+    
+    /**
+     * Creates this processing unit.
+     * 
+     * @param config The pipeline configuration.
+     * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
      * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
      * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
@@ -92,10 +139,10 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     public CodeMetricsRunner(@NonNull Configuration config,
     //CHECKSTYLE:ON
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
-        @NonNull AnalysisComponent<VariabilityModel> varModelComponent,
-        @NonNull AnalysisComponent<BuildModel> bmComponent,
-        @NonNull AnalysisComponent<ScatteringDegreeContainer> sdComponent,
-        @NonNull AnalysisComponent<FunctionMap> fmComponent) throws SetUpException {
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<BuildModel> bmComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent,
+        @Nullable AnalysisComponent<FunctionMap> fmComponent) throws SetUpException {
         
         super(config);
         
@@ -168,19 +215,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         List<@NonNull AbstractFunctionMetric<?>> allMetrics;
         try {
-            if (varModel == null) {
-                throw new SetUpException("VariabilityModel is null");
-            }
-            if (bm == null) {
-                throw new SetUpException("BuildModel is null");
-            }
-            if (sdContainer == null) {
-                throw new SetUpException("ScatteringDegreeContainer is null");
-            }
-            if (functionMap == null) {
-                throw new SetUpException("FunctionMap is null");
-            }
-            
             MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer);
             params.setFunctionMap(functionMap);
             params.setSingleMetricExecution(singleVariationSpecified);

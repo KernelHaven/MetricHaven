@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
@@ -34,9 +35,11 @@ public class CachedWeightFactory {
      * @param sdContainer The scattering values to be used as weight, should not be <tt>null</tt>
      *     unless {@link SDType#NO_SCATTERING} is passed to <tt>sdType</tt>.
      * @return The {@link ScatteringWeight} or <tt>null</tt> in case that {@link SDType#NO_SCATTERING} was specified.
+     * 
+     * @throws SetUpException If scattering degree container is required, but null.
      */
     public static @Nullable ScatteringWeight createSdWeight(@NonNull SDType sdType,
-        @Nullable ScatteringDegreeContainer sdContainer) {
+        @Nullable ScatteringDegreeContainer sdContainer) throws SetUpException {
         
         // Uncached weight (doesn't make sense to cache this)
         return (sdType != SDType.NO_SCATTERING) ? new ScatteringWeight(sdContainer, sdType) : null;
@@ -179,10 +182,12 @@ public class CachedWeightFactory {
      * 
      * @return A distinct list of all valid {@link IVariableWeight} combinations,
      *     contains also {@link NoWeight#INSTANCE}.
+     *     
+     * @throws SetUpException If there is a misconfiguartion.
      */
     public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@NonNull VariabilityModel varModel,
         @NonNull ScatteringDegreeContainer sdContainer, @NonNull Map<String, Integer> typeWeights,
-        @NonNull Map<String, Integer> hierarchyWeights) {
+        @NonNull Map<String, Integer> hierarchyWeights) throws SetUpException {
         
         List<@NonNull IVariableWeight> weightCombinations = new ArrayList<>();
         List<@NonNull IVariableWeight> tmpList = new ArrayList<>();
@@ -228,7 +233,9 @@ public class CachedWeightFactory {
      *     for <tt>top</tt>, <tt>intermediate</tt>, and <tt>leaf</tt>.
      * 
      * @return A variability weight instance either, maybe {@link NoWeight#INSTANCE} if no weight was specified, or
-     *     {@link MultiWeight} if multiple individual weights are selected.
+     *     {@link MultiWeight} if multiple individual weights are selected.    
+     * 
+     * @throws SetUpException If there is a misconfiguartion.
      */
     // CHECKSTYLE:OFF
     private static @NonNull IVariableWeight createVariabilityWeight(List<@NonNull IVariableWeight> tmpList,
@@ -244,7 +251,9 @@ public class CachedWeightFactory {
         
         // Value configuration of weights
         @Nullable Map<String, Integer> typeWeights,
-        @Nullable Map<String, Integer> hierarchyWeights) {
+        @Nullable Map<String, Integer> hierarchyWeights)
+    
+        throws SetUpException {
     // CHECKSTYLE:ON
         
         
@@ -320,9 +329,12 @@ public class CachedWeightFactory {
      * @param params Specifies whether a single {@link IVariableWeight} shall be created or all valid combinations.
      * @return A distinct list of all valid {@link IVariableWeight} combinations,
      *     contains also {@link NoWeight#INSTANCE}.
+     * 
+     * @throws SetUpException If there is a misconfiguartion.
      */
     public static @NonNull List<@NonNull IVariableWeight> createVariabilityWeight(@NonNull VariabilityModel varModel,
-        @NonNull ScatteringDegreeContainer sdContainer, @NonNull MetricCreationParameters params) {
+        @NonNull ScatteringDegreeContainer sdContainer, @NonNull MetricCreationParameters params)
+        throws SetUpException {
         
         @NonNull List<@NonNull IVariableWeight> result;
         if (params.isSingleMetricExecution()) {
@@ -357,9 +369,11 @@ public class CachedWeightFactory {
      * 
      * @return A distinct list of all valid {@link IVariableWeight} combinations,
      *     contains also {@link NoWeight#INSTANCE}.
+     * 
+     * @throws SetUpException If there is a misconfiguartion.
      */
     public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@NonNull VariabilityModel varModel,
-        @NonNull ScatteringDegreeContainer sdContainer) {
+        @NonNull ScatteringDegreeContainer sdContainer) throws SetUpException {
         
         Map<String, Integer> typeWeights = new HashMap<>();
         typeWeights.put("bool", 1);

@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -20,8 +21,16 @@ public class ScatteringWeight implements IVariableWeight {
      * @param sdContainer already measure scattering degrees of all variables, must not be <tt>null</tt> if
      *     <tt>sdType</tt> is not {@link SDType#NO_SCATTERING}.
      * @param sdType Specifies which kind of scattering shall be used.
+     * 
+     * @throws SetUpException If a scattering degree container is required, but null.
      */
-    public ScatteringWeight(@Nullable ScatteringDegreeContainer sdContainer, @NonNull SDType sdType) {
+    public ScatteringWeight(@Nullable ScatteringDegreeContainer sdContainer, @NonNull SDType sdType)
+            throws SetUpException {
+        
+        if (sdType != SDType.NO_SCATTERING && sdContainer == null) {
+            throw new SetUpException("ScatteringWeight requires a ScatteringDegreeContainer");
+        }
+        
         this.sdContainer = sdContainer;
         this.sdType = sdType;
     }

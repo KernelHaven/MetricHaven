@@ -55,13 +55,18 @@ public class VariablesPerFunction extends AbstractFunctionMetric<UsedVariability
     @Override
     // CHECKSTYLE:OFF
     protected @NonNull UsedVariabilityVarsVisitor createVisitor(@Nullable VariabilityModel varModel,
-        @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
+        @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) throws SetUpException {
     // CHECKSTYLE:ON
         
         UsedVariabilityVarsVisitor visitor;
         if (measuredVars == VarType.INTERNAL || measuredVars == VarType.EXTERNAL || measuredVars == VarType.ALL) {
             visitor = new UsedVariabilityVarsVisitor(varModel);
         } else {
+            if (buildModel == null) {
+                throw new SetUpException("measuredVars = " + measuredVars
+                        + " requires a build model (but BM was null)");
+            }
+            
             visitor = new UsedVariabilityVarsVisitor(varModel, buildModel);
         }
         return visitor;

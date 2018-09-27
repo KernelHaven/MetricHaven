@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
@@ -49,8 +50,10 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
     
     /**
      * Creates the visitor, must be called at the end of the constructor of inherited classes.
+     * 
+     * @throws SetUpException If the visitor could not be created due to a misconfiguration.
      */
-    protected void init() {
+    protected void init() throws SetUpException {
         functionVisitor = createVisitor(params.getVarModel(), params.getBuildModel(), weight);
     }
     
@@ -74,9 +77,11 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
      * @param buildModel Some metrics require a build model, for others this may be <tt>null</tt>.
      * 
      * @return The visitor to be used by the metric.
+     * 
+     * @throws SetUpException If the visitor could not be created due to a misconfiguration.
      */
     protected abstract @NonNull V createVisitor(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-        @NonNull IVariableWeight weight);
+        @NonNull IVariableWeight weight) throws SetUpException;
     
     /**
      * Collects the measured value and may performs a post processing of the values.
