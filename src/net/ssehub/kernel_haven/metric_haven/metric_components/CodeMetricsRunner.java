@@ -3,8 +3,6 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -347,37 +345,16 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @param metricNames The name of the metrics in the same order.
      * @param function The function to measure.
      */
+    @SuppressWarnings("unused") // alternative to runForSingleFunction2()
     private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
         @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
         
         @Nullable Double[] values = new @Nullable Double[allMetrics.size()];
         AtomicInteger valuesIndex = new AtomicInteger(0);
         
-        // TODO: for debugging
-        class MetricTime {
-            
-            private String name;
-            
-            private long elapsed;
-            
-            public MetricTime(String name, long elapsed) {
-                this.name = name;
-                this.elapsed = elapsed;
-            }
-            
-        }
-        Set<MetricTime> timings = ConcurrentHashMap.<MetricTime>newKeySet((int) (allMetrics.size() * 1.5));
-
         OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
             (metric) -> {
-                long t0 = System.currentTimeMillis(); // TODO: debugging
-                
                 Number n = metric.compute(function);
-                
-                // TODO: debugging
-                long t1 = System.currentTimeMillis();
-                String metricName = metric.getResultName();
-                timings.add(new MetricTime(metricName, t1 - t0));
                 
                 Double result = null;
                 if (n != null) {
@@ -386,6 +363,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                         result = Math.floor(result * 100) / 100;
                     }
                 }
+                
                 return result;
                 
             }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
@@ -410,16 +388,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         }
         
         addResult(result);
-        
-        // TODO: debugging
-        String[] lines = timings.stream()
-                .filter((t1) -> t1.elapsed > 10)
-                .sorted((t1, t2) -> Long.compare(t2.elapsed, t1.elapsed))
-                .map(t -> "\t" + t.name + ": " + t.elapsed)
-                .toArray((size) -> new String[size + 1]);
-        System.arraycopy(lines, 0, lines, 1, lines.length - 1);
-        lines[0] = "Created new metric result, metric execution times were (only >10 ms):";
-        LOGGER.logInfo(lines);
     }
 
     @Override
