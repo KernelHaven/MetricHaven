@@ -83,15 +83,13 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
                                 
                                 List<FunctionLocation> locations = functionLocations.get(fragments[i]);
                                 if (!locations.isEmpty()) {
-//                                    if (locations.size() > 1) {
-//                                        LOGGER.logWarning2("Got ", locations.size(), " locations for function ",
-//                                            fragments[i], "Using first one");
-//                                    }
+                                    // TODO SE: Misses too much, but alternative seems to be too computation intensive
+                                    result.addFunctionCall(new FunctionCall(source, notNull(locations.get(0))));
                                     
-                                    // TODO SE: Check if correct
-                                    for (FunctionLocation target : locations) {
-                                        result.addFunctionCall(new FunctionCall(source, notNull(target)));
-                                    }
+//                                    // TODO SE: Check if correct
+//                                    for (FunctionLocation target : locations) {
+//                                        result.addFunctionCall(new FunctionCall(source, notNull(target)));
+//                                    }
                                 }
                             }
                             
