@@ -363,19 +363,6 @@ public class CachedWeightFactory {
         
         @NonNull List<@NonNull IVariableWeight> result;
         if (params.isSingleMetricExecution()) {
-            Map<String, Integer> typeWeights = new HashMap<>();
-            typeWeights.put("bool", 1);
-            typeWeights.put("tristate", 10);
-            typeWeights.put("string", 100);
-            typeWeights.put("int", 100);
-            typeWeights.put("integer", 100);
-            typeWeights.put("hex", 100);
-            
-            Map<String, Integer> hierarchyWeights = new HashMap<>();
-            hierarchyWeights.put("top", 1);
-            hierarchyWeights.put("intermediate", 10);
-            hierarchyWeights.put("leaf", 100);
-            
             result = new ArrayList<>();
             result.add(createVariabilityWeight(new ArrayList<>(6), varModel, sdContainer,
                 
@@ -386,7 +373,7 @@ public class CachedWeightFactory {
                 params.getHierarchyType(),
                 params.getStructuralType(),
                 
-                typeWeights, hierarchyWeights));
+                params.getTypeWeights(), params.getHierarchyWeights()));
         } else {
             result = createAllCombinations(varModel, sdContainer);
         }

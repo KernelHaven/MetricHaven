@@ -52,6 +52,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             "Defines a list of fully qualified class names of metrics that the "
             + CodeMetricsRunner.class.getName() + " component should execute.");
     
+    private @NonNull Configuration config;
+    
     private boolean round = false;
     
     private @Nullable Class<? extends AbstractFunctionMetric<?>> metricClass;
@@ -150,6 +152,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         super(config);
         
+        this.config = config;
+        
         this.codeFunctionComponent = codeFunctionComponent;
         this.varModelComponent = varModelComponent;
         this.bmComponent = bmComponent;
@@ -241,6 +245,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         List<@NonNull AbstractFunctionMetric<?>> allMetrics;
         try {
             MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer);
+            params.readTypeWeights(config);
+            params.readHierarchyWeights(config);
             params.setFunctionMap(functionMap);
             params.setSingleMetricExecution(singleVariationSpecified);
             if (singleVariationSpecified) {

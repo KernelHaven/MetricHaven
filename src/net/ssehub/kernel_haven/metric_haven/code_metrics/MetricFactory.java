@@ -67,6 +67,9 @@ public class MetricFactory {
         private @Nullable StructuralType structureValue;
         private boolean singleMetricExecution;
         
+        private @NonNull Map<String, Integer> typeWeights; // for TypeWeight
+        
+        private @NonNull Map<String, Integer> hierarchyWeights; // for HierarchyWeight
         
         /**
          * Creates configuration parameters to instantiate a metric via the {@link MetricFactory}.
@@ -81,6 +84,19 @@ public class MetricFactory {
             this.buildModel = buildModel;
             this.sdContainer = sdContainer;
             singleMetricExecution = false;
+            
+            typeWeights = new HashMap<>();
+            typeWeights.put("bool", 1);
+            typeWeights.put("tristate", 10);
+            typeWeights.put("string", 100);
+            typeWeights.put("int", 100);
+            typeWeights.put("integer", 100);
+            typeWeights.put("hex", 100);
+            
+            hierarchyWeights = new HashMap<>();
+            hierarchyWeights.put("top", 1);
+            hierarchyWeights.put("intermediate", 10);
+            hierarchyWeights.put("leaf", 100);
         }
         
         /**
@@ -282,6 +298,91 @@ public class MetricFactory {
         public boolean isSingleMetricExecution() {
             return singleMetricExecution;
         }
+        
+        /**
+         * Reads the weights for variability model types from the configuration.
+         * 
+         * @param config The configuration to read from.
+         * 
+         * @throws SetUpException If the configuration is malformed.
+         */
+        public void readTypeWeights(@NonNull Configuration config) throws SetUpException {
+            config.registerSetting(MetricSettings.TYPE_WEIGHTS_SETTING);
+            List<@NonNull String> list = config.getValue(MetricSettings.TYPE_WEIGHTS_SETTING);
+            
+            if (list != null) {
+                typeWeights.clear();
+                
+                for (String element : list) {
+                    String[] parts = element.split(":");
+                    
+                    if (parts.length != 2) {
+                        throw new SetUpException("Expecting colon (':') separated pair of name and integer, got "
+                                + element);
+                    }
+                    
+                    try {
+                        int value = Integer.parseInt(parts[1]);
+                        typeWeights.put(parts[0], value);
+                        
+                    } catch (NumberFormatException e) {
+                        throw new SetUpException("Expecting integer for type " + parts[0] + ", but got " + parts[1], e);
+                    }
+                }
+            }
+        }
+        
+        /**
+         * Weights for variability model types.
+         * 
+         * @return The weight map.
+         */
+        public @NonNull Map<String, Integer> getTypeWeights() {
+            return typeWeights;
+        }
+        
+        /**
+         * Reads the weights for variability model for hierarchy types from the configuration.
+         * 
+         * @param config The configuration to read from.
+         * 
+         * @throws SetUpException If the configuration is malformed.
+         */
+        public void readHierarchyWeights(@NonNull Configuration config) throws SetUpException {
+            config.registerSetting(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
+            List<@NonNull String> list = config.getValue(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
+            
+            if (list != null) {
+                hierarchyWeights.clear();
+                
+                for (String element : list) {
+                    String[] parts = element.split(":");
+                    
+                    if (parts.length != 2) {
+                        throw new SetUpException("Expecting colon (':') separated pair of name and integer, got "
+                                + element);
+                    }
+                    
+                    try {
+                        int value = Integer.parseInt(parts[1]);
+                        hierarchyWeights.put(parts[0], value);
+                        
+                    } catch (NumberFormatException e) {
+                        throw new SetUpException("Expecting integer for type " + parts[0] + ", but got " + parts[1], e);
+                    }
+                }
+            }
+        }
+        
+        /**
+         * Weights for hierarchy types.
+         * 
+         * @return The weight map.
+         */
+        public @NonNull Map<String, Integer> getHierarchyWeights() {
+            return hierarchyWeights;
+        }
+        
     }
     
     private static final List<@NonNull Class<? extends AbstractFunctionMetric<?>>> SUPPORTED_METRICS;
