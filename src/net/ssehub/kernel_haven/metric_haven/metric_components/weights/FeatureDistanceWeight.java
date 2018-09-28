@@ -2,11 +2,13 @@ package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.variability_model.SourceLocation;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attribute;
@@ -21,6 +23,12 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 public class FeatureDistanceWeight implements IVariableWeight {
 
     private @NonNull Map<@NonNull String, VariabilityVariable> varMap;
+    
+    /**
+     * Cache: Stores for a file the {@link Path} of the folder containing the file.
+     */
+    private Map<File, Path> folderCache;
+    
     /**
      * Creates a new weight based on cross-tree constraint ratios.
      * @param varModel Must be a variability model, which has the ability to provide information about the location
@@ -35,6 +43,8 @@ public class FeatureDistanceWeight implements IVariableWeight {
             throw new SetUpException("FeatureDistanceWeight without an approriate "
                 + "variability model created.");
         }
+        
+        folderCache = new HashMap<>();
     }
     
     @Override
@@ -48,11 +58,11 @@ public class FeatureDistanceWeight implements IVariableWeight {
         int result = -1;
         
         List<SourceLocation> srcLocations = varMap.get(variable).getSourceLocations();
-        if (null != srcLocations) {
-            Path codefolder = codeFile.getAbsoluteFile().getParentFile().toPath();
+        if (null != srcLocations && null != codeFile) {
+            Path codefolder = determineFolder(codeFile);
             
             for (SourceLocation location : srcLocations) {
-                Path srcFolder = location.getSource().getAbsoluteFile().getParentFile().toPath();
+                Path srcFolder = determineFolder(location.getSource());
                 Path delta = codefolder.relativize(srcFolder);
                 
                 // if both folders are identical, delta will be empty but getNameCount() returns 1
@@ -73,6 +83,22 @@ public class FeatureDistanceWeight implements IVariableWeight {
         }
         
         return result;
+    }
+    
+    /**
+     * Computes the absolute {@link Path} of a folder containing the specified file, uses a cache to minimize file
+     * operations.
+     * @param file A (code) file for which the {@link Path} of a folder should be retrieved.
+     * @return The {@link Path} of a folder containing the specified file.
+     */
+    private @NonNull Path determineFolder(@NonNull File file) {
+        Path folder = folderCache.get(file);
+        if (null == folder) {
+            folder = NullHelpers.notNull(file.getAbsoluteFile().getParentFile().toPath());
+            folderCache.put(file, folder);
+        }
+        
+        return folder;
     }
     
     @Override

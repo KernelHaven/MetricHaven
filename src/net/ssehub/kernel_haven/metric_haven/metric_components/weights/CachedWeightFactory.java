@@ -77,9 +77,16 @@ public class CachedWeightFactory {
     public static @Nullable FeatureDistanceWeight createFeatureDistanceWeight(@NonNull FeatureDistanceType distanceType,
         @Nullable VariabilityModel varModel) throws SetUpException {
         
-        // Uncachable weight
-        return (distanceType != FeatureDistanceType.NO_DISTANCE && null != varModel)
-            ? new FeatureDistanceWeight(varModel) : null;
+        FeatureDistanceWeight weight = null;
+        if (distanceType != FeatureDistanceType.NO_DISTANCE && null != varModel) {
+            weight = (FeatureDistanceWeight) WeigthsCache.INSTANCE.getWeight(distanceType);
+            if (null == weight) {
+                weight = new FeatureDistanceWeight(varModel);
+                WeigthsCache.INSTANCE.add(distanceType, weight);
+            }
+        }
+        
+        return weight;
     }
     
     /**
