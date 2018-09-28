@@ -56,7 +56,7 @@ public class FeatureDistanceWeight implements IVariableWeight {
                 Path delta = codefolder.relativize(srcFolder);
                 
                 // if both folders are identical, delta will be empty but getNameCount() returns 1
-                int distance = delta.toString().isEmpty() ? 0 : delta.getNameCount();
+                int distance =  delta.toString().isEmpty() ? 0 : delta.getNameCount();
                 if (distance < result || result == -1) {
                     result = distance;
                 }
