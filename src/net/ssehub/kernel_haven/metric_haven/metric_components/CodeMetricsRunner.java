@@ -3,7 +3,6 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -29,7 +28,6 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
-import net.ssehub.kernel_haven.util.OrderPreservingParallelizer;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -288,7 +286,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @param function The function to measure.
      */
     @SuppressWarnings("null")
-    private void runForSingleFunction2(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
+    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
         @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
         
         final @Nullable Double @NonNull [] values = new Double[allMetrics.size()];
@@ -337,57 +335,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             MultiMetricResult result = new MultiMetricResult(funcDescription, firstResult, values);
             addResult(result);
         }
-    }
-    
-    /**
-     * Executes all metric variations for a single function.
-     * @param allMetrics All metric instances to run.
-     * @param metricNames The name of the metrics in the same order.
-     * @param function The function to measure.
-     */
-    @SuppressWarnings("unused") // alternative to runForSingleFunction2()
-    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-        @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
-        
-        @Nullable Double[] values = new @Nullable Double[allMetrics.size()];
-        AtomicInteger valuesIndex = new AtomicInteger(0);
-        
-        OrderPreservingParallelizer<AbstractFunctionMetric<?>, Double> prallelizer = new OrderPreservingParallelizer<>(
-            (metric) -> {
-                Number n = metric.compute(function);
-                
-                Double result = null;
-                if (n != null) {
-                    result = n.doubleValue();
-                    if (round) {
-                        result = Math.floor(result * 100) / 100;
-                    }
-                }
-                
-                return result;
-                
-            }, (result) -> values[valuesIndex.getAndIncrement()] = result, nThreads);
-        
-        for (AbstractFunctionMetric<?> metric : allMetrics) {
-            prallelizer.add(metric);
-        }
-        prallelizer.end();
-        
-        prallelizer.join();
-        
-        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-                function.getFunction().getLineStart(), function.getName());
-        MultiMetricResult result;
-        if (null == firstResult) {
-            // Initializes header
-            result = new MultiMetricResult(funcDescription, metricNames, values);
-            firstResult = result;
-        } else {
-            // Less memory/time consuming
-            result = new MultiMetricResult(funcDescription, notNull(firstResult), values);
-        }
-        
-        addResult(result);
     }
 
     @Override
