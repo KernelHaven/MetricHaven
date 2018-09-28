@@ -1,6 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
@@ -72,6 +73,10 @@ public class CodeMetricsRunnerTest {
         assertThat(result.get(0).getValues()[0], is(14.0));
         assertThat(result.get(0).getValues()[1], is(0.0));
         assertThat(result.get(0).getValues()[2], is(0.0));
+        
+        for (Double value : result.get(0).getValues()) {
+            assertThat(value, notNullValue());
+        }
 
         assertThat(result.get(0).getMeasuredItem().getElement(), is("simpleFunction"));
         assertThat(result.get(0).getMeasuredItem().getMainFile(), is("dummy_test.c"));
