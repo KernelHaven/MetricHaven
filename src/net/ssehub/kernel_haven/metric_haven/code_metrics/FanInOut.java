@@ -249,6 +249,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
     private int complexityOfCall(FunctionLocation callParticipant) {
         int result = 0;
         
+        varFinder.clear();
         callParticipant.getPresenceCondition().accept(varFinder);
         boolean containsFeature = false;
         for (Variable variable : varFinder.getVariables()) {
