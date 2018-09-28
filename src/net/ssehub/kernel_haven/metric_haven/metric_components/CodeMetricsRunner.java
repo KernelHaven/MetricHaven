@@ -70,7 +70,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @Nullable StructuralType structureValue;
     private boolean singleVariationSpecified;
     private Object metricSpecificValue;
-//    
+    
     private int nThreads;
     
     private MultiMetricResult firstResult;
@@ -292,8 +292,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         final @Nullable Double @NonNull [] values = new Double[allMetrics.size()];
         
         Thread[] threads = new Thread[nThreads];
-        // Rounds down
-        int partitionSize = allMetrics.size() / nThreads;
+        int partitionSize = (int) Math.ceil((double) allMetrics.size() / nThreads);
         for (int i = 0; i < nThreads; i++) {
             // Start of interval (inclusive)
             final int partionStart = i * partitionSize;
