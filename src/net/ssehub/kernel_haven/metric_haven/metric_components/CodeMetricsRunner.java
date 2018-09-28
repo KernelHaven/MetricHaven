@@ -278,10 +278,46 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         CodeFunction function;
         while ((function = codeFunctionComponent.getNextResult()) != null) {
-            LOGGER.logDebug2("Running for function ", function.getName(), " at ", function.getSourceFile(),
-                   ":", function.getFunction().getLineStart());
+            if (nThreads == 1) {
+                runForSingleFunctionSingleThread(allMetrics, metrics, function);
+            } else {
+                runForSingleFunction(allMetrics, metrics, function);
+            }
+        }
+    }
+    
+    /**
+     * Executes all metric variations for a single function.
+     * @param allMetrics All metric instances to run.
+     * @param metricNames The name of the metrics in the same order.
+     * @param function The function to measure.
+     */
+    private void runForSingleFunctionSingleThread(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
+        @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
+        
+        @Nullable Double @NonNull [] values = new @Nullable Double[allMetrics.size()];
+        
+        int i = 0;
+        for (AbstractFunctionMetric<?> metric : allMetrics) {
+            Number result = metric.compute(function);
             
-            runForSingleFunction(allMetrics, metrics, function);
+            if (result instanceof Double && round) {
+                values[i++] = Math.floor(result.doubleValue() * 100) / 100;
+            } else {
+                values[i++] = (null != result) ? result.doubleValue() : null;
+            }
+        }
+        
+        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
+                function.getFunction().getLineStart(), function.getName());
+        if (null == firstResult) {
+            // Initializes header
+            firstResult = new MultiMetricResult(funcDescription, metricNames, values);
+            addResult(firstResult);
+        } else {
+            // Less memory/time consuming
+            MultiMetricResult result = new MultiMetricResult(funcDescription, notNull(firstResult), values);
+            addResult(result);
         }
     }
 
@@ -295,7 +331,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
         @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
         
-        final @Nullable Double @NonNull [] values = new Double[allMetrics.size()];
+        final @Nullable Double @NonNull [] values = new @Nullable Double[allMetrics.size()];
         
         Thread[] threads = new Thread[nThreads];
         int partitionSize = (int) Math.ceil((double) allMetrics.size() / nThreads);
