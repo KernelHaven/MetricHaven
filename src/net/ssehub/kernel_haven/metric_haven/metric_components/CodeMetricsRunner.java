@@ -413,10 +413,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         // TODO: debugging
         String[] lines = timings.stream()
-                .sorted((t1, t2) -> Long.compare(t1.elapsed, t2.elapsed))
+                .sorted((t1, t2) -> Long.compare(t2.elapsed, t1.elapsed))
+                .limit(20)
                 .map(t -> "\t" + t.name + ": " + t.elapsed)
                 .toArray((size) -> new String[size + 1]);
-        lines[0] = "Created new metric result, metric execution times were:";
+        System.arraycopy(lines, 0, lines, 1, lines.length - 1);
+        lines[0] = "Created new metric result, metric execution times were (only top 20):";
         LOGGER.logInfo(lines);
     }
 
