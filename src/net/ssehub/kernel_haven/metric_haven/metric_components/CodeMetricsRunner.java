@@ -277,7 +277,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             LOGGER.logDebug2("Running for function ", function.getName(), " at ", function.getSourceFile(),
                    ":", function.getFunction().getLineStart());
             
-            runForSingleFunction2(allMetrics, metrics, function);
+            runForSingleFunction(allMetrics, metrics, function);
         }
     }
 
