@@ -12,7 +12,7 @@ Place [`MetricHaven.jar`](https://jenkins.sse.uni-hildesheim.de/view/KernelHaven
 
 ### Provided Metrics
 For the sake of simplicity we omit the full qualified class names in the following table. All class names start with the
-prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the metrics support [variability weights](#supported-variability-weights).
+prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics support [variability weights](#supported-variability-weights).
 
 <table style="width:100%">
   <tr>
@@ -30,7 +30,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
         empirical study of the linux kernel</a> paper.
     </td>
     <td>
-      <code>metric.variables_per_function.measured_variables_type</code>:
+      <code>metrics.variables_per_function.measured_variables_type</code>:
       <ul>
         <li><code>INTERNAL</code>: Counts the number of variables used inside the function</li>
         <li><code>EXTERNAL</code>: Counts the number of variables used outside the function</li>
@@ -48,7 +48,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
     <td>Measures the Cyclomatic Complexity of code functions.
     </td>
     <td>
-      <code>metric.cyclomatic_complexity.measured_type</code>:
+      <code>metrics.cyclomatic_complexity.measured_type</code>:
       <ul>
         <li><code>MCCABE</code>: Measures the cyclomatic complexity of classical code elements as defined by McCabe; uses a simplification that only the following keywords will be counted: <tt>if, for, while, case</tt>.</li>
         <li><code>VARIATION_POINTS</code>: Measures the cyclomatic complexity of variation points only; uses a simplification that only the following keywords will be counted: <tt>if, elif</tt>.</li>
@@ -62,7 +62,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
     <td>3</td>
     <td>Measures the number of statements (single line statement, loop, ..) as approximation of delivered lines of code.</td>
     <td>
-      <code>metric.loc.measured_type</code>:
+      <code>metrics.loc.measured_type</code>:
       <ul>
         <li><code>DLOC</code>: Measures the non-CPP code elements (also of they are surrounded by an CPP-block).</li>
         <li><code>LOF</code>: Measures the lines of feature code (only elements surrounded by CPP-blocks, if a variability model is passed, it checks if at least one variable of the variability model is used in the CPP-block)</li>
@@ -76,7 +76,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
     <td>1730</td>
     <td>Measures the number of nested constroll structures.</td>
     <td>
-      <code>metric.nesting_depth.measured_type</code>:
+      <code>metrics.nesting_depth.measured_type</code>:
       <ul>
         <li><code>CLASSIC_ND_MAX</code>: Maximum depth (within a function) of non-CPP structures.</li>
         <li><code>CLASSIC_ND_AVG</code>: Average depth (within a function) of non-CPP structures.</li>
@@ -94,7 +94,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
     <td>1736</td>
     <td>Measures the number of incoming/outgoing function calls per function</td>
     <td>
-      <code>metric.fan_in_out.type</code>:
+      <code>metrics.fan_in_out.type</code>:
       <ul>
         <li><code>CLASSICAL_FAN_IN_GLOBALLY</code>: Measures how often a function is called from anywhere in the code (independently of CPP-blocks).</li>
         <li><code>CLASSICAL_FAN_IN_LOCALLY</code>: Measures how often a function is called from inside the same file (independently of CPP-blocks).</li>
@@ -127,7 +127,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
     <td>Measures the numbers of VP blocks in a function, independent whether they are nested or not.
     </td>
     <td>
-      <code>metric.blocks_per_function.measured_block_type</code>:
+      <code>metrics.blocks_per_function.measured_block_type</code>:
       <ul>
         <li><code>BLOCK_AS_ONE</code>: if, elif, else are counted as one block</li>
         <li><code>SEPARATE_PARTIAL_BLOCKS</code>: if, elif, else are treated as three independent blocks</li>
@@ -152,7 +152,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   </tr>
   <!-- Scattering Degree -->
   <tr>
-    <td><code>metric.function_measures.consider_scattering_degree</code></td>
+    <td><code>metrics.function_measures.consider_scattering_degree</code></td>
     <td>Weights features used in code blocks based on their scattering degree (how often they are used in code).</td>
     <td>
       <ul>
@@ -164,7 +164,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   </tr>
   <!-- Cross-Tree Constraint Ratios -->
   <tr>
-    <td><code>metric.function_measures.consider_ctcr</code></td>
+    <td><code>metrics.function_measures.consider_ctcr</code></td>
     <td>Weights features based on their usage in cross-tree constraints of the variability model.</td>
     <td>
       <ul>
@@ -177,7 +177,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   </tr>
   <!-- Feature Distances -->
   <tr>
-    <td><code>metric.function_measures.consider_feature_definition_distance</code></td>
+    <td><code>metrics.function_measures.consider_feature_definition_distance</code></td>
     <td>Weights features based on the distance where they are defined (location of the variability model) and their usage (location of the measured code artifact). Requires an extracted variability model, which provides information where in the file system a feature was defined.</td>
     <td>
       <ul>
@@ -188,30 +188,30 @@ prefix `net.ssehub.kernel_haven.metric_haven.metric_components`. Most of the met
   </tr>
   <!-- Feature Types -->
   <tr>
-    <td><code>metric.function_measures.consider_feature_types</code></td>
+    <td><code>metrics.function_measures.consider_feature_types</code></td>
     <td>Weights features based on their data type. Requires an extracted variability model.</td>
     <td>
       <ul>
         <li><code>NO_TYPE_MEASURING</code>: Won't consider any weights with respect to the type of the feature.</li>
-        <li><code>TYPE_WEIGHTS_BY_FILE</code>: Requires the configuration of weights per feature type in the configuration file (via <code>metric.function_measures.weight_definitions</code>). Each type weight is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>.</li>
+        <li><code>TYPE_WEIGHTS_BY_FILE</code>: Requires the configuration of weights per feature type in the configuration file (via <code>metrics.function_measures.weight_definitions</code>). Each type weight is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>.</li>
       </ul>
     </td>
   </tr>
   <!-- Hierarchy Types -->
   <tr>
-    <td><code>metric.function_measures.consider_feature_hierarchies</code></td>
+    <td><code>metrics.function_measures.consider_feature_hierarchies</code></td>
     <td>Weights features based on their hierarchy level as models in the variability model. Requires an extracted variability model, which provides information of the hierarchy.</td>
     <td>
       <ul>
         <li><code>NO_HIERARCHY_MEASURING</code>: Won't consider any feature hierarchies.</li>
-        <li><code>HIERARCHY_WEIGHTS_BY_FILE</code>: Requires the configuration of hierarchy weights in the configuration file (via <code>metric.function_measures.hierarchy_weight_definitions</code>). Each hierarchy type is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>. Supported hierarchy types are <code>top</code>, <code>intermediate</code>, and <code>leaf</code></li>
+        <li><code>HIERARCHY_WEIGHTS_BY_FILE</code>: Requires the configuration of hierarchy weights in the configuration file (via <code>metrics.function_measures.hierarchy_weight_definitions</code>). Each hierarchy type is defined via a 2-tuple separated by a colon in the form of <code>name:value</code>. Supported hierarchy types are <code>top</code>, <code>intermediate</code>, and <code>leaf</code></li>
         <li><code>HIERARCHY_WEIGHTS_BY_LEVEL</code>: The hierarchy (level) is directly used as weight.</li>
       </ul>
     </td>
   </tr>
   <!-- Structures / CoC -->
   <tr>
-    <td><code>metric.function_measures.consider_varmodel_structures</code></td>
+    <td><code>metrics.function_measures.consider_varmodel_structures</code></td>
     <td>Weights features based on the number of childred / parents they have.</td>
     <td>
       <ul>

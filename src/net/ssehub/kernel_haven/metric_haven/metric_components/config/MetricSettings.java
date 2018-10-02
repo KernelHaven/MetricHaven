@@ -41,7 +41,7 @@ public class MetricSettings {
      * Configuration of variability weight (for features): <b>Scattering Degree</b>.
      */
     public static final @NonNull Setting<@NonNull SDType> SCATTERING_DEGREE_USAGE_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_scattering_degree", SDType.class, true, 
+        = new EnumSetting<>("metrics.function_measures.consider_scattering_degree", SDType.class, true, 
             SDType.NO_SCATTERING, "Defines whether and how to incorporate scattering degree values"
                 + "into measurement results.\n"
                 + " - " + SDType.NO_SCATTERING.name() + ": Do not consider scattering degree (default).\n"
@@ -52,7 +52,7 @@ public class MetricSettings {
      * Configuration of variability weight (for features): <b>Cross-Tree Constraint Ratio</b>.
      */
     public static final @NonNull Setting<@NonNull CTCRType> CTCR_USAGE_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_ctcr", CTCRType.class, true, 
+        = new EnumSetting<>("metrics.function_measures.consider_ctcr", CTCRType.class, true, 
             CTCRType.NO_CTCR, "Defines whether and how to incorporate cross-tree constraint ratios from the variability"
                     + " model into measurement results.\n"
                     + " - " + CTCRType.NO_CTCR.name() + ": Do not consider any cross-tree constraint ratios (default)."
@@ -68,7 +68,7 @@ public class MetricSettings {
      * Configuration of variability weight (for features): <b>Distance between definition and usage</b>.
      */
     public static final @NonNull Setting<@NonNull FeatureDistanceType> LOCATION_DISTANCE_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_feature_definition_distance", FeatureDistanceType.class,
+        = new EnumSetting<>("metrics.function_measures.consider_feature_definition_distance", FeatureDistanceType.class,
             true, FeatureDistanceType.NO_DISTANCE, "Defines whether and how to incorporate distance between used "
                 + "feature (location of measured code file) and definition of feature "
                 + "(defining file of variability model):\n"
@@ -80,7 +80,7 @@ public class MetricSettings {
      * Configuration of variability weight (for features): <b>Type of features</b>.
      */
     public static final @NonNull Setting<@NonNull VariabilityTypeMeasureType> TYPE_MEASURING_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_feature_types", VariabilityTypeMeasureType.class,
+        = new EnumSetting<>("metrics.function_measures.consider_feature_types", VariabilityTypeMeasureType.class,
             true, VariabilityTypeMeasureType.NO_TYPE_MEASURING, "Defines whether and how to incorporate types of used "
                 + "features:\n"
                 + " - " + VariabilityTypeMeasureType.NO_TYPE_MEASURING.name() + ": Do not consider any types (default)."
@@ -91,7 +91,7 @@ public class MetricSettings {
      * Configuration of variability weight (for features): Definitions of weights for {@value #TYPE_MEASURING_SETTING}.
      */
     public static final @NonNull Setting<@Nullable List<@NonNull String>> TYPE_WEIGHTS_SETTING
-        = new Setting<>("metric.function_measures.type_weight_definitions", Type.STRING_LIST,
+        = new Setting<>("metrics.function_measures.type_weight_definitions", Type.STRING_LIST,
             false, null, "Defines the weights to be used if " + TYPE_MEASURING_SETTING.getKey() + " is set to "
                 + VariabilityTypeMeasureType.TYPE_WEIGHTS_BY_FILE.name() + "\n"
                 + "Define the weights in form of (separated by a comma): type:weight");
@@ -100,7 +100,7 @@ public class MetricSettings {
      * Configuration of variability weight (for features): <b>Hierarchy level of features</b>.
      */
     public static final @NonNull Setting<@NonNull HierarchyType> HIERARCHY_TYPE_MEASURING_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_feature_hierarchies", HierarchyType.class,
+        = new EnumSetting<>("metrics.function_measures.consider_feature_hierarchies", HierarchyType.class,
             true, HierarchyType.NO_HIERARCHY_MEASURING, "Defines whether and how to incorporate hierarchies of used "
                 + "features:\n"
                 + " - " + HierarchyType.NO_HIERARCHY_MEASURING.name() + ": Do not consider any hierarchies (default).\n"
@@ -114,7 +114,7 @@ public class MetricSettings {
      * {@value #HIERARCHY_TYPE_MEASURING_SETTING}.
      */
     public static final @NonNull Setting<@Nullable List<@NonNull String>> HIERARCHY_WEIGHTS_SETTING
-        = new Setting<>("metric.function_measures.hierarchy_weight_definitions", Type.STRING_LIST,
+        = new Setting<>("metrics.function_measures.hierarchy_weight_definitions", Type.STRING_LIST,
             false, null, "Defines the weights to be used if " + HIERARCHY_TYPE_MEASURING_SETTING.getKey()
                 + " is set to " + HierarchyType.HIERARCHY_WEIGHTS_BY_FILE.name() + "\n"
                 + "Define the weights in form of (separated by a comma): hierarchy:weight");
@@ -123,7 +123,7 @@ public class MetricSettings {
      * Configuration of variability weight (for features): <b>Structural information of variability models</b>.
      */
     public static final @NonNull Setting<@NonNull StructuralType> STRUCTURE_MEASURING_SETTING
-        = new EnumSetting<>("metric.function_measures.consider_varmodel_structures", StructuralType.class,
+        = new EnumSetting<>("metrics.function_measures.consider_varmodel_structures", StructuralType.class,
             true, StructuralType.NO_STRUCTURAL_MEASUREMENT, "Defines whether and how to incorporate stuctural"
                 + "information of used features:\n"
                 + " - " + StructuralType.NO_STRUCTURAL_MEASUREMENT.name() + ": Do not consider any structures "
@@ -135,11 +135,11 @@ public class MetricSettings {
      * Metric-specific settings
      */
     public static final @NonNull Setting<@NonNull BlockMeasureType> BLOCK_TYPE_SETTING
-        = new EnumSetting<>("metric.blocks_per_function.measured_block_type", BlockMeasureType.class, true, 
+        = new EnumSetting<>("metrics.blocks_per_function.measured_block_type", BlockMeasureType.class, true, 
         BlockMeasureType.BLOCK_AS_ONE, "Defines whether partial blocks (#elif/#else) are also counted.");
     
     public static final @NonNull Setting<DLoC.LoFType>
-            LOC_TYPE_SETTING = new EnumSetting<>("metric.loc.measured_type", DLoC.LoFType.class, true, 
+            LOC_TYPE_SETTING = new EnumSetting<>("metrics.loc.measured_type", DLoC.LoFType.class, true, 
             DLoC.LoFType.DLOC,
             "Defines which lines of code should be counted for a function:\n"
             + " - " + DLoC.LoFType.DLOC.name()
@@ -152,16 +152,16 @@ public class MetricSettings {
             + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
     
     public static final @NonNull Setting<FanInOut.@NonNull FanType> FAN_TYPE_SETTING
-        = new EnumSetting<>("metric.fan_in_out.type", FanInOut.FanType.class, true, 
+        = new EnumSetting<>("metrics.fan_in_out.type", FanInOut.FanType.class, true, 
             FanInOut.FanType.CLASSICAL_FAN_IN_GLOBALLY, "Defines which type of fan in/out should be counted for a"
             + " function.");
     
     public static final @NonNull Setting<@NonNull CCType> CC_VARIABLE_TYPE_SETTING
-        = new EnumSetting<>("metric.cyclomatic_complexity.measured_type", CCType.class, true, 
+        = new EnumSetting<>("metrics.cyclomatic_complexity.measured_type", CCType.class, true, 
                 CCType.MCCABE, "Defines which variables should be counted for a function.");
     
     public static final @NonNull Setting<@NonNull NDType> ND_TYPE_SETTING
-        = new EnumSetting<>("metric.nesting_depth.measured_type", NDType.class, true, 
+        = new EnumSetting<>("metrics.nesting_depth.measured_type", NDType.class, true, 
         NDType.CLASSIC_ND_MAX, "Defines what should be counteded as the nesting depth:\n"
             + " - " + NDType.CLASSIC_ND_MAX.name() + ": Counts the max. nesting depth w.r.t classical\n"
             + "   control structures.\n"
@@ -178,7 +178,7 @@ public class MetricSettings {
     
     public static final @NonNull Setting<
         net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction.VarType> VARIABLE_TYPE_SETTING
-            = new EnumSetting<>("metric.variables_per_function.measured_variables_type",
+            = new EnumSetting<>("metrics.variables_per_function.measured_variables_type",
             net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction.VarType.class, true, 
             net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction.VarType.ALL,
                     "Defines which variables should be counted for a function.");
