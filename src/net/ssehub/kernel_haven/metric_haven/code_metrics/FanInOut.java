@@ -134,7 +134,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         
         // Compute desired values
         boolean validResult = true;
-        int result = 0;
+        long result = 0;
         if (null != functionCalls) {
             for (FunctionCall call : functionCalls) {
                 switch (type) {
@@ -246,8 +246,8 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
      * @param callParticipant The measured item.
      * @return The configuration complexity result for the specified function (&ge; 0).
      */
-    private int complexityOfCall(FunctionLocation callParticipant) {
-        int result = 0;
+    private long complexityOfCall(FunctionLocation callParticipant) {
+        long result = 0;
         
         varFinder.clear();
         callParticipant.getPresenceCondition().accept(varFinder);
