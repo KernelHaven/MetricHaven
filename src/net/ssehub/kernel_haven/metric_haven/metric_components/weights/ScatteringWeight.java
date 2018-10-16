@@ -36,8 +36,8 @@ public class ScatteringWeight implements IVariableWeight {
     }
     
     @Override
-    public synchronized int getWeight(String variable) {
-        int weight = 1;
+    public long getWeight(String variable) {
+        long weight = 1;
         
         ScatteringDegreeContainer sdContainer = this.sdContainer;
         if (sdType != SDType.NO_SCATTERING && null != sdContainer) {

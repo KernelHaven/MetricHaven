@@ -95,7 +95,7 @@ public class VariablesPerFunction extends AbstractFunctionMetric<UsedVariability
                 + " property = " + measuredVars.name());
         }
         
-        int result = 0;
+        long result = 0;
         for (String variable : variables) {
             result += getWeight().getWeight(variable, func.getSourceFile().getPath());
         }

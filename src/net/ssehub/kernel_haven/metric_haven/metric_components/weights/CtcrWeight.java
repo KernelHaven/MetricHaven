@@ -24,7 +24,7 @@ public class CtcrWeight implements IVariableWeight {
     private @NonNull CTCRType ctcrType;
     
     // Cached values
-    private Map<String, Integer> varWeights;
+    private Map<String, Long> varWeights;
     
     /**
      * Creates a new weight based on cross-tree constraint ratios.
@@ -46,10 +46,10 @@ public class CtcrWeight implements IVariableWeight {
     }
 
     @Override
-    public synchronized int getWeight(String variable) {
-        int weight = 1;
+    public synchronized long getWeight(String variable) {
+        long weight = 1;
         
-        Integer value = varWeights.get(variable);
+        Long value = varWeights.get(variable);
         if (null != value) {
             weight = value;
         } else if (null != varMapping) {

@@ -34,10 +34,10 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
     private int allDepth;
     
     // Variability dependent code
-    private int currentVPDepth;
-    private int currentVPComplexity;
-    private int maxVPDepth;
-    private int allVPDepth;
+    private long currentVPDepth;
+    private long currentVPComplexity;
+    private long maxVPDepth;
+    private long allVPDepth;
     
     // Support for variability weights
     private @Nullable IVariableWeight weight;
@@ -140,7 +140,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
     public void visitCppBlock(@NonNull CppBlock block) {
         // Compute only once (in this child class)
         boolean isVariationPoint = isFeatureDependentBlock(block); 
-        int nestingComplexity = 1;
+        long nestingComplexity = 1;
         
         if (isVariationPoint) {
             currentVPDepth++;

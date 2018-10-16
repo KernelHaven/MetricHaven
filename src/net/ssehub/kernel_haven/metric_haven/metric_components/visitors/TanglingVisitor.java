@@ -26,7 +26,7 @@ public class TanglingVisitor extends AbstractFunctionVisitor {
     private @NonNull IVariableWeight weight;
     private @Nullable File codeFile;
 
-    private int result = 0;
+    private long result = 0;
     
     /**
      * Creates a new tangling visitor to measure tangling values of all CPP-blocks in a function.
@@ -80,7 +80,7 @@ public class TanglingVisitor extends AbstractFunctionVisitor {
      * Returns the summed tangling values for all CPP blocks of the measured code function.
      * @return The summed tangling (&ge; 0).
      */
-    public int getResult() {
+    public long getResult() {
         return result;
     }
     

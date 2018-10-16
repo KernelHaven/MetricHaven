@@ -19,7 +19,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 public class StructuralWeight implements IVariableWeight {
     
     private Map<String, VariabilityVariable> varMap;
-    private Map<String, Integer> varWeights;
+    private Map<String, Long> varWeights;
     private StructuralType structureType;
     
     /**
@@ -30,15 +30,15 @@ public class StructuralWeight implements IVariableWeight {
      */
     public StructuralWeight(@NonNull VariabilityModel varModel, @NonNull StructuralType structureType) {
         varMap = varModel.getVariableMap();
-        varWeights = new HashMap<String, Integer>(varMap.size());
+        varWeights = new HashMap<String, Long>(varMap.size());
         this.structureType = structureType;
     }
 
     @Override
-    public int getWeight(String variable) {
-        int result = 0;
+    public long getWeight(String variable) {
+        long result = 0;
         
-        Integer value = varWeights.get(variable);
+        Long value = varWeights.get(variable);
         if (null != value) {
             result = value;
         } else {
@@ -56,8 +56,8 @@ public class StructuralWeight implements IVariableWeight {
      * @param var The feature variable to weight.
      * @return The weighting value.
      */
-    private int weight(HierarchicalVariable var) {
-        int result;
+    private long weight(HierarchicalVariable var) {
+        long result;
         
         switch (structureType) {
         case NO_STRUCTURAL_MEASUREMENT:

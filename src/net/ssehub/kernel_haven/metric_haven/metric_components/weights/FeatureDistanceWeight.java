@@ -48,13 +48,13 @@ public class FeatureDistanceWeight implements IVariableWeight {
     }
     
     @Override
-    public int getWeight(String variable) {
+    public long getWeight(String variable) {
         throw new UnsupportedOperationException("FeatureDistanceWeight.getWeight(String variable) called, "
             + "but this method is not supported.");
     }
 
     @Override
-    public int getWeight(String variable, File codeFile) {
+    public long getWeight(String variable, File codeFile) {
         int result = -1;
         
         List<SourceLocation> srcLocations = varMap.get(variable).getSourceLocations();

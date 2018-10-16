@@ -17,7 +17,7 @@ public class NoWeight implements IVariableWeight {
     private NoWeight() {}
 
     @Override
-    public int getWeight(String variable) {
+    public long getWeight(String variable) {
         return 1;
     }
 

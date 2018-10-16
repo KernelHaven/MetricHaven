@@ -37,7 +37,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 public class McCabeVisitor extends AbstractFunctionVisitor {
 
     private int classicCC;
-    private int variabilityCC;
+    private long variabilityCC;
     private boolean visitedStatement;
     private IVariableWeight weight;
     private VariableFinder varFinder;
@@ -150,7 +150,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
      * <a href="https://pdfs.semanticscholar.org/d5ce/44ac8717a0f51bb869529398c9a20874ad0b.pdf">Lopez-Herrejon</a>.
      * @return Cyclomatic complexity of preprocessor directives (&ge; 0).
      */
-    public int getVariabilityCyclomaticComplexity() {
+    public long getVariabilityCyclomaticComplexity() {
         return variabilityCC;
     }
     
@@ -158,7 +158,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
      * Returns the sum of the two other complexities.
      * @return {@link #getClassicCyclomaticComplexity()} + {@link #getVariabilityCyclomaticComplexity()}.
      */
-    public int getCombinedCyclomaticComplexity() {
+    public long getCombinedCyclomaticComplexity() {
         return getClassicCyclomaticComplexity() + getVariabilityCyclomaticComplexity();
     }
     

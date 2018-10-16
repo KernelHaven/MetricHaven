@@ -18,7 +18,7 @@ public class HierarchyWeight implements IVariableWeight {
     
     private @Nullable Map<String, Integer> hierarchyWeights;
     private Map<String, VariabilityVariable> varMap;
-    private Map<String, Integer> varWeights;
+    private Map<String, Long> varWeights;
     
     /**
      * Sole constructor.
@@ -29,14 +29,14 @@ public class HierarchyWeight implements IVariableWeight {
     public HierarchyWeight(@NonNull VariabilityModel varModel, @Nullable Map<String, Integer> hierarchyWeights) {
         varMap = varModel.getVariableMap();
         this.hierarchyWeights = hierarchyWeights;
-        varWeights = new HashMap<String, Integer>(varMap.size());
+        varWeights = new HashMap<String, Long>(varMap.size());
     }
 
     @Override
-    public int getWeight(String variable) {
-        int result = 0;
+    public long getWeight(String variable) {
+        long result = 0;
         
-        Integer value = varWeights.get(variable);
+        Long value = varWeights.get(variable);
         if (null != value) {
             result = value;
         } else {
@@ -55,8 +55,8 @@ public class HierarchyWeight implements IVariableWeight {
      * @param var The feature variable to measure/weight.
      * @return The weighting value.
      */
-    private int weight(HierarchicalVariable var) {
-        int result;
+    private long weight(HierarchicalVariable var) {
+        long result;
         
         Map<String, Integer> hierarchyWeights = this.hierarchyWeights; // copy to fix null warnings
         if (null != hierarchyWeights) {

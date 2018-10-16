@@ -18,7 +18,7 @@ public class TypeWeight implements IVariableWeight {
     
     private Map<String, Integer> typeWeights;
     private Map<String, VariabilityVariable> varMap;
-    private Map<String, Integer> varWeights;
+    private Map<String, Long> varWeights;
     
     /**
      * Sole constructor.
@@ -28,14 +28,14 @@ public class TypeWeight implements IVariableWeight {
     public TypeWeight(@NonNull VariabilityModel varModel, @NonNull Map<String, Integer> typeWeights) {
         varMap = varModel.getVariableMap();
         this.typeWeights = typeWeights;
-        varWeights = new HashMap<String, Integer>(varMap.size());
+        varWeights = new HashMap<String, Long>(varMap.size());
     }
 
     @Override
-    public int getWeight(String variable) {
-        int result = 0;
+    public long getWeight(String variable) {
+        long result = 0;
         
-        Integer value = varWeights.get(variable);
+        Long value = varWeights.get(variable);
         if (null != value) {
             result = value;
         } else {

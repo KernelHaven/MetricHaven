@@ -58,8 +58,15 @@ public class CachedWeightFactory {
     public static @Nullable CtcrWeight createCtrcWeight(@NonNull CTCRType ctcrType,
         @Nullable VariabilityModel varModel) throws SetUpException {
         
-        // Uncached weight (doesn't make sense to cache this)
-        return (ctcrType != CTCRType.NO_CTCR && null != varModel) ? new CtcrWeight(varModel, ctcrType) : null;
+        CtcrWeight weight = null;
+        if (ctcrType != CTCRType.NO_CTCR && null != varModel) {
+            weight = (CtcrWeight) WeigthsCache.INSTANCE.getWeight(ctcrType);
+            if (null == weight) {
+                weight = new CtcrWeight(varModel, ctcrType);
+                WeigthsCache.INSTANCE.add(ctcrType, weight);
+            }
+        }
+        return weight;
     }
     
     /**

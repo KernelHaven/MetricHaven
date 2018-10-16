@@ -71,7 +71,7 @@ public class CyclomaticComplexity extends AbstractFunctionMetric<McCabeVisitor> 
 
     @Override
     protected Number computeResult(McCabeVisitor functionVisitor, CodeFunction func) {
-        Integer result;
+        Number result;
         switch (measuredCode) {
         case MCCABE:
             result = functionVisitor.getClassicCyclomaticComplexity();
