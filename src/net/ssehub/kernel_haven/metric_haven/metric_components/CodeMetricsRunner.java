@@ -306,6 +306,9 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             } else {
                 values[i++] = (null != result) ? result.doubleValue() : null;
             }
+            if (values[i - 1] < 0) {
+                LOGGER.logError2("Negative metric for ", metric.getMetricName(), " on ", function.getSourceFile().getPath().getAbsolutePath(), ":", function.getName(), ":", function.getFunction().getLineStart() );
+            }
         }
         
         MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
