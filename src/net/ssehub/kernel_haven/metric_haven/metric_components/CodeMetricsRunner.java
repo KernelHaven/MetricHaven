@@ -307,7 +307,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 values[i++] = (null != result) ? result.doubleValue() : null;
             }
             if (values[i - 1] < 0) {
-                LOGGER.logError2("Negative metric for ", metric.getMetricName(), " on ", function.getSourceFile().getPath().getAbsolutePath(), ":", function.getName(), ":", function.getFunction().getLineStart() );
+                LOGGER.logError2("Negative metric for ", metric.getResultName(), " on ", function.getSourceFile().getPath().getAbsolutePath(), ":", function.getName(), ":", function.getFunction().getLineStart() );
             }
         }
         
