@@ -43,7 +43,7 @@ public class MultiWeight implements IVariableWeight {
     
     @Override
     public long getWeight(String variable, File codefile) {
-        int weight = 1;
+        long weight = 1;
         for (int i = 0; i < weights.length; i++) {
             weight *= weights[i].getWeight(variable, codefile);
         }
