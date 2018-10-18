@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +18,7 @@ import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.SwitchStatement;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -75,6 +78,8 @@ public class FeatureSizeCounter extends AnalysisComponent<FeatureSize> implement
             bm = bmProvider.getNextResult();
         }
         
+        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
+        
         SourceFile file;
         while ((file = cmProvider.getNextResult()) != null) {
             // Consider variables of build model
@@ -98,9 +103,13 @@ public class FeatureSizeCounter extends AnalysisComponent<FeatureSize> implement
                     LOGGER.logError("This component can only handle ISyntaxElements");
                 }
             }
+            
+            progress.oneDone();
         }
         
         addResult(featureSizes);
+        
+        progress.close();
     }
 
     @Override

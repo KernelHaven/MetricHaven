@@ -9,6 +9,7 @@ import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 
@@ -37,9 +38,10 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
 
     @Override
     protected void execute() {
+        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
+        
         SourceFile file;
         while ((file = codeModelProvider.getNextResult()) != null) {
-            LOGGER.logDebug2("Running metric for functions in ", file.getPath().getPath());
             currentFile = file;
             for (CodeElement b : file) {
                 if (!(b instanceof ISyntaxElement)) {
@@ -48,7 +50,11 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
                     ((ISyntaxElement) b).accept(this);
                 }
             }
+            
+            progress.oneDone();
         }
+        
+        progress.close();
     }
 
     @Override

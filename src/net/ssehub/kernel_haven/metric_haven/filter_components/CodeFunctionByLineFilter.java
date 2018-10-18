@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +11,7 @@ import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
+import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
@@ -102,6 +105,8 @@ public class CodeFunctionByLineFilter extends AnalysisComponent<CodeFunction> {
 
     @Override
     protected void execute() {
+        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
+        
         CodeFunction function;
         while ((function = functionSource.getNextResult()) != null) {
             
@@ -112,7 +117,11 @@ public class CodeFunctionByLineFilter extends AnalysisComponent<CodeFunction> {
                     break;
                 }
             }
+            
+            progress.oneDone();
         }
+        
+        progress.close();
     }
 
     @Override

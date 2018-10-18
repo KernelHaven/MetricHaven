@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 
@@ -50,6 +51,8 @@ public class OrderedCodeFunctionFilter extends AnalysisComponent<CodeFunction> i
             functions.add(func);
         }
         
+        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
+        
         Comparator<CodeFunction> funcComparator = new Comparator<CodeFunction>() {
 
             @Override
@@ -65,6 +68,8 @@ public class OrderedCodeFunctionFilter extends AnalysisComponent<CodeFunction> i
                     result = Integer.compare(func1.getFunction().getLineStart(), func2.getFunction().getLineStart());
                 }
                 
+                progress.oneDone();
+                
                 return result;
             }
             
@@ -75,6 +80,8 @@ public class OrderedCodeFunctionFilter extends AnalysisComponent<CodeFunction> i
         for (CodeFunction codeFunction : functions) {
             addResult(NullHelpers.notNull(codeFunction));
         }
+        
+        progress.close();
     }
 
     @Override

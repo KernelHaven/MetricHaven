@@ -28,6 +28,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
+import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -276,6 +277,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             metrics[metricsIndex++] = metric.getResultName();
         }
         
+        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
+        
         CodeFunction function;
         while ((function = codeFunctionComponent.getNextResult()) != null) {
             if (nThreads == 1) {
@@ -283,7 +286,11 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             } else {
                 runForSingleFunction(allMetrics, metrics, function);
             }
+            
+            progress.oneDone();
         }
+        
+        progress.close();
     }
     
     /**

@@ -15,6 +15,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionCall;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionLocation;
+import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
@@ -61,6 +62,8 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
                     function.getFunction().getPresenceCondition()));
         }
         
+        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()), allFunctions.size());
+        
         /*
          * Step two: visit all functions to find function calls
          */
@@ -101,9 +104,12 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
                 });
             }
             
+            progress.oneDone();
         }
         
         addResult(result);
+        
+        progress.close();
     }
 
     @Override

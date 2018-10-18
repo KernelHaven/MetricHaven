@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.metric_haven.filter_components;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -16,6 +18,7 @@ import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition.TypeDefType;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.filter_components.GlobalVariableFinder.GlobalVariable;
+import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 
@@ -97,6 +100,8 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
 
     @Override
     protected void execute() {
+        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
+        
         SourceFile file;
         while ((file = codeModelProvider.getNextResult()) != null) {
             LOGGER.logInfo2("Running metric for functions in ", file.getPath().getPath());
@@ -108,7 +113,11 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
                     ((ISyntaxElement) b).accept(this);
                 }
             }
+            
+            progress.oneDone();
         }
+        
+        progress.close();
     }
 
     @Override

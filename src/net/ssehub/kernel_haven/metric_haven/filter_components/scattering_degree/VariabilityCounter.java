@@ -14,6 +14,7 @@ import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.False;
@@ -27,7 +28,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
- * Counts in how many &#35;ifdefs and files a {@link VariabilityVariable} is used.
+ * Counts in how many &#35;ifdefs and files a {@link VariabilityVariable} is used in.
  * 
  * @author Adam
  */
@@ -74,6 +75,8 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
             countedVariables.put(variable.getName(), new ScatteringDegree(variable));
         }
         
+        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
+        
         SourceFile file;
         while ((file = cmProvider.getNextResult()) != null) {
             
@@ -86,9 +89,13 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
             }
             
             variablesSeenInCurrentFile.clear();
+            
+            progress.oneDone();
         }
         
         addResult(new ScatteringDegreeContainer(countedVariables.values()));
+        
+        progress.close();
     }
 
     @Override
