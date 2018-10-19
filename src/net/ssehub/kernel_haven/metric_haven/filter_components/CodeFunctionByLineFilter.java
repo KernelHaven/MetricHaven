@@ -118,7 +118,7 @@ public class CodeFunctionByLineFilter extends AnalysisComponent<CodeFunction> {
                 }
             }
             
-            progress.oneDone();
+            progress.processedOne();
         }
         
         progress.close();

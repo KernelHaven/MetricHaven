@@ -114,7 +114,7 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
                 }
             }
             
-            progress.oneDone();
+            progress.processedOne();
         }
         
         progress.close();

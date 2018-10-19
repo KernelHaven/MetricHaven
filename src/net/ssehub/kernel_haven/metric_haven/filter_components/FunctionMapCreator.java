@@ -104,7 +104,7 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
                 });
             }
             
-            progress.oneDone();
+            progress.processedOne();
         }
         
         addResult(result);

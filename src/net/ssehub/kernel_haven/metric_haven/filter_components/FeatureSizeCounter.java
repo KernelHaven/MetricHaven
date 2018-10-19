@@ -104,7 +104,7 @@ public class FeatureSizeCounter extends AnalysisComponent<FeatureSize> implement
                 }
             }
             
-            progress.oneDone();
+            progress.processedOne();
         }
         
         addResult(featureSizes);

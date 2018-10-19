@@ -90,7 +90,7 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
             
             variablesSeenInCurrentFile.clear();
             
-            progress.oneDone();
+            progress.processedOne();
         }
         
         addResult(new ScatteringDegreeContainer(countedVariables.values()));

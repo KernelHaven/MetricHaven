@@ -68,7 +68,7 @@ public class OrderedCodeFunctionFilter extends AnalysisComponent<CodeFunction> i
                     result = Integer.compare(func1.getFunction().getLineStart(), func2.getFunction().getLineStart());
                 }
                 
-                progress.oneDone();
+                progress.processedOne();
                 
                 return result;
             }

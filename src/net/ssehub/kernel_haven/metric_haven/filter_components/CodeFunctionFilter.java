@@ -51,7 +51,7 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
                 }
             }
             
-            progress.oneDone();
+            progress.processedOne();
         }
         
         progress.close();

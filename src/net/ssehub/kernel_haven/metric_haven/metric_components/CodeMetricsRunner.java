@@ -287,7 +287,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 runForSingleFunction(allMetrics, metrics, function);
             }
             
-            progress.oneDone();
+            progress.processedOne();
         }
         
         progress.close();
