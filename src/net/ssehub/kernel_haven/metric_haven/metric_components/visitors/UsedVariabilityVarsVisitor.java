@@ -68,7 +68,7 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
         }
         
         BuildModel bm = this.bm;
-        if (null != bm && bm.contains(function.getSourceFile())) {
+        if (null != bm && bm.containsFile(function.getSourceFile())) {
             Formula filePC = bm.getPc(function.getSourceFile());
             if (null != filePC) {
                 varFinder.clear();
