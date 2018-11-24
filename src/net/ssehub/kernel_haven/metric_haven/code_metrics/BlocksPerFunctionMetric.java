@@ -65,7 +65,7 @@ public class BlocksPerFunctionMetric extends AbstractFunctionMetric<BlockCounter
 
     @Override
     public @NonNull String getMetricName() {
-        StringBuffer resultName = new StringBuffer("No. int. blocks x ");
+        StringBuilder resultName = new StringBuilder("No. int. blocks x ");
         resultName.append(measuredBlocks.name());
         
         return NullHelpers.notNull(resultName.toString());

@@ -28,8 +28,8 @@ public class UnsupportedMetricVariationException extends SetUpException {
      * @deprecated Use {@link #UnsupportedMetricVariationException(Class, IVariableWeight)} instead.
      */
     public UnsupportedMetricVariationException(Class<?> metricClass, Enum<?>... selectedOptions) {
-        StringBuffer errMsg = new StringBuffer("Cannot apply the selected combination of options to the selected metric"
-            + ". Setting was:\n - Metric: ");
+        StringBuilder errMsg = new StringBuilder("Cannot apply the selected combination of options to the selected"
+                + " metric. Setting was:\n - Metric: ");
         errMsg.append(metricClass.getName());
         
         // Diagnosis of selected options
@@ -50,8 +50,8 @@ public class UnsupportedMetricVariationException extends SetUpException {
      * @param weight A weight, which is not supported by the metric.
      */
     public UnsupportedMetricVariationException(Class<?> metricClass, IVariableWeight weight) {
-        StringBuffer errMsg = new StringBuffer("Cannot apply the selected combination of options to the selected metric"
-            + ". Setting was:\n - Metric with weight: ");
+        StringBuilder errMsg = new StringBuilder("Cannot apply the selected combination of options to the selected "
+                + "metric. Setting was:\n - Metric with weight: ");
         errMsg.append(weight.getName());
         
         msg = NullHelpers.notNull(errMsg.toString());

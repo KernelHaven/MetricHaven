@@ -53,7 +53,7 @@ public class MultiWeight implements IVariableWeight {
 
     @Override
     public String getName() {
-        StringBuffer name = new StringBuffer();
+        StringBuilder name = new StringBuilder();
         if (weights.length > 0) {
             name.append(weights[0].getName());
         }

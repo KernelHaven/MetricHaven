@@ -276,7 +276,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
     
     @Override
     public @NonNull String getMetricName() {
-        StringBuffer resultName = new StringBuffer();
+        StringBuilder resultName = new StringBuilder();
         switch (type) {
         // Classical
         case CLASSICAL_FAN_IN_GLOBALLY:
