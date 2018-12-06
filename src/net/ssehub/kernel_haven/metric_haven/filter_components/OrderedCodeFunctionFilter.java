@@ -10,6 +10,7 @@ import java.util.List;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.ProgressLogger;
@@ -28,7 +29,7 @@ public class OrderedCodeFunctionFilter extends AnalysisComponent<CodeFunction> i
 
     private @NonNull AnalysisComponent<CodeFunction> codeModelProvider;
     
-    private SourceFile currentFile;
+    private SourceFile<ISyntaxElement> currentFile;
     
     /**
      * Creates this component.
@@ -37,7 +38,7 @@ public class OrderedCodeFunctionFilter extends AnalysisComponent<CodeFunction> i
      * @param codeModelProvider The component to get the code model from.
      */
     public OrderedCodeFunctionFilter(@NonNull Configuration config,
-        @NonNull AnalysisComponent<SourceFile> codeModelProvider) {
+        @NonNull AnalysisComponent<SourceFile<?>> codeModelProvider) {
         
         super(config);
         this.codeModelProvider = new CodeFunctionFilter(config, codeModelProvider);

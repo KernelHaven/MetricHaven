@@ -7,7 +7,6 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
 import net.ssehub.kernel_haven.code_model.ast.Function;
@@ -32,7 +31,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  */
 public class FeatureSizeCounter extends AnalysisComponent<FeatureSize> implements ISyntaxElementVisitor {
 
-    private @NonNull AnalysisComponent<SourceFile> cmProvider;
+    private @NonNull AnalysisComponent<SourceFile<?>> cmProvider;
     private @Nullable AnalysisComponent<BuildModel> bmProvider;
     
     private @NonNull FeatureSize featureSizes;
@@ -48,7 +47,9 @@ public class FeatureSizeCounter extends AnalysisComponent<FeatureSize> implement
      * @param config The pipeline configuration.
      * @param cmProvider The component to get the code model from.
      */
-    public FeatureSizeCounter(@NonNull Configuration config, @NonNull AnalysisComponent<SourceFile> cmProvider) {
+    public FeatureSizeCounter(@NonNull Configuration config,
+            @NonNull AnalysisComponent<SourceFile<?>> cmProvider) {
+        
         this(config, cmProvider, null);
     }
     
@@ -59,8 +60,9 @@ public class FeatureSizeCounter extends AnalysisComponent<FeatureSize> implement
      * @param cmProvider The component to get the code model from.
      * @param bmProvider Optional: The component to get the build model from.
      */
-    public FeatureSizeCounter(@NonNull Configuration config, @NonNull AnalysisComponent<SourceFile> cmProvider,
-        @Nullable AnalysisComponent<BuildModel> bmProvider) {
+    public FeatureSizeCounter(@NonNull Configuration config,
+            @NonNull AnalysisComponent<SourceFile<?>> cmProvider,
+            @Nullable AnalysisComponent<BuildModel> bmProvider) {
         
         super(config);
         
@@ -80,7 +82,7 @@ public class FeatureSizeCounter extends AnalysisComponent<FeatureSize> implement
         
         ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
         
-        SourceFile file;
+        SourceFile<?> file;
         while ((file = cmProvider.getNextResult()) != null) {
             // Consider variables of build model
             if (null != bm) {
@@ -94,14 +96,10 @@ public class FeatureSizeCounter extends AnalysisComponent<FeatureSize> implement
             }
             
             // Count lines of code
-            for (CodeElement element : file) {
-                if (element instanceof ISyntaxElement) {
-                    statementCount = 0;
-                    ((ISyntaxElement) element).accept(this);
-                    countAndReset(null);
-                } else {
-                    LOGGER.logError("This component can only handle ISyntaxElements");
-                }
+            for (ISyntaxElement element : file.castTo(ISyntaxElement.class)) {
+                statementCount = 0;
+                element.accept(this);
+                countAndReset(null);
             }
             
             progress.processedOne();

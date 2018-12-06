@@ -9,7 +9,6 @@ import java.util.Map;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.ast.Code;
-import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
@@ -74,7 +73,7 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
                     func.getFunction().getPresenceCondition());
             
             for (int i = 0; i < func.getFunction().getNestedElementCount(); i++) {
-                ((ISyntaxElement) func.getFunction().getNestedElement(i)).accept(new ISyntaxElementVisitor() {
+                func.getFunction().getNestedElement(i).accept(new ISyntaxElementVisitor() {
                     
                     @Override
                     public void visitCode(@NonNull Code code) {

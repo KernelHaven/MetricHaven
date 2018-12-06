@@ -21,6 +21,7 @@ import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock.Type;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
@@ -42,7 +43,7 @@ public class VariabilityCounterTest {
      */
     @Test
     public void testNonVariabilityVariable() {
-        SourceFile file1 = new SourceFile(new File("some/file.c"));
+        SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         
         file1.addElement(new CppBlock(True.INSTANCE, and("CONFIG_A", "CONFIG_B"), Type.IF));
         file1.addElement(new CppBlock(True.INSTANCE, and("NOT_A_CONFIG", "CONFIG_A"), Type.IF));
@@ -68,7 +69,7 @@ public class VariabilityCounterTest {
      */
     @Test
     public void testComplexCondition() {
-        SourceFile file1 = new SourceFile(new File("some/file.c"));
+        SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         
         file1.addElement(new CppBlock(True.INSTANCE, and(or(True.INSTANCE, not("CONFIG_A")), "CONFIG_B"), Type.IF));
         
@@ -93,7 +94,7 @@ public class VariabilityCounterTest {
      */
     @Test
     public void testMultipleTimesInSameCondition() {
-        SourceFile file1 = new SourceFile(new File("some/file.c"));
+        SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         
         file1.addElement(new CppBlock(True.INSTANCE, and(or(False.INSTANCE, not("CONFIG_A")), "CONFIG_A"), Type.IF));
         
@@ -118,11 +119,11 @@ public class VariabilityCounterTest {
      */
     @Test
     public void testMultipleFiles() {
-        SourceFile file1 = new SourceFile(new File("some/file.c"));
+        SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A"), Type.IF));
         file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_B"), Type.IF));
         
-        SourceFile file2 = new SourceFile(new File("some/other/file.c"));
+        SourceFile<ISyntaxElement> file2 = new SourceFile<>(new File("some/other/file.c"));
         file2.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A"), Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
@@ -146,7 +147,7 @@ public class VariabilityCounterTest {
      */
     @Test
     public void testModuleVariables() {
-        SourceFile file1 = new SourceFile(new File("some/file.c"));
+        SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         
         file1.addElement(new CppBlock(True.INSTANCE, or("CONFIG_A", "CONFIG_A_MODULE"), Type.IF));
         file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A_MODULE"), Type.IF));
@@ -172,13 +173,15 @@ public class VariabilityCounterTest {
      * 
      * @return The result of the component.
      */
-    private ScatteringDegreeContainer runComponent(VariabilityModel varModel, List<SourceFile> sourceFiles) {
+    private ScatteringDegreeContainer runComponent(VariabilityModel varModel,
+            List<SourceFile<?>> sourceFiles) {
         ScatteringDegreeContainer result = null;
         try {
             Properties prop = new Properties();
             Configuration config = new TestConfiguration(prop);
             
-            AnalysisComponent<SourceFile> cmComponent = new TestAnalysisComponentProvider<>(sourceFiles);
+            AnalysisComponent<SourceFile<?>> cmComponent
+                    = new TestAnalysisComponentProvider<>(sourceFiles);
             AnalysisComponent<VariabilityModel> vmComponent = new TestAnalysisComponentProvider<>(varModel);
             VariabilityCounter counter = new VariabilityCounter(config, vmComponent, cmComponent);
             

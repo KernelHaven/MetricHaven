@@ -1,7 +1,5 @@
 package net.ssehub.kernel_haven.metric_haven;
 
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
-import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
 import net.ssehub.kernel_haven.code_model.ast.BranchStatement.Type;
 import net.ssehub.kernel_haven.code_model.ast.Code;
@@ -9,6 +7,8 @@ import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement.LoopType;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElementTypes;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;

@@ -3,7 +3,6 @@ package net.ssehub.kernel_haven.metric_haven.filter_components;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
-import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
@@ -21,9 +20,9 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implements ISyntaxElementVisitor {
 
-    private @NonNull AnalysisComponent<SourceFile> codeModelProvider;
+    private @NonNull AnalysisComponent<SourceFile<?>> codeModelProvider;
     
-    private SourceFile currentFile;
+    private SourceFile<ISyntaxElement> currentFile;
     
     /**
      * Creates this component.
@@ -31,7 +30,8 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
      * @param config The pipeline configuration.
      * @param codeModelProvider The component to get the code model from.
      */
-    public CodeFunctionFilter(@NonNull Configuration config, @NonNull AnalysisComponent<SourceFile> codeModelProvider) {
+    public CodeFunctionFilter(@NonNull Configuration config,
+            @NonNull AnalysisComponent<SourceFile<?>> codeModelProvider) {
         super(config);
         this.codeModelProvider = codeModelProvider;
     }
@@ -40,15 +40,11 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
     protected void execute() {
         ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
         
-        SourceFile file;
+        SourceFile<?> file;
         while ((file = codeModelProvider.getNextResult()) != null) {
-            currentFile = file;
-            for (CodeElement b : file) {
-                if (!(b instanceof ISyntaxElement)) {
-                    LOGGER.logError("This filter only works with ISyntaxElement");
-                } else {
-                    ((ISyntaxElement) b).accept(this);
-                }
+            currentFile = file.castTo(ISyntaxElement.class);
+            for (ISyntaxElement b : currentFile) {
+                b.accept(this);
             }
             
             progress.processedOne();

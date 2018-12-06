@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
-import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.Function;
@@ -36,7 +35,7 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
      *
      */
     public static class GlobalVariable {
-        private SourceFile declaringFile;
+        private SourceFile<ISyntaxElement> declaringFile;
         private String name;
         
         /**
@@ -44,7 +43,7 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
          * @param declaringFile The file which declares the global variable.
          * @param name The name of the variable.
          */
-        private GlobalVariable(SourceFile declaringFile, String name) {
+        private GlobalVariable(SourceFile<ISyntaxElement> declaringFile, String name) {
             this.declaringFile = declaringFile;
             this.name = name;
         }
@@ -61,7 +60,7 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
          * Returns the declaring file of the variable.
          * @return The declaring file of the variable.
          */
-        public SourceFile getFile() {
+        public SourceFile<ISyntaxElement> getFile() {
             return declaringFile;
         }
     }
@@ -78,9 +77,9 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
         KEYWORDS.add("{");
     }
     
-    private @NonNull AnalysisComponent<SourceFile> codeModelProvider;
+    private @NonNull AnalysisComponent<SourceFile<ISyntaxElement>> codeModelProvider;
     
-    private SourceFile currentFile;
+    private SourceFile<ISyntaxElement> currentFile;
     
     // From {*}, but no inner }, e.g. int[] a = {1, 2, 3}, b = {4, 5, 6}; -> int[] a = , b = ;
     private Pattern arrayInitializer = Pattern.compile("\\{[^\\}]*\\}");
@@ -92,7 +91,7 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
      * @param codeModelProvider The component to get the code model from.
      */
     public GlobalVariableFinder(@NonNull Configuration config,
-        @NonNull AnalysisComponent<SourceFile> codeModelProvider) {
+        @NonNull AnalysisComponent<SourceFile<ISyntaxElement>> codeModelProvider) {
         
         super(config);
         this.codeModelProvider = codeModelProvider;
@@ -102,16 +101,12 @@ public class GlobalVariableFinder extends AnalysisComponent<GlobalVariable> impl
     protected void execute() {
         ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
         
-        SourceFile file;
+        SourceFile<ISyntaxElement> file;
         while ((file = codeModelProvider.getNextResult()) != null) {
             LOGGER.logInfo2("Running metric for functions in ", file.getPath().getPath());
             currentFile = file;
-            for (CodeElement b : file) {
-                if (!(b instanceof ISyntaxElement)) {
-                    LOGGER.logError("This filter only works with ISyntaxElement");
-                } else {
-                    ((ISyntaxElement) b).accept(this);
-                }
+            for (ISyntaxElement b : file) {
+                b.accept(this);
             }
             
             progress.processedOne();

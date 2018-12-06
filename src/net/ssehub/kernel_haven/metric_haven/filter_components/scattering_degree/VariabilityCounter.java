@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
-import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
@@ -37,7 +36,7 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
 
     private @NonNull AnalysisComponent<VariabilityModel> vmProvider;
     
-    private @NonNull AnalysisComponent<SourceFile> cmProvider;
+    private @NonNull AnalysisComponent<SourceFile<?>> cmProvider;
     
     private @NonNull Map<@NonNull String, ScatteringDegree> countedVariables;
     
@@ -53,7 +52,7 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
      * @param cmProvider The component to get the code model from.
      */
     public VariabilityCounter(@NonNull Configuration config, @NonNull AnalysisComponent<VariabilityModel> vmProvider,
-            @NonNull AnalysisComponent<SourceFile> cmProvider) {
+            @NonNull AnalysisComponent<SourceFile<?>> cmProvider) {
         super(config);
         
         this.vmProvider = vmProvider;
@@ -77,15 +76,11 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
         
         ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
         
-        SourceFile file;
+        SourceFile<?> file;
         while ((file = cmProvider.getNextResult()) != null) {
             
-            for (CodeElement element : file) {
-                if (element instanceof ISyntaxElement) {
-                    ((ISyntaxElement) element).accept(this);
-                } else {
-                    LOGGER.logError("This component can only handle ISyntaxElements");
-                }
+            for (ISyntaxElement element : file.castTo(ISyntaxElement.class)) {
+                element.accept(this);
             }
             
             variablesSeenInCurrentFile.clear();

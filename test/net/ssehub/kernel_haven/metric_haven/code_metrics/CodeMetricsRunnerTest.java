@@ -44,7 +44,7 @@ public class CodeMetricsRunnerTest {
         
         ISyntaxElement fullAst = AllAstTests.createFullAst();
         Function f = (Function) fullAst.getNestedElement(1);
-        SourceFile sourceFile = new SourceFile(fullAst.getSourceFile());
+        SourceFile<ISyntaxElement> sourceFile = new SourceFile<>(fullAst.getSourceFile());
         sourceFile.addElement(fullAst);
         
         CodeFunction f1 = new CodeFunction("simpleFunction", f, sourceFile);

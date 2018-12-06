@@ -20,7 +20,7 @@ public class CodeFunction {
     
     private @NonNull Function function;
 
-    private @NonNull SourceFile file;
+    private @NonNull SourceFile<ISyntaxElement> file;
     
     private @NonNull String id;
 
@@ -31,7 +31,7 @@ public class CodeFunction {
      * @param function The function that should be held by this object.
      * @param file The C-file containing the function directly or indirectly via an included H-file.
      */
-    public CodeFunction(@NonNull String name, @NonNull Function function, @NonNull SourceFile file) {
+    public CodeFunction(@NonNull String name, @NonNull Function function, @NonNull SourceFile<ISyntaxElement> file) {
         this.name = name;
         this.function = function;
         this.file = file;
@@ -69,7 +69,7 @@ public class CodeFunction {
      * points to the direct location of an (included) source file.
      * @return The location of the C-file (not of an included H-file of a macro).
      */
-    public @NonNull SourceFile getSourceFile() {
+    public @NonNull SourceFile<ISyntaxElement> getSourceFile() {
         return file;
     }
     
