@@ -51,16 +51,6 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
      * The condition of the file. Use to compute presence conditions.
      */
     private @NonNull Formula filePC;
-    
-    /**
-     * The full condition. Used to compute Feature Sizes.
-     */
-    private @NonNull Formula currentPC;
-    
-    /**
-     * The condition of AST elements. Used for comparisions.
-     */
-    private @NonNull Formula currentCondition;
     private int loc;
     private boolean positive;
     
@@ -81,8 +71,6 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
         this.cmProvider = cmProvider;
         this.bmProvider = bmProvider;
         filePC = True.INSTANCE;
-        currentCondition = True.INSTANCE;
-        currentPC = True.INSTANCE;
     }
 
     @Override
@@ -105,12 +93,15 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
                 filePC = True.INSTANCE;
             }
             this.filePC = filePC;
-            currentPC = filePC;
-            currentCondition = filePC;
+            loc = 0;
             
             for (ISyntaxElement element : file.castTo(ISyntaxElement.class)) {
                 element.accept(this);
             }
+            
+            positive = true;
+            filePC.accept(this);
+            
             progress.processedOne();
         }
         
@@ -128,6 +119,8 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
         Formula result = condition;
         if (condition != True.INSTANCE && filePC != True.INSTANCE) {
             result = new Conjunction(filePC, condition);
+        } else if (condition == True.INSTANCE && filePC != True.INSTANCE) {
+            result = filePC;
         }
         
         return result;
@@ -144,19 +137,18 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
     
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
-        Formula newCondition = block.getPresenceCondition();
-        if (!newCondition.equals(currentCondition)) {
-            // Store counted lines of code and continue visiting with new formula
-            currentPC.accept(this);
-            
-            // Store the new formula
-            currentCondition = newCondition;
-            currentPC = getPresenceCondition(newCondition);
-            loc = 0;
-        }
+        int oldLoc = loc;
+        loc = 0;
         
         // continue into this block
         ISyntaxElementVisitor.super.visitCppBlock(block);
+        
+        Formula newCondition = block.getPresenceCondition();
+        newCondition = getPresenceCondition(newCondition);
+        positive = true;
+        newCondition.accept(this);
+        
+        loc = oldLoc;
     }
     
     @Override

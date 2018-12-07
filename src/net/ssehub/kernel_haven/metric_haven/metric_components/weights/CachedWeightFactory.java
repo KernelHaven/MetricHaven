@@ -370,6 +370,14 @@ public class CachedWeightFactory {
             }
         }
         
+        // Feature Sizes
+        if (null != fsType) {
+            tmpWeight = createFeatureSizeWeight(fsType, fsContainer);
+            if (null != tmpWeight) {
+                tmpList.add(tmpWeight);
+            }
+        }
+        
         // Smart aggregation
         if (tmpList.size() == 1) {
             tmpWeight = NullHelpers.notNull(tmpList.get(0));
