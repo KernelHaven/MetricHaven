@@ -25,6 +25,10 @@
  *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner}</li>
  *   <li>Configure the default metric-pipeline in:
  *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.MetricsRunner}</li>
+ *   <li>If you changed the constructor of
+ *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner} than please also update the
+ *       parameter list of the
+ *       <tt>net.ssehub.kernel_haven.metric_haven.code_metrics.CodeMetricsRunnerTest.simpleTest</tt></li> 
  *   <li>Create test cases in ScenarioTests Plug-in</li>
  * </ol>
  * @author El-Sharkawy

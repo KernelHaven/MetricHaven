@@ -159,7 +159,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     }
     
     /**
-     * Creates this processing unit (default constructor for {@link CodeMetricsRunner}).
+     * Creates this processing unit (default constructor for {@link CodeMetricsRunner} to run all variations).
      * 
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.

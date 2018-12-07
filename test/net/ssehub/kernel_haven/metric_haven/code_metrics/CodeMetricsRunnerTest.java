@@ -18,6 +18,7 @@ import net.ssehub.kernel_haven.code_model.ast.AllAstTests;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
@@ -55,6 +56,7 @@ public class CodeMetricsRunnerTest {
         varModel.getDescriptor().addAttribute(Attribute.HIERARCHICAL);
         BuildModel bm = new BuildModel();
         ScatteringDegreeContainer sdc = new ScatteringDegreeContainer(new HashSet<>());
+        FeatureSizeContainer fsContainer = new FeatureSizeContainer(varModel);
         FunctionMap emptyMap = new FunctionMap();
         
         List<MultiMetricResult> result = AnalysisComponentExecuter.executeComponent(CodeMetricsRunner.class,
@@ -63,7 +65,8 @@ public class CodeMetricsRunnerTest {
                 new VariabilityModel[] {varModel},
                 new BuildModel[] {bm},
                 new ScatteringDegreeContainer[] {sdc},
-                new FunctionMap[]{emptyMap});
+                new FunctionMap[]{emptyMap},
+                new FeatureSizeContainer[] {fsContainer});
         
         assertThat(result.size(), is(1));
         
