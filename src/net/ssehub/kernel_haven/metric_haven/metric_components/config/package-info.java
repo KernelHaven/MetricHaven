@@ -31,7 +31,6 @@
  *       <tt>net.ssehub.kernel_haven.metric_haven.code_metrics.CodeMetricsRunnerTest.simpleTest</tt></li> 
  *   <li>Create test cases in ScenarioTests Plug-in</li>
  * </ol>
- * @author El-Sharkawy
  *
  */
 package net.ssehub.kernel_haven.metric_haven.metric_components.config;
