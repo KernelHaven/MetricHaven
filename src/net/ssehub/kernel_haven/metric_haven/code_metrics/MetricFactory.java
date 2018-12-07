@@ -87,6 +87,7 @@ public class MetricFactory {
             this.varModel = varModel;
             this.buildModel = buildModel;
             this.sdContainer = sdContainer;
+            this.fsContainer = fsContainer;
             singleMetricExecution = false;
             
             typeWeights = new HashMap<>();

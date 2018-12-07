@@ -9,6 +9,8 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.FunctionMapCreator;
 import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctionFilter;
+import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
+import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeEstimator;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.VariabilityCounter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
@@ -53,29 +55,37 @@ public class MetricsRunner extends PipelineAnalysis {
         /*
          * Unfiltered:
          * 
-         * Code Model -+-> OrderedCodeFunctionFilter -> Split -+-> FunctionMapCreator -> |
-         *             |                                       |                         |
-         *             +-> |                                   +-----------------------> |
-         *                 | VariabilityCounter -+                                       |
-         *             +-> |                     +-------------------------------------> | CodeMetricsRunner
-         *             |                                                                 |
-         * Var Model --+---------------------------------------------------------------> |
-         *                                                                               |
-         * Build Model ----------------------------------------------------------------> |
+         * Code Model --+---+-> OrderedCodeFunctionFilter -> Split -+-> FunctionMapCreator -> |
+         *              |   |                                       |                         |
+         *              |   +-> |                                   +-----------------------> |
+         *              |       | VariabilityCounter -+                                       |
+         *              |   +-> |                     +-------------------------------------> | CodeMetricsRunner
+         *              |   |                                                                 |
+         * Var Model ----+--+---------------------------------------------------------------> |
+         *              ||                                                                    |
+         * Build Model ---+-----------------------------------------------------------------> |
+         *              |||                                                                   |
+         *              ||+-> |                                                               |
+         *              |+--> | FeatureSizeEstimator ---------------------------------------> |
+         *              +---> |
          */
         
         /*
          * Filtered:
          * 
-         * Code Model -+-> OrderedCodeFunctionFilter -> Split -+-> FunctionMapCreator -------> |
-         *             |                                       |                               |
-         *             +-> |                                   +-> CodeFunctionByLineFilter -> |
-         *                 | VariabilityCounter -+                                             |
-         *             +-> |                     +-------------------------------------------> | CodeMetricsRunner
-         *             |                                                                       |
-         * Var Model --+---------------------------------------------------------------------> |
-         *                                                                                     |
-         * Build Model ----------------------------------------------------------------------> |
+         * Code Model --+---+-> OrderedCodeFunctionFilter -> Split -+-> FunctionMapCreator -------> |
+         *              |   |                                       |                               |
+         *              |   +-> |                                   +-> CodeFunctionByLineFilter -> |
+         *              |       | VariabilityCounter -+                                             |
+         *              |   +-> |                     +-------------------------------------------> | CodeMetricsRunner
+         *              |   |                                                                       |
+         * Var Model ----+--+---------------------------------------------------------------------> |
+         *              ||                                                                          |
+         * Build Model ---+-----------------------------------------------------------------------> |
+         *              |||                                                                         |
+         *              ||+-> |                                                                     |
+         *              |+--> | FeatureSizeEstimator ---------------------------------------------> |
+         *              +---> |
          */
         
         AnalysisComponent<CodeFunction> orderedFunctionFilter = new OrderedCodeFunctionFilter(config, getCmComponent());
@@ -86,6 +96,9 @@ public class MetricsRunner extends PipelineAnalysis {
         AnalysisComponent<FunctionMap> functionMapCreator = new FunctionMapCreator(config,
             split.createOutputComponent());
         
+        AnalysisComponent<FeatureSizeContainer> featureSizeCreator = new FeatureSizeEstimator(config,
+                getVmComponent(), getCmComponent(), getBmComponent());
+        
         AnalysisComponent<CodeFunction> functionInput = split.createOutputComponent();
         if (lineFilter) {
             functionInput = new CodeFunctionByLineFilter(config, functionInput);
@@ -93,7 +106,7 @@ public class MetricsRunner extends PipelineAnalysis {
         
         CodeMetricsRunner metricAnalysis
             = new CodeMetricsRunner(config, functionInput, getVmComponent(),
-                getBmComponent(), variabilityCounter, functionMapCreator);
+                getBmComponent(), variabilityCounter, functionMapCreator, featureSizeCreator);
         
         return metricAnalysis;
     }
