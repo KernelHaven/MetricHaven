@@ -130,6 +130,20 @@ public class MetricSettings {
                 + "(default).\n"
                 + " - " + StructuralType.NUMBER_OF_CHILDREN.name() + ": Count number of children (inspired by RoV).\n"
                 + " - " + StructuralType.COC.name() + ": Count all edges (inspired by CoC).");
+    
+    /**
+     * Configuration of variability weight (for features): <b>Structural information of variability models</b>.
+     */
+    public static final @NonNull Setting<@NonNull FeatureSizeType> FEATURE_SIZE_MEASURING_SETTING
+        = new EnumSetting<>("metrics.function_measures.feature_sizes", FeatureSizeType.class,
+            true, FeatureSizeType.NO_FEATURE_SIZES, "Defines whether and how to incorporate feature"
+                + "sizes (Lines of Code per Feature) of used features:\n"
+                + " - " + FeatureSizeType.NO_FEATURE_SIZES.name() + ": Do not consider any feature sizes "
+                + "(default).\n"
+                + " - " + FeatureSizeType.POSITIVE_SIZES.name() + ": Count Lines of code, controlled by the "
+                + "positive form of the feature.\n"
+                + " - " + FeatureSizeType.TOTAL_SIZES.name() + ": Count Lines of code, controlled by the "
+                + "the feature (positive or negated).");
 
     /*
      * Metric-specific settings

@@ -15,15 +15,18 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureSizeType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureSizeWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
@@ -64,6 +67,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @Nullable AnalysisComponent<BuildModel> bmComponent;
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     private @Nullable AnalysisComponent<FunctionMap> fmComponent;
+    private @Nullable AnalysisComponent<FeatureSizeContainer> fsComponent;
     
     private @Nullable SDType sdValue;
     private @Nullable CTCRType ctcrValue;
@@ -71,6 +75,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private @Nullable VariabilityTypeMeasureType varTypeValue;
     private @Nullable HierarchyType hierarchyValue;
     private @Nullable StructuralType structureValue;
+    private @Nullable FeatureSizeType fsValue;
     private boolean singleVariationSpecified;
     private Object metricSpecificValue;
     
@@ -142,7 +147,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @throws SetUpException If creating the metric instances fails.
      */
     //CHECKSTYLE:OFF // More than 5 parameters
-    @SuppressWarnings("unchecked")
     public CodeMetricsRunner(@NonNull Configuration config,
     //CHECKSTYLE:ON
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
@@ -150,6 +154,33 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         @Nullable AnalysisComponent<BuildModel> bmComponent,
         @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent,
         @Nullable AnalysisComponent<FunctionMap> fmComponent) throws SetUpException {
+        
+        this(config, codeFunctionComponent, varModelComponent, bmComponent, sdComponent, fmComponent, null);
+    }
+    
+    /**
+     * Creates this processing unit (default constructor for {@link CodeMetricsRunner}).
+     * 
+     * @param config The pipeline configuration.
+     * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
+     * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
+     * @param fmComponent {@link FunctionMap}, required to run {@link FanInOut}-metrics.
+     * @param fsComponent {@link FeatureSizeContainer}, required to create the {@link FeatureSizeWeight}.
+     * 
+     * @throws SetUpException If creating the metric instances fails.
+     */
+    //CHECKSTYLE:OFF // More than 5 parameters
+    @SuppressWarnings("unchecked")
+    public CodeMetricsRunner(@NonNull Configuration config,
+    //CHECKSTYLE:ON
+        @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
+        @Nullable AnalysisComponent<VariabilityModel> varModelComponent,
+        @Nullable AnalysisComponent<BuildModel> bmComponent,
+        @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent,
+        @Nullable AnalysisComponent<FunctionMap> fmComponent,
+        @Nullable AnalysisComponent<FeatureSizeContainer> fsComponent) throws SetUpException {
         
         super(config);
         
@@ -160,6 +191,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         this.bmComponent = bmComponent;
         this.sdComponent = sdComponent;
         this.fmComponent = fmComponent;
+        this.fsComponent = fsComponent;
         
         config.registerSetting(METRICS_SETTING);
         List<@NonNull String> metricClassNames = config.getValue(METRICS_SETTING);
@@ -231,6 +263,10 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             config.registerSetting(MetricSettings.STRUCTURE_MEASURING_SETTING);
             structureValue = config.getValue(MetricSettings.STRUCTURE_MEASURING_SETTING);
             
+            // Feature Sizes
+            config.registerSetting(MetricSettings.FEATURE_SIZE_MEASURING_SETTING);
+            fsValue = config.getValue(MetricSettings.FEATURE_SIZE_MEASURING_SETTING);
+            
             // This method is called inside the constructor, after the class was specified
             metricSpecificValue = MetricFactory.configureAndReadMetricSpecificSetting(config, notNull(metricClass));
         }
@@ -241,11 +277,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
         BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         ScatteringDegreeContainer sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
+        FeatureSizeContainer fsContainer = (null != fsComponent) ? fsComponent.getNextResult() : null;
         FunctionMap functionMap = (null != fmComponent) ? fmComponent.getNextResult() : null;
         
         List<@NonNull AbstractFunctionMetric<?>> allMetrics;
         try {
-            MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer);
+            MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer, fsContainer);
             params.readTypeWeights(config);
             params.readHierarchyWeights(config);
             params.setFunctionMap(functionMap);
@@ -258,6 +295,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 params.setHierarchyType(hierarchyValue);
                 params.setStructuralType(structureValue);
                 params.setMetricSpecificSettingValue(metricSpecificValue);
+                params.setFeatureSizeType(fsValue);
             }
             
             if (metricClass == null) {

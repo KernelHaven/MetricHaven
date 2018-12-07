@@ -14,10 +14,12 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
+import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureSizeType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
@@ -25,6 +27,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralT
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.CachedWeightFactory;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureSizeWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.MultiWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
@@ -48,10 +51,9 @@ public class MetricFactory {
     public static class MetricCreationParameters {
         
         private @Nullable VariabilityModel varModel;
-        
         private @Nullable BuildModel buildModel;
-        
         private @Nullable ScatteringDegreeContainer sdContainer;
+        private @Nullable FeatureSizeContainer fsContainer;
         
         private IVariableWeight weight;
         
@@ -65,6 +67,7 @@ public class MetricFactory {
         private @Nullable VariabilityTypeMeasureType varTypeValue;
         private @Nullable HierarchyType hierarchyValue;
         private @Nullable StructuralType structureValue;
+        private @Nullable FeatureSizeType fsType;
         private boolean singleMetricExecution;
         
         private @NonNull Map<String, Integer> typeWeights; // for TypeWeight
@@ -76,9 +79,10 @@ public class MetricFactory {
          * @param varModel The {@link VariabilityModel}
          * @param buildModel The {@link BuildModel}, required for the {@link VariablesPerFunction}
          * @param sdContainer The {@link ScatteringDegreeContainer} as required by the {@link ScatteringWeight}.
+         * @param fsContainer The {@link FeatureSizeContainer} as required by the {@link FeatureSizeWeight}.
          */
         public MetricCreationParameters(@Nullable VariabilityModel varModel, @Nullable BuildModel buildModel,
-                @Nullable ScatteringDegreeContainer sdContainer) {
+            @Nullable ScatteringDegreeContainer sdContainer, @Nullable FeatureSizeContainer fsContainer) {
             
             this.varModel = varModel;
             this.buildModel = buildModel;
@@ -121,6 +125,14 @@ public class MetricFactory {
          */
         public @Nullable ScatteringDegreeContainer getSdContainer() {
             return sdContainer;
+        }
+        
+        /**
+         * Returns the {@link FeatureSizeContainer} as required by the {@link FeatureSizeWeight}.
+         * @return The {@link FeatureSizeContainer}.
+         */
+        public @Nullable FeatureSizeContainer getFsContainer() {
+            return fsContainer;
         }
         
         /**
@@ -279,6 +291,22 @@ public class MetricFactory {
          */
         public @Nullable StructuralType getStructuralType() {
             return structureValue;
+        }
+        
+        /**
+         * Specifies that a feature size setting shall be used.
+         * @param fsType The setting which shall be used.
+         */
+        public void setFeatureSizeType(@Nullable FeatureSizeType fsType) {
+            this.fsType = fsType;
+        }
+        
+        /**
+         * Specifies that a feature size setting shall be used.
+         * @return The setting which shall be used.
+         */
+        public @Nullable FeatureSizeType getFeatureSizeType() {
+            return fsType;
         }
         
         /**
@@ -577,15 +605,19 @@ public class MetricFactory {
         
         VariabilityModel varModel = params.getVarModel();
         ScatteringDegreeContainer sdContainer = params.getSdContainer();
+        FeatureSizeContainer fdContainer = params.getFsContainer();
         if (varModel == null) {
             throw new SetUpException("All weight variations requires a variability model");
         }
         if (sdContainer == null) {
             throw new SetUpException("All weight variations requires a scattering degree container");
         }
+        if (fdContainer == null) {
+            throw new SetUpException("All weight variations requires a feature size container");
+        }
         
         List<IVariableWeight> weights
-            = CachedWeightFactory.createAllCombinations(varModel, sdContainer);
+            = CachedWeightFactory.createAllCombinations(varModel, sdContainer, fdContainer);
         
         for (Class<? extends AbstractFunctionMetric<?>> metricClass : SUPPORTED_METRICS) {
             for (IVariableWeight weight : weights) {
@@ -614,7 +646,8 @@ public class MetricFactory {
         
         if (params.isSingleMetricExecution()) {
             List<IVariableWeight> weights
-                = CachedWeightFactory.createVariabilityWeight(params.getVarModel(), params.getSdContainer(), params);
+                = CachedWeightFactory.createVariabilityWeight(params.getVarModel(), params.getSdContainer(),
+                    params.getFsContainer(), params);
             for (IVariableWeight weight : weights) {
                 params.setWeight(weight);
                 AbstractFunctionMetric<?> metric = createMetric(params, metricClass);
@@ -624,7 +657,8 @@ public class MetricFactory {
             }
         } else {
             List<IVariableWeight> weights =
-                CachedWeightFactory.createAllCombinations(params.getVarModel(), params.getSdContainer());
+                CachedWeightFactory.createAllCombinations(params.getVarModel(), params.getSdContainer(),
+                    params.getFsContainer());
             for (IVariableWeight weight : weights) {
                 params.setWeight(weight);
                 result.addAll(createAllVariations(params, metricClass));

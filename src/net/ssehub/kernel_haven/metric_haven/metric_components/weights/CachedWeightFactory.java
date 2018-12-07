@@ -7,9 +7,12 @@ import java.util.Map;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
+import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSize;
+import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureSizeType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
@@ -202,12 +205,35 @@ public class CachedWeightFactory {
         
         return weight;
     }
+
+    /**
+     * Creates a new {@link FeatureSizeWeight} with the already computed {@link FeatureSizeContainer}.
+     * @param type Specifies whether and how to use {@link FeatureSize}s.
+     * @param sizeContainer The already computed feature sizes.
+     * @return The {@link FeatureSizeWeight} or <tt>null</tt> if {@link FeatureSizeType#NO_FEATURE_SIZES} was specified.
+     * @throws SetUpException If {@link FeatureSizeContainer} is <tt>null</tt> but a feature size weight was specified
+     */
+    public static @Nullable FeatureSizeWeight createFeatureSizeWeight(@NonNull FeatureSizeType type,
+        @Nullable FeatureSizeContainer sizeContainer) throws SetUpException {
+        
+        FeatureSizeWeight weight = null;
+        if (type != FeatureSizeType.NO_FEATURE_SIZES && null == sizeContainer) {
+            throw new SetUpException("Feature Size weight specified (" + type.name() + ") but no FeatureSizes "
+                    + "computed before.");
+        } else if (type != FeatureSizeType.NO_FEATURE_SIZES) {
+            // Caching not necessary as all values are already computed.
+            weight = new FeatureSizeWeight(NullHelpers.notNull(sizeContainer), type);
+        }
+        
+        return weight;
+    }
     
     /**
      * Creates a distinct list of all valid {@link IVariableWeight} combinations. Requires type and hierarchy weight
      * definitions.
      * @param varModel The variability model.
      * @param sdContainer A scattering degree container, which shall be used for {@link ScatteringWeight}.
+     * @param fsContainer A feature size container, which shall be used for {@link FeatureSizeWeight}.
      * @param typeWeights A 2-tuple in the form of (variable type; weight value).
      * @param hierarchyWeights A 2-tuple in the form of (hierarchy; weight value). This must contain hierarchy values
      *     for <tt>top</tt>, <tt>intermediate</tt>, and <tt>leaf</tt>.
@@ -218,8 +244,9 @@ public class CachedWeightFactory {
      * @throws SetUpException If there is a misconfiguartion.
      */
     public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@Nullable VariabilityModel varModel,
-        @Nullable ScatteringDegreeContainer sdContainer, @NonNull Map<String, Integer> typeWeights,
-        @NonNull Map<String, Integer> hierarchyWeights) throws SetUpException {
+        @Nullable ScatteringDegreeContainer sdContainer, @Nullable FeatureSizeContainer fsContainer,
+        @NonNull Map<String, Integer> typeWeights, @NonNull Map<String, Integer> hierarchyWeights)
+        throws SetUpException {
         
         List<@NonNull IVariableWeight> weightCombinations = new ArrayList<>();
         List<@NonNull IVariableWeight> tmpList = new ArrayList<>();
@@ -231,12 +258,14 @@ public class CachedWeightFactory {
                     for (VariabilityTypeMeasureType varTypeValue : VariabilityTypeMeasureType.values()) {
                         for (HierarchyType hierarhcyValue : HierarchyType.values()) {
                             for (StructuralType structureValue : StructuralType.values()) {
-                                
-                                // Create the weight combination
-                                weightCombinations.add(createVariabilityWeight(tmpList, varModel, sdContainer,
-                                    sdValue, ctcrValue, distanceValue, varTypeValue, hierarhcyValue, structureValue,
-                                    typeWeights, hierarchyWeights));
-                                
+                                for (FeatureSizeType featureSizeValue : FeatureSizeType.values()) {
+                                    
+                                    // Create the weight combination
+                                    weightCombinations.add(createVariabilityWeight(tmpList, varModel, sdContainer,
+                                        fsContainer, sdValue, ctcrValue, distanceValue, varTypeValue, hierarhcyValue,
+                                        structureValue, featureSizeValue, typeWeights, hierarchyWeights));
+                                    
+                                }
                             }
                         }
                     }
@@ -272,6 +301,7 @@ public class CachedWeightFactory {
     // CHECKSTYLE:OFF
     private static @NonNull IVariableWeight createVariabilityWeight(List<@NonNull IVariableWeight> tmpList,
         @Nullable VariabilityModel varModel, @Nullable ScatteringDegreeContainer sdContainer,
+        @Nullable FeatureSizeContainer fsContainer,
         
         // Specification of weights
         @Nullable SDType sdValue,
@@ -280,6 +310,7 @@ public class CachedWeightFactory {
         @Nullable VariabilityTypeMeasureType varTypeValue,
         @Nullable HierarchyType hierarhcyValue,
         @Nullable StructuralType structureValue,
+        @Nullable FeatureSizeType fsType,
         
         // Value configuration of weights
         @Nullable Map<String, Integer> typeWeights,
@@ -358,6 +389,7 @@ public class CachedWeightFactory {
      * {@link MetricCreationParameters#isSingleMetricExecution()} is selected).
      * @param varModel The variability model.
      * @param sdContainer A scattering degree container, which shall be used for {@link ScatteringWeight}.
+     * @param fsContainer A feature size container, which shall be used for {@link FeatureSizeWeight}.
      * @param params Specifies whether a single {@link IVariableWeight} shall be created or all valid combinations.
      * @return A distinct list of all valid {@link IVariableWeight} combinations,
      *     contains also {@link NoWeight#INSTANCE}.
@@ -365,13 +397,13 @@ public class CachedWeightFactory {
      * @throws SetUpException If there is a misconfiguartion.
      */
     public static @NonNull List<@NonNull IVariableWeight> createVariabilityWeight(@Nullable VariabilityModel varModel,
-            @Nullable ScatteringDegreeContainer sdContainer, @NonNull MetricCreationParameters params)
-        throws SetUpException {
+        @Nullable ScatteringDegreeContainer sdContainer, @Nullable FeatureSizeContainer fsContainer,
+        @NonNull MetricCreationParameters params) throws SetUpException {
         
         @NonNull List<@NonNull IVariableWeight> result;
         if (params.isSingleMetricExecution()) {
             result = new ArrayList<>();
-            result.add(createVariabilityWeight(new ArrayList<>(6), varModel, sdContainer,
+            result.add(createVariabilityWeight(new ArrayList<>(7), varModel, sdContainer, fsContainer,
                 
                 params.getScatteringDegree(),
                 params.getCTCR(),
@@ -379,10 +411,11 @@ public class CachedWeightFactory {
                 params.getFeatureTypes(),
                 params.getHierarchyType(),
                 params.getStructuralType(),
+                params.getFeatureSizeType(),
                 
                 params.getTypeWeights(), params.getHierarchyWeights()));
         } else {
-            result = createAllCombinations(varModel, sdContainer);
+            result = createAllCombinations(varModel, sdContainer, fsContainer);
         }
         
         return result;
@@ -393,6 +426,7 @@ public class CachedWeightFactory {
      * values, which may be used for analyses of Linux.
      * @param varModel The variability model.
      * @param sdContainer A scattering degree container, which shall be used for {@link ScatteringWeight}.
+     * @param fsContainer A feature size container, which shall be used for {@link FeatureSizeWeight}.
      * 
      * @return A distinct list of all valid {@link IVariableWeight} combinations,
      *     contains also {@link NoWeight#INSTANCE}.
@@ -400,7 +434,8 @@ public class CachedWeightFactory {
      * @throws SetUpException If there is a misconfiguartion.
      */
     public static @NonNull List<@NonNull IVariableWeight> createAllCombinations(@Nullable VariabilityModel varModel,
-            @Nullable ScatteringDegreeContainer sdContainer) throws SetUpException {
+        @Nullable ScatteringDegreeContainer sdContainer, @Nullable FeatureSizeContainer fsContainer)
+        throws SetUpException {
         
         Map<String, Integer> typeWeights = new HashMap<>();
         typeWeights.put("bool", 1);
@@ -415,6 +450,6 @@ public class CachedWeightFactory {
         hierarchyWeights.put("intermediate", 10);
         hierarchyWeights.put("leaf", 100);
    
-        return createAllCombinations(varModel, sdContainer, typeWeights, hierarchyWeights);
+        return createAllCombinations(varModel, sdContainer, fsContainer, typeWeights, hierarchyWeights);
     }
 }
