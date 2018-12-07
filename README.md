@@ -24,7 +24,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- VariablesPerFunctionMetric -->
   <tr>
     <td><code>VariablesPerFunctionMetric</code></td>
-    <td>2160</td>
+    <td>6.480</td>
     <td>Realizes the <i>Number of internal/external configuration options</i> metric from
         <a href="https://doi.org/10.1145/2934466.2934467"> Do #ifdefs influence the occurrence of vulnerabilities? an
         empirical study of the linux kernel</a> paper.
@@ -44,7 +44,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- CyclomaticComplexityMetric -->
   <tr>
     <td><code>CyclomaticComplexityMetric</code></td>
-    <td>865</td>
+    <td>2.593</td>
     <td>Measures the Cyclomatic Complexity of code functions.
     </td>
     <td>
@@ -73,7 +73,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- NestingDepthMetric -->
   <tr>
     <td><code>NestingDepthMetric</code></td>
-    <td>1730</td>
+    <td>5.186</td>
     <td>Measures the number of nested constroll structures.</td>
     <td>
       <code>metrics.nesting_depth.measured_type</code>:
@@ -91,7 +91,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- FanInOutMetric -->
   <tr>
     <td><code>FanInOutMetric</code></td>
-    <td>1736</td>
+    <td>5.192</td>
     <td>Measures the number of incoming/outgoing function calls per function</td>
     <td>
       <code>metrics.fan_in_out.type</code>:
@@ -115,7 +115,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- TanglingDegreeFunctionMetric -->
   <tr>
     <td><code>TanglingDegreeFunctionMetric</code></td>
-    <td>432</td>
+    <td>1.296</td>
     <td>Measures tangling degree values for each CPP block with an expression (no else statements) and sums them up for each function. </td>
     <td>This metric has no individual settings, but supports any of the variability weights from below.
     </td>
@@ -123,7 +123,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- BlocksPerFunctionMetric -->
   <tr>
     <td><code>BlocksPerFunctionMetric</code></td>
-    <td>864</td>
+    <td>2.592</td>
     <td>Measures the numbers of VP blocks in a function, independent whether they are nested or not.
     </td>
     <td>
@@ -137,7 +137,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <tr>
     <th>Total</th>
-    <td>7790</td>
+    <td>23.342</td>
     <td></td>
     <td></td>
   </tr>

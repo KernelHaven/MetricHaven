@@ -70,8 +70,8 @@ public class CodeMetricsRunnerTest {
         
         assertThat(result.size(), is(1));
         
-        assertThat(result.get(0).getMetrics().length, is(23370));
-        assertThat(result.get(0).getValues().length, is(23370));
+        assertThat(result.get(0).getMetrics().length, is(23342));
+        assertThat(result.get(0).getValues().length, is(23342));
         
         assertThat(result.get(0).getValues()[0], is(14.0));
         assertThat(result.get(0).getValues()[1], is(0.0));
