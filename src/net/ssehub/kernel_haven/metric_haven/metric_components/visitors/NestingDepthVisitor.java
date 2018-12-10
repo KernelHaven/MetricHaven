@@ -76,6 +76,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         // IF, ELSE IF, and ELSE are also nested inside top level IF (as siblings) -> avoid double counting
         boolean count = isInFunction() && branchStatement.getType() == Type.IF && !visitedIFs.contains(branchStatement);
         if (count) {
+            visitedIFs.add(branchStatement);
             currentNestingDepth++;
         }
         
