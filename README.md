@@ -221,6 +221,18 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
       </ul>
     </td>
   </tr>
+  <!-- Feature Sizes -->
+  <tr>
+    <td><code>metrics.function_measures.feature_sizes</code></td>
+    <td>Computes the Lines of Code controlled by a feature, i.e., the feature size.</td>
+    <td>
+      <ul>
+        <li><code>NO_FEATURE_SIZES</code>: Disables this weight.</li>
+        <li><code>POSITIVE_SIZES</code>: Counts the Lines of Code (statements) controlled by the positive form of a feature, i.e., which are included if the feature is selected.</li>
+        <li><code>TOTAL_SIZES</code>: Counts all statements, which are controlled by the feature in any form, i.e., Lines that are included either if the feature is selected or deslected.</li>
+      </ul>
+    </td>
+  </tr>
 </table>
 
 ## Dependencies
