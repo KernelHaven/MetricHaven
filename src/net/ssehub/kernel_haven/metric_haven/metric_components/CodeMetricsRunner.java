@@ -211,8 +211,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 throw new SetUpException("Can't load metric class", e);
             }
             
-            loadSingleVariationSettings(config);
         }
+        loadSingleVariationSettings(config);
         
         config.registerSetting(MAX_THREADS);
         nThreads = config.getValue(MAX_THREADS);
