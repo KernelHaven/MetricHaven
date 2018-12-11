@@ -617,8 +617,12 @@ public class MetricFactory {
             throw new SetUpException("All weight variations requires a feature size container");
         }
         
-        List<IVariableWeight> weights
-            = CachedWeightFactory.createAllCombinations(varModel, sdContainer, fdContainer);
+        List<IVariableWeight> weights;
+        if (params.isSingleMetricExecution()) {
+            weights = CachedWeightFactory.createVariabilityWeight(varModel, sdContainer, fdContainer, params);
+        } else {
+            weights = CachedWeightFactory.createAllCombinations(varModel, sdContainer, fdContainer);
+        }
         
         for (Class<? extends AbstractFunctionMetric<?>> metricClass : SUPPORTED_METRICS) {
             for (IVariableWeight weight : weights) {
