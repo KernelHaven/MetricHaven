@@ -268,7 +268,9 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             fsValue = config.getValue(MetricSettings.FEATURE_SIZE_MEASURING_SETTING);
             
             // This method is called inside the constructor, after the class was specified
-            metricSpecificValue = MetricFactory.configureAndReadMetricSpecificSetting(config, notNull(metricClass));
+            if (null != metricClass) {
+                metricSpecificValue = MetricFactory.configureAndReadMetricSpecificSetting(config, notNull(metricClass));
+            }
         }
     }
 
