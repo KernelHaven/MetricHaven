@@ -22,13 +22,7 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.CTCRType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureDistanceType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.FeatureSizeType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.HierarchyType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.SDType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.StructuralType;
-import net.ssehub.kernel_haven.metric_haven.metric_components.config.VariabilityTypeMeasureType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureSizeWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -58,11 +52,8 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             "Defines a list of fully qualified class names of metrics that the "
             + IndividualCodeMetricsRunner.class.getName() + " component should execute.");
     
-    private @NonNull Configuration config;
     
     private boolean round = false;
-    
-    private @Nullable Class<? extends AbstractFunctionMetric<?>> metricClass;
     
     private @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent;
     private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
@@ -70,16 +61,6 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
     private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
     private @Nullable AnalysisComponent<FunctionMap> fmComponent;
     private @Nullable AnalysisComponent<FeatureSizeContainer> fsComponent;
-    
-    private @Nullable SDType sdValue;
-    private @Nullable CTCRType ctcrValue;
-    private @Nullable FeatureDistanceType distanceValue;
-    private @Nullable VariabilityTypeMeasureType varTypeValue;
-    private @Nullable HierarchyType hierarchyValue;
-    private @Nullable StructuralType structureValue;
-    private @Nullable FeatureSizeType fsValue;
-    private boolean singleVariationSpecified;
-    private Object metricSpecificValue;
     
     private int nThreads;
     
@@ -174,7 +155,6 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @throws SetUpException If creating the metric instances fails.
      */
     //CHECKSTYLE:OFF // More than 5 parameters
-    @SuppressWarnings("unchecked")
     public IndividualCodeMetricsRunner(@NonNull Configuration config,
     //CHECKSTYLE:ON
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
@@ -185,8 +165,6 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         @Nullable AnalysisComponent<FeatureSizeContainer> fsComponent) throws SetUpException {
         
         super(config);
-        
-        this.config = config;
         
         this.codeFunctionComponent = codeFunctionComponent;
         this.varModelComponent = varModelComponent;
@@ -289,11 +267,12 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         ScatteringDegreeContainer sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
         FeatureSizeContainer fsContainer = (null != fsComponent) ? fsComponent.getNextResult() : null;
-//        FunctionMap functionMap = (null != fmComponent) ? fmComponent.getNextResult() : null;
+        FunctionMap functionMap = (null != fmComponent) ? fmComponent.getNextResult() : null;
         
         List<@NonNull AbstractFunctionMetric<?>> allMetrics = null;
         try {
             MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer, fsContainer);
+            params.setFunctionMap(functionMap);
             allMetrics = createMetrics(params);
         } catch (SetUpException e) {
             LOGGER.logException("Could not create metric instances", e);
