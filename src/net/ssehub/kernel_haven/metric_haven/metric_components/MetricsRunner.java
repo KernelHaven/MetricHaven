@@ -25,6 +25,8 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class MetricsRunner extends PipelineAnalysis {
     
+    private static final boolean RUN_METRICS_SELECTED_BY_CODE = true;
+    
     /**
      * Whether a line filter has been configured. If this is <code>true</code>, a {@link CodeFunctionByLineFilter}
      * should be added in the pipeline.
@@ -104,9 +106,18 @@ public class MetricsRunner extends PipelineAnalysis {
             functionInput = new CodeFunctionByLineFilter(config, functionInput);
         }
         
-        CodeMetricsRunner metricAnalysis
-            = new CodeMetricsRunner(config, functionInput, getVmComponent(),
+        AnalysisComponent<?> metricAnalysis;
+        
+        if (!RUN_METRICS_SELECTED_BY_CODE) {
+            // Default case
+            metricAnalysis = new CodeMetricsRunner(config, functionInput, getVmComponent(),
                 getBmComponent(), variabilityCounter, functionMapCreator, featureSizeCreator);
+        } else {
+            LOGGER.logWarning2("MetricHaven was compiled to ignore the configuration and to run specific metrics. ",
+                "Please check the code of the MetricsRunner whether this behaviour is as expected.");
+            metricAnalysis = new IndividualCodeMetricsRunner(config, functionInput, getVmComponent(),
+                getBmComponent(), variabilityCounter, functionMapCreator, featureSizeCreator);
+        }
         
         return metricAnalysis;
     }
