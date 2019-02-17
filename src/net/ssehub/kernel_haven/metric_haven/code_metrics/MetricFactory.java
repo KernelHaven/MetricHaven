@@ -411,7 +411,7 @@ public class MetricFactory {
          */
         public void setHierarchyWeights(@NonNull Map<String, Integer> hierarchyWeights) {
             this.hierarchyWeights.clear();
-            hierarchyWeights.putAll(hierarchyWeights);
+            this.hierarchyWeights.putAll(hierarchyWeights);
         }
         
         /**
