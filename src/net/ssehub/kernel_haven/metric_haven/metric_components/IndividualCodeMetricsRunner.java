@@ -27,6 +27,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionM
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureSizeWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.WeigthsCache;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.ProgressLogger;
@@ -189,6 +190,35 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
     }
     
     /**
+     * Creates a vector space basis, where always exactly one weight is set to 1 and all others to 0.  
+     * @return The vector basis for creating elementary weights.
+     */
+    private @NonNull List<@NonNull Map<String, Integer>> createHierarchyWeightVectorSpace() {
+        @NonNull List<@NonNull Map<String, Integer>> result = new ArrayList<>();
+        
+        @NonNull Map<String, Integer> topHierarchyWeights = new HashMap<>();
+        topHierarchyWeights.put("top", 1);
+        topHierarchyWeights.put("intermediate", 0);
+        topHierarchyWeights.put("leaf", 0);
+        result.add(topHierarchyWeights);
+        
+        @NonNull Map<String, Integer> intermediateHierarchyWeights = new HashMap<>();
+        intermediateHierarchyWeights.put("top", 0);
+        intermediateHierarchyWeights.put("intermediate", 1);
+        intermediateHierarchyWeights.put("leaf", 0);
+        result.add(intermediateHierarchyWeights);
+        
+        @NonNull Map<String, Integer> leafHierarchyWeights = new HashMap<>();
+        leafHierarchyWeights.put("top", 0);
+        leafHierarchyWeights.put("intermediate", 0);
+        leafHierarchyWeights.put("leaf", 1);
+        result.add(leafHierarchyWeights);
+        
+        return result;
+    }
+    
+    
+    /**
      * Coded list of metrics to execute.
      * @param params The parameters for creating metrics.
      * 
@@ -203,34 +233,28 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         params.setSingleMetricExecution(true);
         params.setHierarchyType(HierarchyType.HIERARCHY_WEIGHTS_BY_FILE);
         
-        @NonNull Map<String, Integer> topHierarchyWeights = new HashMap<>();
-        topHierarchyWeights.put("top", 1);
-        topHierarchyWeights.put("intermediate", 0);
-        topHierarchyWeights.put("leaf", 0);
-        
-        @NonNull Map<String, Integer> intermediateHierarchyWeights = new HashMap<>();
-        intermediateHierarchyWeights.put("top", 0);
-        intermediateHierarchyWeights.put("intermediate", 1);
-        intermediateHierarchyWeights.put("leaf", 0);
-        
-        @NonNull Map<String, Integer> leafHierarchyWeights = new HashMap<>();
-        leafHierarchyWeights.put("top", 0);
-        leafHierarchyWeights.put("intermediate", 0);
-        leafHierarchyWeights.put("leaf", 1);
-        
-        Object[] hierarchyWeightVectorSpace = {topHierarchyWeights, intermediateHierarchyWeights, leafHierarchyWeights};
+        @NonNull List<@NonNull Map<String, Integer>> hierarchyWeightVectorSpace = createHierarchyWeightVectorSpace();
         
         // Variables per function metrics
-        for (Object hierarchyWeights : hierarchyWeightVectorSpace) {
-            params.setHierarchyWeights((@NonNull Map<String, Integer>) hierarchyWeights);
+        for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
+            params.setHierarchyWeights(hierarchyWeights);
             
             // External Variables
             params.setMetricSpecificSettingValue(VariablesPerFunction.VarType.EXTERNAL);
             metrics.addAll(MetricFactory.createAllVariations(VariablesPerFunction.class, params));
             
+            // Disable caching of weights, because all weighs use different values
+            WeigthsCache.INSTANCE.clear();
+        }
+        for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
+            params.setHierarchyWeights(hierarchyWeights);
+            
             // All Variables
             params.setMetricSpecificSettingValue(VariablesPerFunction.VarType.ALL);
             metrics.addAll(MetricFactory.createAllVariations(VariablesPerFunction.class, params));
+            
+            // Disable caching of weights, because all weighs use different values
+            WeigthsCache.INSTANCE.clear();
         }
         
         // Nesting Depth
@@ -241,9 +265,18 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             params.setMetricSpecificSettingValue(NestingDepth.NDType.VP_ND_MAX);
             metrics.addAll(MetricFactory.createAllVariations(NestingDepth.class, params));
             
+            // Disable caching of weights, because all weighs use different values
+            WeigthsCache.INSTANCE.clear();
+        }
+        for (Object hierarchyWeights : hierarchyWeightVectorSpace) {
+            params.setHierarchyWeights((@NonNull Map<String, Integer>) hierarchyWeights);
+            
             // Code + VP NDmax
             params.setMetricSpecificSettingValue(NestingDepth.NDType.COMBINED_ND_MAX);
             metrics.addAll(MetricFactory.createAllVariations(NestingDepth.class, params));
+            
+            // Disable caching of weights, because all weighs use different values
+            WeigthsCache.INSTANCE.clear();
         }
         
         // DC Fan-In/Out
@@ -253,9 +286,10 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             // DC Fan-In (locally)
             params.setMetricSpecificSettingValue(FanInOut.FanType.DEGREE_CENTRALITY_IN_LOCALLY);
             metrics.addAll(MetricFactory.createAllVariations(FanInOut.class, params));
+            
+            // Disable caching of weights, because all weighs use different values
+            WeigthsCache.INSTANCE.clear();
         }
-        
-        
         
         return metrics;
     }
