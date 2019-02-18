@@ -28,7 +28,10 @@ public class HierarchyWeight implements IVariableWeight {
      */
     public HierarchyWeight(@NonNull VariabilityModel varModel, @Nullable Map<String, Integer> hierarchyWeights) {
         varMap = varModel.getVariableMap();
-        this.hierarchyWeights = hierarchyWeights;
+        if (null != hierarchyWeights) {
+            this.hierarchyWeights = new HashMap<>();
+            this.hierarchyWeights.putAll(hierarchyWeights);
+        }
         varWeights = new HashMap<String, Long>(varMap.size());
     }
 

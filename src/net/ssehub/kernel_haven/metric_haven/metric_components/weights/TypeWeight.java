@@ -27,7 +27,8 @@ public class TypeWeight implements IVariableWeight {
      */
     public TypeWeight(@NonNull VariabilityModel varModel, @NonNull Map<String, Integer> typeWeights) {
         varMap = varModel.getVariableMap();
-        this.typeWeights = typeWeights;
+        this.typeWeights = new HashMap<>();
+        this.typeWeights.putAll(typeWeights);
         varWeights = new HashMap<String, Long>(varMap.size());
     }
 
