@@ -4,6 +4,7 @@ import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -290,6 +291,15 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             params.setMetricSpecificSettingValue(FanInOut.FanType.DEGREE_CENTRALITY_IN_LOCALLY);
             metrics.addAll(MetricFactory.createAllVariations(FanInOut.class, params));
         }
+        
+    StringBuffer tmpMsg = new StringBuffer();
+    tmpMsg.append(metrics.size());
+    tmpMsg.append(" new Metrics created:");
+    for (AbstractFunctionMetric<?> metric : metrics) {
+        tmpMsg.append("\n - ");
+        tmpMsg.append(metric.getResultName());
+    }
+    LOGGER.logInfo2(tmpMsg);
         
         return metrics;
     }
