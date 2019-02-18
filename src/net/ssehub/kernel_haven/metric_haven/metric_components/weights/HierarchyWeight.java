@@ -79,6 +79,24 @@ public class HierarchyWeight implements IVariableWeight {
 
     @Override
     public String getName() {
+        StringBuffer name = new StringBuffer("Hierarchy ");
+        if (null == hierarchyWeights) {
+            name.append("Levels");
+        } else {
+            name.append("Types");
+            Map<String, Integer> hierarchyWeights = this.hierarchyWeights;
+            if (null != hierarchyWeights) {
+                name.append('(');
+                name.append(hierarchyWeights.get("top"));
+                name.append('-');
+                name.append(hierarchyWeights.get("intermediate"));
+                name.append('-');
+                name.append(hierarchyWeights.get("leaf"));
+                name.append(')');
+            }
+            
+        }
+        
         return "Hierarchy " + ((null == hierarchyWeights) ? "Levels" : "Types");
     }
 }

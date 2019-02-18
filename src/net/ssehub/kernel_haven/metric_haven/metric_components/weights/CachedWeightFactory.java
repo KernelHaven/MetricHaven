@@ -144,7 +144,7 @@ public class CachedWeightFactory {
      * @return The {@link HierarchyWeight} or <tt>null</tt> in case that
      *     {@link HierarchyType#NO_HIERARCHY_MEASURING} was specified.
      *     
-     * @throws SetUpException If the var model does not fit the configuration.
+     * @throws SetUpException If the VarModel does not fit the configuration.
      */
     public static @Nullable HierarchyWeight createHierarchyWeight(@NonNull HierarchyType varHierarchyWeightType,
         @Nullable VariabilityModel varModel, @Nullable Map<String, Integer> hierarchyWeights) throws SetUpException {
@@ -155,10 +155,15 @@ public class CachedWeightFactory {
             weight = (HierarchyWeight) WeigthsCache.INSTANCE.getWeight(varHierarchyWeightType);
             if (null == weight) {
                 if (null != varModel) {
+                    
+                    // Do not pass hierarchyWeights to constructor if "Weights by Level" is selected
+                    if (varHierarchyWeightType == HierarchyType.HIERARCHY_WEIGHTS_BY_LEVEL) {
+                        hierarchyWeights = null;
+                    }
+                    
                     if (varModel.getDescriptor().hasAttribute(Attribute.HIERARCHICAL)) {
-                        weight = new HierarchyWeight(varModel,
-                                (varHierarchyWeightType == HierarchyType.HIERARCHY_WEIGHTS_BY_LEVEL
-                                        ? null : hierarchyWeights));
+                        // Create new weight instance
+                        weight = new HierarchyWeight(varModel, hierarchyWeights);
                         WeigthsCache.INSTANCE.add(varHierarchyWeightType, weight);
                     } else {
                         throw new SetUpException("Hierarchy of features should be measured \""

@@ -225,7 +225,6 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @return The selected metric instances.
      * @throws SetUpException If creation of specified metrics is not possible (wrong set-up)
      */
-    @SuppressWarnings("unchecked")
     private List<@NonNull AbstractFunctionMetric<?>> createMetrics(MetricCreationParameters params)
         throws SetUpException {
         
@@ -237,58 +236,53 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         
         // Variables per function metrics
         for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
+            // Disable caching of weights, because all weighs use different values
             params.setHierarchyWeights(hierarchyWeights);
+            WeigthsCache.INSTANCE.clear();
             
             // External Variables
             params.setMetricSpecificSettingValue(VariablesPerFunction.VarType.EXTERNAL);
             metrics.addAll(MetricFactory.createAllVariations(VariablesPerFunction.class, params));
-            
-            // Disable caching of weights, because all weighs use different values
-            WeigthsCache.INSTANCE.clear();
         }
         for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
+            // Disable caching of weights, because all weighs use different values
             params.setHierarchyWeights(hierarchyWeights);
+            WeigthsCache.INSTANCE.clear();
             
             // All Variables
             params.setMetricSpecificSettingValue(VariablesPerFunction.VarType.ALL);
             metrics.addAll(MetricFactory.createAllVariations(VariablesPerFunction.class, params));
-            
-            // Disable caching of weights, because all weighs use different values
-            WeigthsCache.INSTANCE.clear();
         }
         
         // Nesting Depth
-        for (Object hierarchyWeights : hierarchyWeightVectorSpace) {
-            params.setHierarchyWeights((@NonNull Map<String, Integer>) hierarchyWeights);
+        for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
+            // Disable caching of weights, because all weighs use different values
+            params.setHierarchyWeights(hierarchyWeights);
+            WeigthsCache.INSTANCE.clear();
             
             // VP NDmax
             params.setMetricSpecificSettingValue(NestingDepth.NDType.VP_ND_MAX);
             metrics.addAll(MetricFactory.createAllVariations(NestingDepth.class, params));
-            
-            // Disable caching of weights, because all weighs use different values
-            WeigthsCache.INSTANCE.clear();
         }
-        for (Object hierarchyWeights : hierarchyWeightVectorSpace) {
-            params.setHierarchyWeights((@NonNull Map<String, Integer>) hierarchyWeights);
+        for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
+            // Disable caching of weights, because all weighs use different values
+            params.setHierarchyWeights(hierarchyWeights);
+            WeigthsCache.INSTANCE.clear();
             
             // Code + VP NDmax
             params.setMetricSpecificSettingValue(NestingDepth.NDType.COMBINED_ND_MAX);
             metrics.addAll(MetricFactory.createAllVariations(NestingDepth.class, params));
-            
-            // Disable caching of weights, because all weighs use different values
-            WeigthsCache.INSTANCE.clear();
         }
         
         // DC Fan-In/Out
-        for (Object hierarchyWeights : hierarchyWeightVectorSpace) {
-            params.setHierarchyWeights((@NonNull Map<String, Integer>) hierarchyWeights);
+        for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
+            // Disable caching of weights, because all weighs use different values
+            params.setHierarchyWeights(hierarchyWeights);
+            WeigthsCache.INSTANCE.clear();
             
             // DC Fan-In (locally)
             params.setMetricSpecificSettingValue(FanInOut.FanType.DEGREE_CENTRALITY_IN_LOCALLY);
             metrics.addAll(MetricFactory.createAllVariations(FanInOut.class, params));
-            
-            // Disable caching of weights, because all weighs use different values
-            WeigthsCache.INSTANCE.clear();
         }
         
         return metrics;
