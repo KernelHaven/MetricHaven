@@ -218,6 +218,20 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         return result;
     }
     
+    /**
+     * Logs the currently created metrics.
+     * @param metrics The list of currently created metric instances.
+     */
+    private void logCreatedMetrics(List<@NonNull AbstractFunctionMetric<?>> metrics) {
+        StringBuffer tmpMsg = new StringBuffer();
+        tmpMsg.append(metrics.size());
+        tmpMsg.append(" new Metrics created:");
+        for (AbstractFunctionMetric<?> metric : metrics) {
+            tmpMsg.append("\n - ");
+            tmpMsg.append(metric.getResultName());
+        }
+        LOGGER.logInfo2(tmpMsg);
+    }
     
     /**
      * Coded list of metrics to execute.
@@ -243,23 +257,11 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             
             // External Variables
             params.setMetricSpecificSettingValue(VariablesPerFunction.VarType.EXTERNAL);
-            List<@NonNull AbstractFunctionMetric<?>> newMetrics
-                = MetricFactory.createAllVariations(VariablesPerFunction.class, params);
+            metrics.addAll(MetricFactory.createAllVariations(VariablesPerFunction.class, params));
             
-          LOGGER.logInfo2("Created ", newMetrics.size(), " new Metrics: ", newMetrics.get(0).getResultName());
-            
-            metrics.addAll(newMetrics);
-            
+            logCreatedMetrics(metrics);
         }
-        
-    StringBuffer tmpMsg1 = new StringBuffer();
-    tmpMsg1.append(metrics.size());
-    tmpMsg1.append(" new Metrics created:");
-    for (AbstractFunctionMetric<?> metric : metrics) {
-        tmpMsg1.append("\n - ");
-        tmpMsg1.append(metric.getResultName());
-    }
-    LOGGER.logInfo2(tmpMsg1);
+        logCreatedMetrics(metrics);
         
         for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
             // Disable caching of weights, because all weighs use different values
@@ -302,14 +304,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             metrics.addAll(MetricFactory.createAllVariations(FanInOut.class, params));
         }
         
-    StringBuffer tmpMsg = new StringBuffer();
-    tmpMsg.append(metrics.size());
-    tmpMsg.append(" new Metrics created:");
-    for (AbstractFunctionMetric<?> metric : metrics) {
-        tmpMsg.append("\n - ");
-        tmpMsg.append(metric.getResultName());
-    }
-    LOGGER.logInfo2(tmpMsg);
+        logCreatedMetrics(metrics);
         
         return metrics;
     }
