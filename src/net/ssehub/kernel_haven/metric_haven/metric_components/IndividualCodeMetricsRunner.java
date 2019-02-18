@@ -242,7 +242,13 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             
             // External Variables
             params.setMetricSpecificSettingValue(VariablesPerFunction.VarType.EXTERNAL);
-            metrics.addAll(MetricFactory.createAllVariations(VariablesPerFunction.class, params));
+            List<@NonNull AbstractFunctionMetric<?>> newMetrics
+                = MetricFactory.createAllVariations(VariablesPerFunction.class, params);
+            
+          LOGGER.logInfo2("Created ", newMetrics.size(), " new Metrics: ", newMetrics.get(0).getResultName());
+            
+            metrics.addAll(newMetrics);
+            
         }
         for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
             // Disable caching of weights, because all weighs use different values

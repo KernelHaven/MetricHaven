@@ -292,7 +292,7 @@ public class CachedWeightFactory {
      * @param ctcrValue Defines what kind of cross-tree-constraints shall be used.
      * @param distanceValue Defines what kind of feature distances shall be used.
      * @param varTypeValue Defines how to weight types.
-     * @param hierarhcyValue Defines how to weight hierarchies.
+     * @param hierarchyValue Defines how to weight hierarchies.
      * @param structureValue Defines which structures shall be used as weight.
      * @param typeWeights A 2-tuple specifying weight values for each type used in the variability model.
      * @param hierarchyWeights A 2-tuple in the form of (hierarchy; weight value). This must contain hierarchy values
@@ -313,7 +313,7 @@ public class CachedWeightFactory {
         @Nullable CTCRType ctcrValue,
         @Nullable FeatureDistanceType distanceValue,
         @Nullable VariabilityTypeMeasureType varTypeValue,
-        @Nullable HierarchyType hierarhcyValue,
+        @Nullable HierarchyType hierarchyValue,
         @Nullable StructuralType structureValue,
         @Nullable FeatureSizeType fsType,
         
@@ -360,8 +360,8 @@ public class CachedWeightFactory {
         }
         
         // Hierarchy Types
-        if (null != hierarhcyValue) {
-            tmpWeight = createHierarchyWeight(hierarhcyValue, varModel, hierarchyWeights);
+        if (null != hierarchyValue) {
+            tmpWeight = createHierarchyWeight(hierarchyValue, varModel, hierarchyWeights);
             if (null != tmpWeight) {
                 tmpList.add(tmpWeight);
             }

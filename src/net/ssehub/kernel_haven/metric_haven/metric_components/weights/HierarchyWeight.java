@@ -91,6 +91,7 @@ public class HierarchyWeight implements IVariableWeight {
             name.append(hierarchyWeights.get("intermediate"));
             name.append('-');
             name.append(hierarchyWeights.get("leaf"));
+            name.append(')');
         }
         
         return name.toString();
