@@ -252,14 +252,14 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             
         }
         
-    StringBuffer tmpMsg = new StringBuffer();
-    tmpMsg.append(metrics.size());
-    tmpMsg.append(" new Metrics created:");
+    StringBuffer tmpMsg1 = new StringBuffer();
+    tmpMsg1.append(metrics.size());
+    tmpMsg1.append(" new Metrics created:");
     for (AbstractFunctionMetric<?> metric : metrics) {
-        tmpMsg.append("\n - ");
-        tmpMsg.append(metric.getResultName());
+        tmpMsg1.append("\n - ");
+        tmpMsg1.append(metric.getResultName());
     }
-    LOGGER.logInfo2(tmpMsg);
+    LOGGER.logInfo2(tmpMsg1);
         
         for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
             // Disable caching of weights, because all weighs use different values
