@@ -415,6 +415,17 @@ public class MetricFactory {
         }
         
         /**
+         * Sets (copies) the weights for variability model for variable types. Clears already set values.
+         * 
+         * @param typeWeights The weights to use.
+         * 
+         */
+        public void setTypeWeights(@NonNull Map<String, Integer> typeWeights) {
+            this.typeWeights.clear();
+            this.typeWeights.putAll(typeWeights);
+        }
+        
+        /**
          * Weights for hierarchy types.
          * 
          * @return The weight map.
