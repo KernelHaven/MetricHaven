@@ -469,6 +469,8 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             }
         }
         
+        logCreatedMetrics(metrics);
+        
         return metrics;
     }
     

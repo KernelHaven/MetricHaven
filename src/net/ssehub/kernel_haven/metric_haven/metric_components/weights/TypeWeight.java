@@ -59,7 +59,24 @@ public class TypeWeight implements IVariableWeight {
 
     @Override
     public String getName() {
-        return "Feature Type";
+        StringBuffer name = new StringBuffer("Feature Type");
+        name.append('(');
+        boolean elementAdded = false;
+        for (Map.Entry<String, Integer> setting : typeWeights.entrySet()) {
+            if (setting.getValue() != 0) {
+                if (elementAdded) {
+                    name.append(", ");
+                }
+                name.append(setting.getKey());
+                name.append("=");
+                name.append(setting.getValue());
+                
+                elementAdded = true;
+            }
+        }
+        name.append(')');
+        
+        return name.toString();
     }
 
 }
