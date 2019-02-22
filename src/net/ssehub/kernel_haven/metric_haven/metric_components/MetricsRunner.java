@@ -25,7 +25,11 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class MetricsRunner extends PipelineAnalysis {
     
-    private static final boolean RUN_METRICS_SELECTED_BY_CODE = true;
+    /**
+     * Switch to disable default behavior to ignore configuration and run coded selection of metrics.
+     * By default this should be set to <tt>false</tt> to process the configuration. 
+     */
+    private static final boolean RUN_METRICS_SELECTED_BY_CODE = false;
     
     /**
      * Whether a line filter has been configured. If this is <code>true</code>, a {@link CodeFunctionByLineFilter}
