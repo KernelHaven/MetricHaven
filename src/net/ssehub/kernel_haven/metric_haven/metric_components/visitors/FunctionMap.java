@@ -83,16 +83,23 @@ public class FunctionMap {
         private @NonNull FunctionLocation source;
         
         private @NonNull FunctionLocation target;
+        
+        private @NonNull Formula callCondition;
 
         /**
          * Creates a new function call.
          * 
          * @param source The source function.
          * @param target The target function.
+         * @param callCondition The surrounding presence condition around the function call
+         *        (inside source, around target).
          */
-        public FunctionCall(@NonNull FunctionLocation source, @NonNull FunctionLocation target) {
+        public FunctionCall(@NonNull FunctionLocation source, @NonNull FunctionLocation target,
+            @NonNull Formula callCondition) {
+            
             this.source = source;
             this.target = target;
+            this.callCondition = callCondition;
         }
         
         /**
@@ -111,6 +118,15 @@ public class FunctionMap {
          */
         public FunctionLocation getTarget() {
             return target;
+        }
+        
+        /**
+         * Returns the condition (not full presence condition) which surround the call of <tt>target</tt> inside
+         * <tt>source</tt>.
+         * @return The condition surrounding the target call.
+         */
+        public @NonNull Formula getCallCondition() {
+            return callCondition;
         }
         
         @Override

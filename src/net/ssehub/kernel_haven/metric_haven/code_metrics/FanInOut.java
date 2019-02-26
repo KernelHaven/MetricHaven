@@ -2,7 +2,10 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
+import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
@@ -16,6 +19,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionM
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionLocation;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
+import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.Variable;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -161,7 +165,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                 case DEGREE_CENTRALITY_OUT_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
                     if (isDesiredFunction(call.getSource(), func)) {
-                        result += complexityOfCall(call.getTarget());
+                        result += complexityOfCall(call.getTarget(), call.getCallCondition());
                     }
                     break;
                     
@@ -187,7 +191,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                 case DEGREE_CENTRALITY_IN_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
                     if (isDesiredFunction(call.getTarget(), func)) {
-                        result += complexityOfCall(call.getSource());
+                        result += complexityOfCall(call.getSource(), call.getCallCondition());
                     }
                     break;
                 
@@ -244,13 +248,18 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
      * Measures the complexity of features involved of the presence condition plus 1 for calls depending on at least one
      * feature.
      * @param callParticipant The measured item.
+     * @param callCondition The surrounding presence condition around the function call (inside source, around target).
      * @return The configuration complexity result for the specified function (&ge; 0).
      */
-    private long complexityOfCall(FunctionLocation callParticipant) {
+    private long complexityOfCall(FunctionLocation callParticipant, @NonNull Formula callCondition) {
         long result = 0;
         
+        Set<Variable> processedVariables = new HashSet<>();
+        
+        // Process callCondition (location = source, no variables processed)
+        File usageFile = callParticipant.getFile(); // TODO SE: Change this (must be source)
         varFinder.clear();
-        callParticipant.getPresenceCondition().accept(varFinder);
+        callCondition.accept(varFinder);
         boolean containsFeature = false;
         for (Variable variable : varFinder.getVariables()) {
             String varName = variable.getName();
@@ -258,14 +267,35 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
              * non-DegreeCentrality-metrics. Therefore, ensure that we count only feature of the varModel.
              */
             if (isFeature(varName)) {
-                if (null != callParticipant.getFile()) {
-                    result += weight.getWeight(variable.getName(), callParticipant.getFile());
+                if (null != usageFile) {
+                    result += weight.getWeight(variable.getName(), usageFile);
+                } else {
+                    result += weight.getWeight(variable.getName());
+                }
+                processedVariables.add(variable);
+                containsFeature = true;
+            }
+        }
+        
+        // Process presence condition (location = callParticipant, some variables may be processed)        
+        varFinder.clear();
+        callParticipant.getPresenceCondition().accept(varFinder);
+        usageFile = callParticipant.getFile();
+        for (Variable variable : varFinder.getVariables()) {
+            String varName = variable.getName();
+            /* By default weight will count unknown elements with 1, but this is already counted by 
+             * non-DegreeCentrality-metrics. Therefore, ensure that we count only feature of the varModel.
+             */
+            if (isFeature(varName) && !processedVariables.contains(variable)) {
+                if (null != usageFile) {
+                    result += weight.getWeight(variable.getName(), usageFile);
                 } else {
                     result += weight.getWeight(variable.getName());
                 }
                 containsFeature = true;
             }
         }
+        
         if (containsFeature) {
             // Count also each connection embedded in a variation point
             result += 1;

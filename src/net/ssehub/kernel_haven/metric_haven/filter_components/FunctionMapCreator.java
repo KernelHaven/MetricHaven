@@ -90,7 +90,8 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
                                     
                                     // TODO SE: Check if correct
                                     for (FunctionLocation target : locations) {
-                                        result.addFunctionCall(new FunctionCall(source, notNull(target)));
+                                        result.addFunctionCall(new FunctionCall(source, notNull(target),
+                                            notNull(code.getCondition())));
                                     }
                                 }
                             }
