@@ -141,6 +141,9 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         long result = 0;
         if (null != functionCalls) {
             for (FunctionCall call : functionCalls) {
+                FunctionLocation source = call.getSource();
+                FunctionLocation target = call.getTarget();
+                
                 switch (type) {
                 
                 // CALLED functions for a specified function (source)
@@ -148,7 +151,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     // falls through
                 case CLASSICAL_FAN_OUT_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
-                    if (isDesiredFunction(call.getSource(), func)) {
+                    if (isDesiredFunction(source, func)) {
                         result += 1;
                     }
                     break;
@@ -156,7 +159,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     // falls through
                 case VP_FAN_OUT_LOCALLY:
                     // Measures the number of CALLED functions for a specified function, which have a different PC
-                    if (isDesiredFunction(call.getSource(), func) && !haveSamePC(call.getSource(), func)) {
+                    if (isDesiredFunction(source, func) && !haveSamePC(source, func)) {
                         result += 1;
                     }
                     break;
@@ -164,9 +167,9 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     // falls through
                 case DEGREE_CENTRALITY_OUT_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
-                    if (isDesiredFunction(call.getSource(), func)) {
-                        result += complexityOfCall(call.getTarget(), call.getCallCondition(),
-                            call.getSource().getFile());
+                    if (isDesiredFunction(source, func)) {
+                        result += complexityOfCall(call.getCallCondition(), source.getFile(),
+                            target.getPresenceCondition(), target.getFile());
                     }
                     break;
                     
@@ -183,17 +186,17 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     // falls through
                 case VP_FAN_IN_LOCALLY:
                     // Measures the number of CALLING functions for a specified function, which have a different PC
-                    if (isDesiredFunction(call.getTarget(), func) && !haveSamePC(call.getTarget(), func)) {
+                    if (isDesiredFunction(target, func) && !haveSamePC(target, func)) {
                         result += 1;
                     }
                     break;
                 case DEGREE_CENTRALITY_IN_GLOBALLY:
                     // falls through
                 case DEGREE_CENTRALITY_IN_LOCALLY:
-                    // Measures (locally/globally) the number of CALLED functions for a specified function
-                    if (isDesiredFunction(call.getTarget(), func)) {
-                        FunctionLocation source = call.getSource();
-                        result += complexityOfCall(source, call.getCallCondition(), source.getFile());
+                    // Measures (locally/globally) the number of CALLING functions for a specified function
+                    if (isDesiredFunction(target, func)) {
+                        result += complexityOfCall(call.getCallCondition(), source.getFile(),
+                            target.getPresenceCondition(), target.getFile());
                     }
                     break;
                 
@@ -249,22 +252,23 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
      * Measures the degree complexity for a participant of a function call (caller or callee).
      * Measures the complexity of features involved of the presence condition plus 1 for calls depending on at least one
      * feature.
-     * @param callParticipant The measured item.
-     * @param callCondition The surrounding presence condition around the function call (inside source, around target).
-     * @param sourceFile The <b>source</b> of the call, which is the location of <tt>callCondition</tt>.
+     * @param callingCondition The surrounding condition around the function call (inside source, around call).
+     * @param callingFile The <b>source</b> of the call, which is the location of <tt>callingCondition</tt>.
+     * @param targetCondition The presence condition of the called function (inside target, around function body).
+     * @param targetFile The <b>target</b> of the call, which is the location of <tt>targetCondition</tt>.
      * @return The configuration complexity result for the specified function (&ge; 0).
      */
-    private long complexityOfCall(FunctionLocation callParticipant, @NonNull Formula callCondition,
-        @Nullable File sourceFile) {
+    private long complexityOfCall(@NonNull Formula callingCondition, @Nullable File callingFile,
+        @Nullable Formula targetCondition, @Nullable File targetFile) {
+
         
         long result = 0;
         
         Set<Variable> processedVariables = new HashSet<>();
-        
-        // Process callCondition (location = source, no variables processed)
-        File usageFile = sourceFile;
+
+        File usageFile = callingFile;
         varFinder.clear();
-        callCondition.accept(varFinder);
+        callingCondition.accept(varFinder);
         boolean containsFeature = false;
         for (Variable variable : varFinder.getVariables()) {
             String varName = variable.getName();
@@ -284,20 +288,22 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         
         // Process presence condition (location = callParticipant, some variables may be processed)        
         varFinder.clear();
-        callParticipant.getPresenceCondition().accept(varFinder);
-        usageFile = callParticipant.getFile();
-        for (Variable variable : varFinder.getVariables()) {
-            String varName = variable.getName();
-            /* By default weight will count unknown elements with 1, but this is already counted by 
-             * non-DegreeCentrality-metrics. Therefore, ensure that we count only feature of the varModel.
-             */
-            if (isFeature(varName) && !processedVariables.contains(variable)) {
-                if (null != usageFile) {
-                    result += weight.getWeight(variable.getName(), usageFile);
-                } else {
-                    result += weight.getWeight(variable.getName());
+        if (null != targetCondition) {
+            targetCondition.accept(varFinder);
+            usageFile = targetFile;
+            for (Variable variable : varFinder.getVariables()) {
+                String varName = variable.getName();
+                /* By default weight will count unknown elements with 1, but this is already counted by 
+                 * non-DegreeCentrality-metrics. Therefore, ensure that we count only feature of the varModel.
+                 */
+                if (isFeature(varName) && !processedVariables.contains(variable)) {
+                    if (null != usageFile) {
+                        result += weight.getWeight(variable.getName(), usageFile);
+                    } else {
+                        result += weight.getWeight(variable.getName());
+                    }
+                    containsFeature = true;
                 }
-                containsFeature = true;
             }
         }
         
