@@ -165,7 +165,8 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                 case DEGREE_CENTRALITY_OUT_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
                     if (isDesiredFunction(call.getSource(), func)) {
-                        result += complexityOfCall(call.getTarget(), call.getCallCondition());
+                        result += complexityOfCall(call.getTarget(), call.getCallCondition(),
+                            call.getSource().getFile());
                     }
                     break;
                     
@@ -191,7 +192,8 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                 case DEGREE_CENTRALITY_IN_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
                     if (isDesiredFunction(call.getTarget(), func)) {
-                        result += complexityOfCall(call.getSource(), call.getCallCondition());
+                        FunctionLocation source = call.getSource();
+                        result += complexityOfCall(source, call.getCallCondition(), source.getFile());
                     }
                     break;
                 
@@ -249,15 +251,18 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
      * feature.
      * @param callParticipant The measured item.
      * @param callCondition The surrounding presence condition around the function call (inside source, around target).
+     * @param sourceFile The <b>source</b> of the call, which is the location of <tt>callCondition</tt>.
      * @return The configuration complexity result for the specified function (&ge; 0).
      */
-    private long complexityOfCall(FunctionLocation callParticipant, @NonNull Formula callCondition) {
+    private long complexityOfCall(FunctionLocation callParticipant, @NonNull Formula callCondition,
+        @Nullable File sourceFile) {
+        
         long result = 0;
         
         Set<Variable> processedVariables = new HashSet<>();
         
         // Process callCondition (location = source, no variables processed)
-        File usageFile = callParticipant.getFile(); // TODO SE: Change this (must be source)
+        File usageFile = sourceFile;
         varFinder.clear();
         callCondition.accept(varFinder);
         boolean containsFeature = false;
