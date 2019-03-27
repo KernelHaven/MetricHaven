@@ -1,6 +1,6 @@
 # MetricHaven
 
-![Build Status](https://jenkins.sse.uni-hildesheim.de/buildStatus/icon?job=KernelHaven_MetricHaven)
+![Build Status](https://jenkins-2.sse.uni-hildesheim.de/buildStatus/icon?job=KH_MetricHaven)
 
 An analysis plugin for [KernelHaven](https://github.com/KernelHaven/KernelHaven).
 
@@ -8,7 +8,7 @@ Contains analysis components for running (variability-aware) metrics on Software
 
 ## Usage
 
-Place [`MetricHaven.jar`](https://jenkins.sse.uni-hildesheim.de/view/KernelHaven/job/KernelHaven_MetricHaven/lastSuccessfulBuild/artifact/build/jar/MetricHaven.jar) in the plugins folder of KernelHaven.
+Place [`MetricHaven.jar`](https://jenkins-2.sse.uni-hildesheim.de/view/KernelHaven/job/KH_MetricHaven/lastSuccessfulBuild/artifact/build/jar/MetricHaven.jar) in the plugins folder of KernelHaven.
 
 ### Provided Metrics
 For the sake of simplicity we omit the full qualified class names in the following table. All class names start with the

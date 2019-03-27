@@ -5,7 +5,7 @@
 	<description>Analysis components for calculating metrics on software product lines</description>
 
 	<!-- Load Marcros on Jenkins -->
-	<include file="../../KernelHaven_Infrastructure/workspace/KernelHavenMacros.xml" as="KH_Common" optional="true" />
+	<include file="../KH_KernelHaven/KernelHavenMacros.xml" as="KH_Common" optional="true" />
 	<!-- Load Marcros in Eclipse -->
 	<include file="../KernelHaven/KernelHavenMacros.xml" as="KH_Common" optional="true" />
 
