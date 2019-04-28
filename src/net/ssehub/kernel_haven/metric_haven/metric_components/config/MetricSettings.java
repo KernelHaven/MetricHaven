@@ -103,7 +103,7 @@ public class MetricSettings {
                 + "configuration file.");
     
     /**
-     * Configuration of variability weight (for features): Definitions of weights for {@value #TYPE_MEASURING_SETTING}.
+     * Configuration of variability weight (for features): Definitions of weights for {@link #TYPE_MEASURING_SETTING}.
      */
     public static final @NonNull Setting<@Nullable List<@NonNull String>> TYPE_WEIGHTS_SETTING
         = new Setting<>("metrics.function_measures.type_weight_definitions", Type.STRING_LIST,
@@ -126,7 +126,7 @@ public class MetricSettings {
     
     /**
      * Configuration of variability weight (for features): Definitions of weights for
-     * {@value #HIERARCHY_TYPE_MEASURING_SETTING}.
+     * {@link #HIERARCHY_TYPE_MEASURING_SETTING}.
      */
     public static final @NonNull Setting<@Nullable List<@NonNull String>> HIERARCHY_WEIGHTS_SETTING
         = new Setting<>("metrics.function_measures.hierarchy_weight_definitions", Type.STRING_LIST,

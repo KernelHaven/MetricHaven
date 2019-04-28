@@ -92,7 +92,7 @@ public class MetricFactory {
         /**
          * Creates configuration parameters to instantiate a metric via the {@link MetricFactory}.
          * @param varModel The {@link VariabilityModel}
-         * @param buildModel The {@link BuildModel}, required for the {@link VariablesPerFunction}
+         * @param buildModel The {@link BuildModel}, required for the {@link VariablesPerFunction} metric.
          * @param sdContainer The {@link ScatteringDegreeContainer} as required by the {@link ScatteringWeight}.
          * @param fsContainer The {@link FeatureSizeContainer} as required by the {@link FeatureSizeWeight}.
          */

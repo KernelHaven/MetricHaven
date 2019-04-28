@@ -28,6 +28,7 @@ import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
@@ -136,7 +137,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
      * 
      * @throws SetUpException If creating the metric instances fails.
      */
@@ -155,7 +156,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
      * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
      * @param fmComponent {@link FunctionMap}, required to run {@link FanInOut}-metrics.
      * 
@@ -179,7 +180,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
      * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
      * @param fmComponent {@link FunctionMap}, required to run {@link FanInOut}-metrics.
      * @param fsComponent {@link FeatureSizeContainer}, required to create the {@link FeatureSizeWeight}.

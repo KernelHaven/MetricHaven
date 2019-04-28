@@ -39,7 +39,7 @@ public class TestCaseGenerator {
     
     /**
      * Generates a function with an expression containing 2 variables outside of the function, no expression inside.
-     * <br/><br/>
+     * <p>
      * <b>Condition:</b><tt>A or B </tt>
      * @return An empty function with the specified expression.
      */
@@ -58,7 +58,7 @@ public class TestCaseGenerator {
     
     /**
      * Generates a function with an expression containing 2 variables inside of the function, no expression inside.
-     * <br/><br/>
+     * <p>
      * <b>Condition:</b><tt>A and B </tt>
      * @return An empty function with the specified expression.
      */
@@ -78,7 +78,7 @@ public class TestCaseGenerator {
     
     /**
      * Generates a function with a surrounding and an internal expression.
-     * <br/><br/>
+     * <p>
      * <b>External Condition:</b><tt>A and B </tt>
      * <b>Internal Condition:</b><tt>A OR C </tt>
      * @return An empty function with the specified expression.

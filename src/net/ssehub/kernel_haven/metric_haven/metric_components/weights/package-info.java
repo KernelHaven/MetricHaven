@@ -18,21 +18,21 @@
  * 
  * <h2>How to create new IVariableWeights</h2>
  * <ol>
- *   <li>Optionally: Create component computing required values for that weight and place it in package:<br/>
+ *   <li>Optionally: Create component computing required values for that weight and place it in package:
  *       {@link net.ssehub.kernel_haven.metric_haven.filter_components}</li>
- *   <li>Create the new weight and place it in package:<br/>
+ *   <li>Create the new weight and place it in package:
  *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.weights}</li>
- *   <li>Create configuration setting (and optionally an enumeration) in file:<br/>
+ *   <li>Create configuration setting (and optionally an enumeration) in file:
  *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings}</li>
- *   <li>Optionally consider caching of weights values, if values are re-computated dynamically:<br/>
+ *   <li>Optionally consider caching of weights values, if values are re-computated dynamically:
  *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.weights.WeigthsCache}</li>
- *   <li>Add a static initialization method in:<br/>
+ *   <li>Add a static initialization method in:
  *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.weights.CachedWeightFactory}</li>
- *   <li>Add the initialization method to the <tt>createAllCombinations</tt>-methods of:<br/>
+ *   <li>Add the initialization method to the <tt>createAllCombinations</tt>-methods of:
  *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.weights.CachedWeightFactory}</li>
- *   <li>Add the settings and and optional containers to:<br/>
+ *   <li>Add the settings and and optional containers to:
  *       {@link net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters}</li>
- *   <li>Adapt the initialization methods of:<br/>
+ *   <li>Adapt the initialization methods of:
  *       {@link net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory}</li>
  *   <li>Adapt the <tt>execute</tt>-method of:
  *       {@link net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner}</li>

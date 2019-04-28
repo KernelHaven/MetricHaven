@@ -31,11 +31,11 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 /**
  * A metric, which measures the maximum/average nesting depth. These metrics are based on:
  * <ul>
- *     <ul>Classical Nesting Depth as specified by <a href="https://dl.acm.org/citation.cfm?id=42168">[Conte et al.
- *         1986]</a></ul>
- *     <ul>Nesting Depth of Variation Points (e.g., used/specified by
+ *     <li>Classical Nesting Depth as specified by <a href="https://dl.acm.org/citation.cfm?id=42168">[Conte et al.
+ *         1986]</a></li>
+ *     <li>Nesting Depth of Variation Points (e.g., used/specified by
  *         <a href="https://ieeexplore.ieee.org/abstract/document/6062078/">[Liebig et al. 2010]</a>, 
- *         <a href="https://link.springer.com/article/10.1007/s10664-015-9360-1">[Hunsen et al. 2016]</a>)</ul>
+ *         <a href="https://link.springer.com/article/10.1007/s10664-015-9360-1">[Hunsen et al. 2016]</a>)</li>
  * </ul>
  * However, we did a small variation as we count the nested statements instead of the branching elements itself. This is
  * done to count the average for nested elements inside a function and also to avoid counting of nesting structures,

@@ -159,7 +159,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
      * 
      * @throws SetUpException If creating the metric instances fails.
      */
@@ -178,7 +178,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
      * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
      * @param fmComponent {@link FunctionMap}, required to run {@link FanInOut}-metrics.
      * 
@@ -202,7 +202,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
      * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
      * @param fmComponent {@link FunctionMap}, required to run {@link FanInOut}-metrics.
      * @param fsComponent {@link FeatureSizeContainer}, required to create the {@link FeatureSizeWeight}.

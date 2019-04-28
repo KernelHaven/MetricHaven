@@ -32,7 +32,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
 /**
  * A filter component that filters {@link CodeFunction}s by line numbers. A configuration option specifies a line
  * number, and only function where this line number is inside (i.e.
- * <code>func.getLineStart() <= lineNumber && func.getLineEnd() >= lineNumber</code>) are passed along.
+ * {@code func.getLineStart() <= lineNumber && func.getLineEnd() >= lineNumber}) are passed along.
  * 
  * @author Adam
  */

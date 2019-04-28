@@ -79,7 +79,8 @@ public class CodeFunction {
     }
     
     /**
-     * Returns the (main) source file containing the function. <br/>
+     * Returns the (main) source file containing the function.
+     * <p>
      * <b>Please note:</b> This is not necessary identical to {@link ISyntaxElement#getSourceFile()} as this
      * points to the direct location of an (included) source file.
      * @return The location of the C-file (not of an included H-file of a macro).
