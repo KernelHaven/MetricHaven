@@ -5,24 +5,22 @@
 	<description>Analysis components for calculating metrics on software product lines</description>
 
 	<!-- Load Marcros on Jenkins -->
-	<include file="../KH_KernelHaven/KernelHavenMacros.xml" as="KH_Common" optional="true" />
+	<include file="../KH_KernelHaven/ant/common.xml" optional="true" />
 	<!-- Load Marcros in Eclipse -->
-	<include file="../KernelHaven/KernelHavenMacros.xml" as="KH_Common" optional="true" />
+	<include file="../KernelHaven/ant/common.xml" optional="true" />
 
 	<target name="jenkins">
-		<antcall target="init" />
+		<antcall target="KH_Common.prepare" />
+		<antcall target="dependencies.download" />
 		<antcall target="KH_Common.compile" />
 		<antcall target="KH_Common.test" />
-		<antcall target="KH_Common.jar" />
-		<antcall target="KH_Common.jarwithsources" />
-		<antcall target="KH_Common.check" />
-		<antcall target="KH_Common.jacoco_report" />
-		<!--antcall target="KH_Common.zip_workspace" /-->
+		<antcall target="KH_Common.checkstyle" />
+		<antcall target="KH_Common.package.jar" />
+		<antcall target="KH_Common.test.report" />
 	</target>
 
-	<target name="init">
-		<antcall target="KH_Common.prepare.folders" />
-		<get src="${infrastructure.location}" dest="${dependencies.dir}/kernelhaven.jar" />
+	<target name="dependencies.download">
+		<get src="${infrastructure.fortesting.url}" dest="${dependencies.dir}" />
 	</target>
-	
+
 </project>
