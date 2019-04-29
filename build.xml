@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- author: moritz, kevin, Sascha El-Sharkawy -->
+<!-- Author: Adam, Sascha El-Sharkawy -->
 <project name="MetricHaven" default="jenkins" basedir=".">
 	<description>Analysis components for calculating metrics on software product lines</description>
 
