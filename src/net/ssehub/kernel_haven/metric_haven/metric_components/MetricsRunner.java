@@ -120,7 +120,7 @@ public class MetricsRunner extends PipelineAnalysis {
         AnalysisComponent<FeatureSizeContainer> featureSizeCreator = new FeatureSizeEstimator(config,
                 getVmComponent(), getCmComponent(), getBmComponent());
         
-        AnalysisComponent<CodeFunction> functionInput = split.createOutputComponent();
+        @NonNull AnalysisComponent<CodeFunction> functionInput = split.createOutputComponent();
         if (lineFilter) {
             functionInput = new CodeFunctionByLineFilter(config, functionInput);
         }
