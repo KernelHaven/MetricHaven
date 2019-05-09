@@ -33,6 +33,8 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric
 import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity.CCType;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut.FanType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
@@ -106,18 +108,21 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         
         private @NonNull Class<? extends AbstractFunctionMetric<?>> metricClass;
         private @Nullable Object individualSetting;
+        private boolean isWeightable;
         
         /**
          * Specifies a metric selection without any weight.
          * @param metricClass The metric to execute.
          * @param individualSetting The version of the metric to execute, <tt>null</tt> if the metric does not specify
          *     individual settings.
+         * @param isWeightable <tt>true</tt> if it may be combined with a {@link IVariableWeight}.
          */
         private MetricSelection(@NonNull Class<? extends AbstractFunctionMetric<?>> metricClass,
-            @Nullable Object individualSetting) {
+            @Nullable Object individualSetting, boolean isWeightable) {
             
             this.metricClass = metricClass;
             this.individualSetting = individualSetting;
+            this.isWeightable = isWeightable;
         }
     }
     
@@ -159,7 +164,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
      * 
      * @throws SetUpException If creating the metric instances fails.
      */
@@ -178,7 +183,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
      * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
      * @param fmComponent {@link FunctionMap}, required to run {@link FanInOut}-metrics.
      * 
@@ -202,7 +207,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @param config The pipeline configuration.
      * @param codeFunctionComponent The component to get the {@link CodeFunction}s to run the metrics on.
      * @param varModelComponent The variability model, to filter for VPs and to create {@link IVariableWeight}s.
-     * @param bmComponent The build model, used by the {@link VariablesPerFunction} metric.
+     * @param bmComponent The build model, used by the {@link VariablesPerFunctionMetric}.
      * @param sdComponent Scattering degree values, used to create the {@link ScatteringWeight}.
      * @param fmComponent {@link FunctionMap}, required to run {@link FanInOut}-metrics.
      * @param fsComponent {@link FeatureSizeContainer}, required to create the {@link FeatureSizeWeight}.
@@ -369,37 +374,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
     //CHECKSTYLE:ON
         
         List<@NonNull AbstractFunctionMetric<?>> metrics = new ArrayList<>();
-        MetricSelection[] selectedMetrics = {
-            // VariablesPerFunction metric
-            new MetricSelection(VariablesPerFunction.class, VarType.INTERNAL),
-            new MetricSelection(VariablesPerFunction.class, VarType.EXTERNAL),
-            new MetricSelection(VariablesPerFunction.class, VarType.ALL),
-            new MetricSelection(VariablesPerFunction.class, VarType.EXTERNAL_WITH_BUILD_VARS),
-            new MetricSelection(VariablesPerFunction.class, VarType.ALL_WITH_BUILD_VARS),
-            
-            // McCabe
-            new MetricSelection(CyclomaticComplexity.class, CCType.VARIATION_POINTS),
-            new MetricSelection(CyclomaticComplexity.class, CCType.ALL),
-            
-            // VP nesting
-            new MetricSelection(NestingDepth.class, NDType.VP_ND_MAX),
-            new MetricSelection(NestingDepth.class, NDType.VP_ND_AVG),
-            new MetricSelection(NestingDepth.class, NDType.COMBINED_ND_MAX),
-            new MetricSelection(NestingDepth.class, NDType.COMBINED_ND_AVG),
-            
-            // Fan-In/Out
-            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_IN_GLOBALLY),
-            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_IN_LOCALLY),
-            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_GLOBALLY),
-            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_LOCALLY),
-            
-            // Tangling Degree
-            new MetricSelection(TanglingDegree.class, null),
-            
-            // Blocks per Function
-            new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.BLOCK_AS_ONE),
-            new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.SEPARATE_PARTIAL_BLOCKS)
-            };
+        MetricSelection[] selectedMetrics = allAtomicMetrics();
         
         params.setSingleMetricExecution(true);
         @NonNull List<@NonNull Map<String, Integer>> hierarchyWeightVectorSpace = createHierarchyWeightVectorSpace();
@@ -411,82 +386,137 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             cleanWeightSettings(params);
             metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
             
-            // Scattering
-            cleanWeightSettings(params);
-            for (SDType sd : SDType.values()) {
-                if (sd != SDType.NO_SCATTERING) {
-                    params.setScatteringDegree(sd);
+            if (metricSelection.isWeightable) {
+                // Scattering
+                cleanWeightSettings(params);
+                for (SDType sd : SDType.values()) {
+                    if (sd != SDType.NO_SCATTERING) {
+                        params.setScatteringDegree(sd);
+                        WeigthsCache.INSTANCE.clear();
+                        metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
+                    }
+                }
+                
+                // CTCR
+                cleanWeightSettings(params);
+                for (CTCRType ctcr : CTCRType.values()) {
+                    if (ctcr != CTCRType.NO_CTCR) {
+                        params.setCTCR(ctcr);
+                        WeigthsCache.INSTANCE.clear();
+                        metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
+                    }
+                }
+                
+                // Feature Distance
+                cleanWeightSettings(params);
+                for (FeatureDistanceType distance : FeatureDistanceType.values()) {
+                    if (distance != FeatureDistanceType.NO_DISTANCE) {
+                        params.setDistance(distance);
+                        WeigthsCache.INSTANCE.clear();
+                        metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
+                    }
+                }
+                
+                // Hierarchy Types
+                cleanWeightSettings(params);
+                params.setHierarchyType(HierarchyType.HIERARCHY_WEIGHTS_BY_FILE);
+                for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
+                    params.setHierarchyWeights(hierarchyWeights);
                     WeigthsCache.INSTANCE.clear();
                     metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
-                }
-            }
-            
-            // CTCR
-            cleanWeightSettings(params);
-            for (CTCRType ctcr : CTCRType.values()) {
-                if (ctcr != CTCRType.NO_CTCR) {
-                    params.setCTCR(ctcr);
-                    WeigthsCache.INSTANCE.clear();
-                    metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
-                }
-            }
-            
-            // Feature Distance
-            cleanWeightSettings(params);
-            for (FeatureDistanceType distance : FeatureDistanceType.values()) {
-                if (distance != FeatureDistanceType.NO_DISTANCE) {
-                    params.setDistance(distance);
-                    WeigthsCache.INSTANCE.clear();
-                    metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
-                }
-            }
-            
-            // Hierarchy Types
-            cleanWeightSettings(params);
-            params.setHierarchyType(HierarchyType.HIERARCHY_WEIGHTS_BY_FILE);
-            for (@NonNull Map<String, Integer> hierarchyWeights : hierarchyWeightVectorSpace) {
-                params.setHierarchyWeights(hierarchyWeights);
+                } 
+                cleanWeightSettings(params);
+                params.setHierarchyType(HierarchyType.HIERARCHY_WEIGHTS_BY_LEVEL);
                 WeigthsCache.INSTANCE.clear();
                 metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
-            } 
-            cleanWeightSettings(params);
-            params.setHierarchyType(HierarchyType.HIERARCHY_WEIGHTS_BY_LEVEL);
-            WeigthsCache.INSTANCE.clear();
-            metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
-            
-            // Variable Types
-            cleanWeightSettings(params);
-            params.setFeatureTypes(VariabilityTypeMeasureType.TYPE_WEIGHTS_BY_FILE);
-            for (@NonNull Map<String, Integer> typeWeights : typeWeightVectorSpace) {
-                params.setTypeWeights(typeWeights);
-                WeigthsCache.INSTANCE.clear();
-                metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
-            }
-            
-            // VarModel Structure
-            cleanWeightSettings(params);
-            for (StructuralType structure : StructuralType.values()) {
-                if (structure != StructuralType.NO_STRUCTURAL_MEASUREMENT) {
-                    params.setStructuralType(structure);
+                
+                // Variable Types
+                cleanWeightSettings(params);
+                params.setFeatureTypes(VariabilityTypeMeasureType.TYPE_WEIGHTS_BY_FILE);
+                for (@NonNull Map<String, Integer> typeWeights : typeWeightVectorSpace) {
+                    params.setTypeWeights(typeWeights);
                     WeigthsCache.INSTANCE.clear();
                     metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
                 }
-            }
-            
-            // Feature Size
-            cleanWeightSettings(params);
-            for (FeatureSizeType size : FeatureSizeType.values()) {
-                if (size != FeatureSizeType.NO_FEATURE_SIZES) {
-                    params.setFeatureSizeType(size);
-                    WeigthsCache.INSTANCE.clear();
-                    metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
+                
+                // VarModel Structure
+                cleanWeightSettings(params);
+                for (StructuralType structure : StructuralType.values()) {
+                    if (structure != StructuralType.NO_STRUCTURAL_MEASUREMENT) {
+                        params.setStructuralType(structure);
+                        WeigthsCache.INSTANCE.clear();
+                        metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
+                    }
+                }
+                
+                // Feature Size
+                cleanWeightSettings(params);
+                for (FeatureSizeType size : FeatureSizeType.values()) {
+                    if (size != FeatureSizeType.NO_FEATURE_SIZES) {
+                        params.setFeatureSizeType(size);
+                        WeigthsCache.INSTANCE.clear();
+                        metrics.addAll(MetricFactory.createAllVariations(metricSelection.metricClass, params));
+                    }
                 }
             }
         }
         
-        logCreatedMetrics(metrics);
-        
         return metrics;
+    }
+
+    /**
+     * Creates a list of all (variability) metrics.
+     * @return Variability metrics
+     */
+    private static MetricSelection[] allAtomicMetrics() {
+        MetricSelection[] selectedMetrics = {
+            // VariablesPerFunction metric
+            new MetricSelection(VariablesPerFunction.class, VarType.INTERNAL, true),
+            new MetricSelection(VariablesPerFunction.class, VarType.EXTERNAL, true),
+            new MetricSelection(VariablesPerFunction.class, VarType.ALL, true),
+            new MetricSelection(VariablesPerFunction.class, VarType.EXTERNAL_WITH_BUILD_VARS, true),
+            new MetricSelection(VariablesPerFunction.class, VarType.ALL_WITH_BUILD_VARS, true),
+            
+            // McCabe
+            new MetricSelection(CyclomaticComplexity.class, CCType.VARIATION_POINTS, true),
+            new MetricSelection(CyclomaticComplexity.class, CCType.ALL, true),
+            
+            // VP nesting
+            new MetricSelection(NestingDepth.class, NDType.VP_ND_MAX, true),
+            new MetricSelection(NestingDepth.class, NDType.VP_ND_AVG, true),
+            new MetricSelection(NestingDepth.class, NDType.COMBINED_ND_MAX, true),
+            new MetricSelection(NestingDepth.class, NDType.COMBINED_ND_AVG, true),
+            
+            // Fan-In/Out
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_IN_GLOBALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_IN_LOCALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_GLOBALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_LOCALLY, true),
+            
+            // Tangling Degree
+            new MetricSelection(TanglingDegree.class, null, true),
+            
+            // Blocks per Function
+            new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.BLOCK_AS_ONE, true),
+            new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.SEPARATE_PARTIAL_BLOCKS, true),
+            
+            // Metrics which do not accept any variability metrics
+            new MetricSelection(CyclomaticComplexity.class, CCType.MCCABE, false),
+            new MetricSelection(DLoC.class, LoFType.DLOC, false),
+            new MetricSelection(DLoC.class, LoFType.LOF, false),
+            new MetricSelection(DLoC.class, LoFType.PLOF, false),
+            new MetricSelection(NestingDepth.class, NDType.CLASSIC_ND_MAX, false),
+            new MetricSelection(NestingDepth.class, NDType.CLASSIC_ND_AVG, false),
+            new MetricSelection(FanInOut.class, FanType.CLASSICAL_FAN_IN_GLOBALLY, false),
+            new MetricSelection(FanInOut.class, FanType.CLASSICAL_FAN_IN_LOCALLY, false),
+            new MetricSelection(FanInOut.class, FanType.CLASSICAL_FAN_OUT_GLOBALLY, false),
+            new MetricSelection(FanInOut.class, FanType.CLASSICAL_FAN_OUT_LOCALLY, false),
+            new MetricSelection(FanInOut.class, FanType.VP_FAN_IN_GLOBALLY, false),
+            new MetricSelection(FanInOut.class, FanType.VP_FAN_IN_LOCALLY, false),
+            new MetricSelection(FanInOut.class, FanType.VP_FAN_OUT_GLOBALLY, false),
+            new MetricSelection(FanInOut.class, FanType.VP_FAN_OUT_LOCALLY, false),
+            };
+        return selectedMetrics;
     }
     
     /**
@@ -515,8 +545,6 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             // External Variables
             params.setMetricSpecificSettingValue(VariablesPerFunction.VarType.EXTERNAL);
             metrics.addAll(MetricFactory.createAllVariations(VariablesPerFunction.class, params));
-            
-            logCreatedMetrics(metrics);
         }
         logCreatedMetrics(metrics);
         
@@ -561,8 +589,6 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             metrics.addAll(MetricFactory.createAllVariations(FanInOut.class, params));
         }
         
-        logCreatedMetrics(metrics);
-        
         return metrics;
     }
    
@@ -581,6 +607,8 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             params.setFunctionMap(functionMap);
 //            allMetrics = createMetrics(params);
             allMetrics = createAllAtomicVariations(params);
+//            allMetrics = createMetricSet1(params);
+            logCreatedMetrics(allMetrics);
         } catch (SetUpException e) {
             LOGGER.logException("Could not create metric instances", e);
             return;
