@@ -101,4 +101,59 @@ public class CodeMetricsRunnerTest {
         assertThat(result.get(0).getMeasuredItem().getLineNo(), is(-1));
     }
     
+    /**
+     * Tests a simple scenario with multiple threads.
+     * 
+     * @throws SetUpException unwanted.
+     */
+    @Test
+    public void testSimpleMultithreaded() throws SetUpException {
+        
+        ISyntaxElement fullAst = AllAstTests.createFullAst();
+        Function f = (Function) fullAst.getNestedElement(1);
+        SourceFile<ISyntaxElement> sourceFile = new SourceFile<>(fullAst.getSourceFile());
+        sourceFile.addElement(fullAst);
+        
+        CodeFunction f1 = new CodeFunction("simpleFunction", f, sourceFile);
+        
+        VariabilityModel varModel = new VariabilityModel(new File("doesnt_exist"), new HashSet<>());
+        varModel.getDescriptor().addAttribute(Attribute.CONSTRAINT_USAGE);
+        varModel.getDescriptor().addAttribute(Attribute.SOURCE_LOCATIONS);
+        varModel.getDescriptor().addAttribute(Attribute.HIERARCHICAL);
+        BuildModel bm = new BuildModel();
+        ScatteringDegreeContainer sdc = new ScatteringDegreeContainer(new HashSet<>());
+        FeatureSizeContainer fsContainer = new FeatureSizeContainer(varModel);
+        FunctionMap emptyMap = new FunctionMap();
+        
+        TestConfiguration config = new TestConfiguration(new Properties());
+        config.registerSetting(CodeMetricsRunner.MAX_THREADS);
+        config.setValue(CodeMetricsRunner.MAX_THREADS, 4);
+        
+        List<MultiMetricResult> result = AnalysisComponentExecuter.executeComponent(CodeMetricsRunner.class,
+                config,
+                new CodeFunction[] {f1},
+                new VariabilityModel[] {varModel},
+                new BuildModel[] {bm},
+                new ScatteringDegreeContainer[] {sdc},
+                new FunctionMap[]{emptyMap},
+                new FeatureSizeContainer[] {fsContainer});
+        
+        assertThat(result.size(), is(1));
+        
+        assertThat(result.get(0).getMetrics().length, is(23342));
+        assertThat(result.get(0).getValues().length, is(23342));
+        
+        assertThat(result.get(0).getValues()[0], is(14.0));
+        assertThat(result.get(0).getValues()[1], is(0.0));
+        assertThat(result.get(0).getValues()[2], is(0.0));
+        
+        for (Double value : result.get(0).getValues()) {
+            assertThat(value, notNullValue());
+        }
+
+        assertThat(result.get(0).getMeasuredItem().getElement(), is("simpleFunction"));
+        assertThat(result.get(0).getMeasuredItem().getMainFile(), is("dummy_test.c"));
+        assertThat(result.get(0).getMeasuredItem().getLineNo(), is(-1));
+    }
+    
 }

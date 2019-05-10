@@ -25,39 +25,46 @@ import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
-import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
- * 
  * Runs multiple metrics in threads and reuses the threads.
+ *
  * @author el-sharkawy
+ * @author Adam
  */
 class FunctionMetricsExecutionThreadPool {
     
     /**
      * One Thread, responsible for running one partition of metrics.
-     *
-     * @author el-sharkawy
      */
     private class MetricThread extends Thread {
-        /**
-         * The offset specifies how many metrics are &quot;ordered&quot; before the first metric of this thread.
-         * This is required to keep all results of all threads always in the same order.
-         */
-        private int offset;
-        private AbstractFunctionMetric<?>[] metrics;
+        
         private CodeFunction function;
+        
+        private int startIndex;
+        
+        private int endIndex;
+        
+        /**
+         * Creates a {@link MetricThread} for the given interval of metrics.
+         * 
+         * @param startIndex The index of the first metric that this thread should calculate, inclusive.
+         * @param endIndex The index of the last metric that this thread should calculate, exclusive.
+         */
+        public MetricThread(int startIndex, int endIndex) {
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+        }
         
         @Override
         public void run() {
-            for (int i = 0; i < metrics.length; i++) {
-                int index = offset + i;
-                Number result = metrics[i].compute(function);
+            for (int i = startIndex; i < endIndex; i++) {
+                Number result = notNull(metrics.get(i)).compute(function);
                 if (result instanceof Double && round) {
-                    values[index] = Math.floor(result.doubleValue() * 100) / 100;
+                    resultValues[i] = Math.floor(result.doubleValue() * 100) / 100;
                 } else {
-                    values[index] = (null != result) ? result.doubleValue() : null;
+                    resultValues[i] = (null != result) ? result.doubleValue() : null;
                 }
             }
         }
@@ -78,11 +85,33 @@ class FunctionMetricsExecutionThreadPool {
      */
     private static final Logger LOGGER = Logger.get();
     
-    private final MetricThread[] metricThreads;
+    /**
+     * A list of all metrics that should be calculated.
+     */
+    private final @NonNull List<@NonNull AbstractFunctionMetric<?>> metrics;
+    
+    /**
+     * The list of names of the {@link #metrics}. Must be same size as {@link #metrics}.
+     */
     private final @NonNull String @NonNull [] metricNames;
+    
+    /**
+     * The threads that will compute the metric values.
+     */
+    private final @NonNull MetricThread @NonNull [] metricThreads;
+    
     private final boolean round;
-    private final @Nullable Double @NonNull [] values;
+    
+    /**
+     * {@link #metricThreads} write directly into this. Must be same size as {@link #metrics}.
+     */
+    private final @Nullable Double @NonNull [] resultValues;
+    
+    /**
+     * Cache first result, to allow for cheaper creation of following {@link MultiMetricResult}s.
+     */
     private MultiMetricResult firstResult;
+    
     
     /**
      * Sole constructor for this class, initializes all threads, but does not start them.
@@ -94,27 +123,22 @@ class FunctionMetricsExecutionThreadPool {
     FunctionMetricsExecutionThreadPool(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
         @NonNull String @NonNull [] metricNames, int nThreads, boolean round) {
         
-        this.round = round;
+        this.metrics = allMetrics;
         this.metricNames = metricNames;
-        values = new @Nullable Double[allMetrics.size()];
+        this.round = round;
+        this.resultValues = new @Nullable Double[allMetrics.size()];
+        
         int partitionSize = (int) Math.ceil((double) allMetrics.size() / nThreads);
         
-        metricThreads = new MetricThread[nThreads];
+        metricThreads = new @NonNull MetricThread[nThreads];
         for (int i = 0; i < metricThreads.length; i++) {
-            metricThreads[i] = new MetricThread();
-            
             // Start of interval (inclusive)
-            final int partionStart = i * partitionSize;
+            int partitionStart = i * partitionSize;
             // End of interval (exclusive)
-            final int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
-            int thisPartionSize = partitionEnd - partionStart;
+            int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
             
-            int startIndex = 0;
-            for (int j = partionStart; j < partitionEnd; j++) {
-                metricThreads[i].offset = i * partitionSize;
-                metricThreads[i].metrics = new AbstractFunctionMetric<?>[thisPartionSize];
-                metricThreads[i].metrics[startIndex++] = NullHelpers.notNull(allMetrics.get(j));
-            }
+            metricThreads[i] = new MetricThread(partitionStart, partitionEnd);
+            metricThreads[i].setName("MetricThread-" + (i + 1));
         }
     }
     
@@ -144,11 +168,11 @@ class FunctionMetricsExecutionThreadPool {
         MultiMetricResult result;
         if (null == firstResult) {
             // Initializes header
-            firstResult = new MultiMetricResult(funcDescription, metricNames, values);
+            firstResult = new MultiMetricResult(funcDescription, metricNames, resultValues);
             result = firstResult;
         } else {
             // Less memory/time consuming
-            result = new MultiMetricResult(funcDescription, firstResult, values);
+            result = new MultiMetricResult(funcDescription, firstResult, resultValues);
         }
         
         return result;
