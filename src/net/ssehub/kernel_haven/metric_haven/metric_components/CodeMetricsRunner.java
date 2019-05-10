@@ -28,8 +28,8 @@ import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
@@ -290,6 +290,43 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         }
     }
 
+    /**
+     * Instantiates the desired metrics.
+     * 
+     * @param params The {@link MetricCreationParameters} with no weights set.
+     * 
+     * @return The list of metrics to run.
+     * 
+     * @throws SetUpException If creating metrics fails.
+     */
+    protected @NonNull List<@NonNull AbstractFunctionMetric<?>> instantiateMetircs(
+            @NonNull MetricCreationParameters params) throws SetUpException {
+        
+        List<@NonNull AbstractFunctionMetric<?>> result;
+        
+        params.readTypeWeights(config);
+        params.readHierarchyWeights(config);
+        params.setSingleMetricExecution(singleVariationSpecified);
+        if (singleVariationSpecified) {
+            params.setScatteringDegree(sdValue);
+            params.setCTCR(ctcrValue);
+            params.setDistance(distanceValue);
+            params.setFeatureTypes(varTypeValue);
+            params.setHierarchyType(hierarchyValue);
+            params.setStructuralType(structureValue);
+            params.setMetricSpecificSettingValue(metricSpecificValue);
+            params.setFeatureSizeType(fsValue);
+        }
+        
+        if (metricClass == null) {
+            result = MetricFactory.createAllVariations(params);
+        } else {
+            result = MetricFactory.createAllVariations(notNull(metricClass), params);
+        }
+        
+        return result;
+    }
+    
     @Override
     protected void execute() {
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
@@ -298,30 +335,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         FeatureSizeContainer fsContainer = (null != fsComponent) ? fsComponent.getNextResult() : null;
         FunctionMap functionMap = (null != fmComponent) ? fmComponent.getNextResult() : null;
         
+        MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer, fsContainer);
+        params.setFunctionMap(functionMap);
+        
         List<@NonNull AbstractFunctionMetric<?>> allMetrics;
         try {
-            MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer, fsContainer);
-            params.readTypeWeights(config);
-            params.readHierarchyWeights(config);
-            params.setFunctionMap(functionMap);
-            params.setSingleMetricExecution(singleVariationSpecified);
-            if (singleVariationSpecified) {
-                params.setScatteringDegree(sdValue);
-                params.setCTCR(ctcrValue);
-                params.setDistance(distanceValue);
-                params.setFeatureTypes(varTypeValue);
-                params.setHierarchyType(hierarchyValue);
-                params.setStructuralType(structureValue);
-                params.setMetricSpecificSettingValue(metricSpecificValue);
-                params.setFeatureSizeType(fsValue);
-            }
-            
-            if (metricClass == null) {
-                allMetrics = MetricFactory.createAllVariations(params);
-            } else {
-                allMetrics = MetricFactory.createAllVariations(notNull(metricClass), params);
-            }
-            
+            allMetrics = instantiateMetircs(params);
         } catch (SetUpException e) {
             LOGGER.logException("Could not create metric instances", e);
             return;
@@ -353,18 +372,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         }
         progress.close();
     }
-//        
-//        CodeFunction function;
-//        while ((function = codeFunctionComponent.getNextResult()) != null) {
-//            if (nThreads == 1) {
-//                runForSingleFunctionSingleThread(allMetrics, metrics, function);
-//            } else {
-//                runForSingleFunction(allMetrics, metrics, function);
-//            }
-//            
-//            progress.processedOne();
-//        }
-    
     
     /**
      * Executes all metric variations for a single function.
@@ -400,63 +407,6 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             addResult(result);
         }
     }
-
-//    /**
-//     * Executes all metric variations for a single function.
-//     * @param allMetrics All metric instances to run.
-//     * @param metricNames The name of the metrics in the same order.
-//     * @param function The function to measure.
-//     */
-//    @SuppressWarnings("null")
-//    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-//        @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
-//        
-//        final @Nullable Double @NonNull [] values = new @Nullable Double[allMetrics.size()];
-//        
-//        Thread[] threads = new Thread[nThreads];
-//        int partitionSize = (int) Math.ceil((double) allMetrics.size() / nThreads);
-//        for (int i = 0; i < nThreads; i++) {
-//            // Start of interval (inclusive)
-//            final int partionStart = i * partitionSize;
-//            // End of interval (exclusive)
-//            final int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
-//            
-//            threads[i] = new Thread(() -> {
-//                
-//                for (int j = partionStart; j < partitionEnd; j++) {
-//                    Number result = allMetrics.get(j).compute(function);
-//                    if (result instanceof Double && round) {
-//                        values[j] = Math.floor(result.doubleValue() * 100) / 100;
-//                    } else {
-//                        values[j] = (null != result) ? result.doubleValue() : null;
-//                    }
-//                }
-//                
-//            });
-//            
-//            threads[i].start();
-//        }
-//        
-//        for (Thread thread : threads) {
-//            try {
-//                thread.join();
-//            } catch (InterruptedException e) {
-//                LOGGER.logException("Could not join metric threads for joining the result", e);
-//            }
-//        }
-//        
-//        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-//            function.getFunction().getLineStart(), function.getName());
-//        if (null == firstResult) {
-//            // Initializes header
-//            firstResult = new MultiMetricResult(funcDescription, metricNames, values);
-//            addResult(firstResult);
-//        } else {
-//            // Less memory/time consuming
-//            MultiMetricResult result = new MultiMetricResult(funcDescription, firstResult, values);
-//            addResult(result);
-//        }
-//    }
 
     @Override
     public @NonNull String getResultName() {

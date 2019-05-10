@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 University of Hildesheim, Software Systems Engineering
+ * Copyright 2019 University of Hildesheim, Software Systems Engineering
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
-import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +24,6 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
-import net.ssehub.kernel_haven.config.Setting;
-import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric.BlockMeasureType;
@@ -59,50 +55,21 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.FeatureSiz
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.ScatteringWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.WeigthsCache;
-import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
-import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
-import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
  * Hard coded list of metrics to run.
+ *
  * @author Sascha El-Sharkawy
+ * @author Adam
  */
-public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
-    
-    public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
-        Type.INTEGER, true, "1", "Defines the number of threads to use for calculating metrics. Must be >= 1.");
-    
-    public static final @NonNull Setting<@NonNull Boolean> ROUND_RESULTS = new Setting<>("metrics.round_results",
-        Type.BOOLEAN, true, "false", "If turned on, results will be limited to 2 digits after the comma (0.005 will be "
-            + "rounded up). This is maybe neccessary to limit the disk usage.");
-    
-    public static final @NonNull Setting<@Nullable List<@NonNull String>> METRICS_SETTING = new Setting<>(
-            "metrics.code_metrics", Type.STRING_LIST, false, null,
-            "Defines a list of fully qualified class names of metrics that the "
-            + IndividualCodeMetricsRunner.class.getName() + " component should execute.");
-    
-    
-    private boolean round = false;
-    
-    private @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent;
-    private @Nullable AnalysisComponent<VariabilityModel> varModelComponent;
-    private @Nullable AnalysisComponent<BuildModel> bmComponent;
-    private @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent;
-    private @Nullable AnalysisComponent<FunctionMap> fmComponent;
-    private @Nullable AnalysisComponent<FeatureSizeContainer> fsComponent;
-    
-    private int nThreads;
-    
-    private MultiMetricResult firstResult;
-    
+public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
+
     /**
      * Specifies a metric selection without any weights, used for
      * {@link IndividualCodeMetricsRunner#createAllAtomicVariations(MetricCreationParameters)}.
-     * @author El-Sharkawy
-     *
      */
     private static class MetricSelection {
         
@@ -137,8 +104,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
     public IndividualCodeMetricsRunner(@NonNull Configuration config,
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent) throws SetUpException {
         
-        this(config, codeFunctionComponent, null, null, null, null);
-        
+        super(config, codeFunctionComponent, null, null, null, null);
     }
     
     /**
@@ -154,8 +120,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
         @NonNull AnalysisComponent<VariabilityModel> varModelComponent) throws SetUpException {
         
-        this(config, codeFunctionComponent, varModelComponent, null, null, null);
-        
+        super(config, codeFunctionComponent, varModelComponent, null, null, null);
     }
     
     /**
@@ -173,8 +138,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         @NonNull AnalysisComponent<VariabilityModel> varModelComponent,
         @NonNull AnalysisComponent<BuildModel> bmComponent) throws SetUpException {
         
-        this(config, codeFunctionComponent, varModelComponent, bmComponent, null, null);
-        
+        super(config, codeFunctionComponent, varModelComponent, bmComponent, null, null);
     }
     
     /**
@@ -198,7 +162,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         @Nullable AnalysisComponent<ScatteringDegreeContainer> sdComponent,
         @Nullable AnalysisComponent<FunctionMap> fmComponent) throws SetUpException {
         
-        this(config, codeFunctionComponent, varModelComponent, bmComponent, sdComponent, fmComponent, null);
+        super(config, codeFunctionComponent, varModelComponent, bmComponent, sdComponent, fmComponent, null);
     }
     
     /**
@@ -224,28 +188,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         @Nullable AnalysisComponent<FunctionMap> fmComponent,
         @Nullable AnalysisComponent<FeatureSizeContainer> fsComponent) throws SetUpException {
         
-        super(config);
-        
-        this.codeFunctionComponent = codeFunctionComponent;
-        this.varModelComponent = varModelComponent;
-        this.bmComponent = bmComponent;
-        this.sdComponent = sdComponent;
-        this.fmComponent = fmComponent;
-        this.fsComponent = fsComponent;
-        
-        config.registerSetting(MAX_THREADS);
-        nThreads = config.getValue(MAX_THREADS);
-        if (nThreads <= 0) {
-            throw new SetUpException("Need at least one thread specified in " + MAX_THREADS.getKey()
-                + " (got " + nThreads + ")");
-        }
-        
-        try {
-            config.registerSetting(ROUND_RESULTS);
-            round = config.getValue(ROUND_RESULTS);
-        } catch (SetUpException exc) {
-            throw new SetUpException("Could not load configuration setting " + ROUND_RESULTS.getKey());
-        }
+        super(config, codeFunctionComponent, varModelComponent, bmComponent, sdComponent, fmComponent, fsComponent);
     }
     
     /**
@@ -369,7 +312,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
      * @throws SetUpException If creation of specified metrics is not possible (wrong set-up)
      */
     //CHECKSTYLE:OFF // Hard coded list of metrics requires more than 70 lines
-    private List<@NonNull AbstractFunctionMetric<?>> createAllAtomicVariations(MetricCreationParameters params)
+    private @NonNull List<@NonNull AbstractFunctionMetric<?>> createAllAtomicVariations(MetricCreationParameters params)
         throws SetUpException {
     //CHECKSTYLE:ON
         
@@ -515,7 +458,7 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
             new MetricSelection(FanInOut.class, FanType.VP_FAN_IN_LOCALLY, false),
             new MetricSelection(FanInOut.class, FanType.VP_FAN_OUT_GLOBALLY, false),
             new MetricSelection(FanInOut.class, FanType.VP_FAN_OUT_LOCALLY, false),
-            };
+        };
         return selectedMetrics;
     }
     
@@ -591,146 +534,20 @@ public class IndividualCodeMetricsRunner extends AnalysisComponent<MultiMetricRe
         
         return metrics;
     }
-   
     
     @Override
-    protected void execute() {
-        VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
-        BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
-        ScatteringDegreeContainer sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
-        FeatureSizeContainer fsContainer = (null != fsComponent) ? fsComponent.getNextResult() : null;
-        FunctionMap functionMap = (null != fmComponent) ? fmComponent.getNextResult() : null;
+    protected @NonNull List<@NonNull AbstractFunctionMetric<?>> instantiateMetircs(
+            @NonNull MetricCreationParameters params) throws SetUpException {
         
-        List<@NonNull AbstractFunctionMetric<?>> allMetrics = null;
-        try {
-            MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer, fsContainer);
-            params.setFunctionMap(functionMap);
-//            allMetrics = createMetrics(params);
-            allMetrics = createAllAtomicVariations(params);
-//            allMetrics = createMetricSet1(params);
-            logCreatedMetrics(allMetrics);
-        } catch (SetUpException e) {
-            LOGGER.logException("Could not create metric instances", e);
-            return;
-        }
-        
-        String[] metrics = new String[allMetrics.size()];
-        int metricsIndex = 0;
-        for (AbstractFunctionMetric<?> metric : allMetrics) {
-            metrics[metricsIndex++] = metric.getResultName();
-        }
-        
-        ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
-        
-        CodeFunction function;
-        while ((function = codeFunctionComponent.getNextResult()) != null) {
-            if (nThreads == 1) {
-                runForSingleFunctionSingleThread(allMetrics, metrics, function);
-            } else {
-                runForSingleFunction(allMetrics, metrics, function);
-            }
-            
-            progress.processedOne();
-        }
-        
-        progress.close();
+        List<@NonNull AbstractFunctionMetric<?>> result = createAllAtomicVariations(params);
+
+        logCreatedMetrics(result);
+        return result;
     }
     
-    /**
-     * Executes all metric variations for a single function.
-     * @param allMetrics All metric instances to run.
-     * @param metricNames The name of the metrics in the same order.
-     * @param function The function to measure.
-     */
-    private void runForSingleFunctionSingleThread(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-        @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
-        
-        @Nullable Double @NonNull [] values = new @Nullable Double[allMetrics.size()];
-        
-        int i = 0;
-        for (AbstractFunctionMetric<?> metric : allMetrics) {
-            Number result = metric.compute(function);
-            
-            if (result instanceof Double && round) {
-                values[i++] = Math.floor(result.doubleValue() * 100) / 100;
-            } else {
-                values[i++] = (null != result) ? result.doubleValue() : null;
-            }
-        }
-        
-        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-                function.getFunction().getLineStart(), function.getName());
-        if (null == firstResult) {
-            // Initializes header
-            firstResult = new MultiMetricResult(funcDescription, metricNames, values);
-            addResult(firstResult);
-        } else {
-            // Less memory/time consuming
-            MultiMetricResult result = new MultiMetricResult(funcDescription, notNull(firstResult), values);
-            addResult(result);
-        }
-    }
-
-    /**
-     * Executes all metric variations for a single function.
-     * @param allMetrics All metric instances to run.
-     * @param metricNames The name of the metrics in the same order.
-     * @param function The function to measure.
-     */
-    @SuppressWarnings("null")
-    private void runForSingleFunction(@NonNull List<@NonNull AbstractFunctionMetric<?>> allMetrics,
-        @NonNull String @NonNull [] metricNames, @NonNull CodeFunction function) {
-        
-        final @Nullable Double @NonNull [] values = new @Nullable Double[allMetrics.size()];
-        
-        Thread[] threads = new Thread[nThreads];
-        int partitionSize = (int) Math.ceil((double) allMetrics.size() / nThreads);
-        for (int i = 0; i < nThreads; i++) {
-            // Start of interval (inclusive)
-            final int partionStart = i * partitionSize;
-            // End of interval (exclusive)
-            final int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
-            
-            threads[i] = new Thread(() -> {
-                
-                for (int j = partionStart; j < partitionEnd; j++) {
-                    Number result = allMetrics.get(j).compute(function);
-                    if (result instanceof Double && round) {
-                        values[j] = Math.floor(result.doubleValue() * 100) / 100;
-                    } else {
-                        values[j] = (null != result) ? result.doubleValue() : null;
-                    }
-                }
-                
-            });
-            
-            threads[i].start();
-        }
-        
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                LOGGER.logException("Could not join metric threads for joining the result", e);
-            }
-        }
-        
-        MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
-            function.getFunction().getLineStart(), function.getName());
-        if (null == firstResult) {
-            // Initializes header
-            firstResult = new MultiMetricResult(funcDescription, metricNames, values);
-            addResult(firstResult);
-        } else {
-            // Less memory/time consuming
-            MultiMetricResult result = new MultiMetricResult(funcDescription, firstResult, values);
-            addResult(result);
-        }
-    }
-
     @Override
     public @NonNull String getResultName() {
         return "SpecifiedCodeFunctions";
     }
-
+    
 }
