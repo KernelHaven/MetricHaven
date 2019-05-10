@@ -536,7 +536,9 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
     }
     
     @Override
+    //CHECKSTYLE:OFF // TODO: checkstyle complains about wrong indentation here?
     protected @NonNull List<@NonNull AbstractFunctionMetric<?>> instantiateMetircs(
+    //CHECKSTYLE:ON
             @NonNull MetricCreationParameters params) throws SetUpException {
         
         List<@NonNull AbstractFunctionMetric<?>> result = createAllAtomicVariations(params);
