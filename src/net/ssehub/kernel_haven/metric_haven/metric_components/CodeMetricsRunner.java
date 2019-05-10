@@ -369,6 +369,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
                 addResult(result);
                 progress.processedOne();
             }
+            
+            threadPool.cleanup();
         }
         progress.close();
     }

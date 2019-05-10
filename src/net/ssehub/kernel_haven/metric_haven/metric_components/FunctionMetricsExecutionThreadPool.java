@@ -18,6 +18,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -40,8 +41,6 @@ class FunctionMetricsExecutionThreadPool {
      */
     private class MetricThread extends Thread {
         
-        private CodeFunction function;
-        
         private int startIndex;
         
         private int endIndex;
@@ -59,23 +58,31 @@ class FunctionMetricsExecutionThreadPool {
         
         @Override
         public void run() {
-            for (int i = startIndex; i < endIndex; i++) {
-                Number result = notNull(metrics.get(i)).compute(function);
-                if (result instanceof Double && round) {
-                    resultValues[i] = Math.floor(result.doubleValue() * 100) / 100;
-                } else {
-                    resultValues[i] = (null != result) ? result.doubleValue() : null;
+            while (true) {
+                try {
+                    synchronized (this) {
+                        wait();
+                    }
+                } catch (InterruptedException e) {
+                    LOGGER.logException("Can't wait", e);
                 }
+                
+                if (currentFunction == null) {
+                    break;
+                } else {
+                    for (int i = startIndex; i < endIndex; i++) {
+                        Number result = notNull(metrics.get(i)).compute(currentFunction);
+                        if (result instanceof Double && round) {
+                            resultValues[i] = Math.floor(result.doubleValue() * 100) / 100;
+                        } else {
+                            resultValues[i] = (null != result) ? result.doubleValue() : null;
+                        }
+                    }
+                    
+                    threadsDone.release();
+                }
+                
             }
-        }
-        
-        /**
-         * Starts the metric execution on the specified function.
-         * @param function The function to measure.
-         */
-        private void start(@NonNull CodeFunction function) {
-            this.function = function;
-            start();
         }
         
     }
@@ -102,6 +109,8 @@ class FunctionMetricsExecutionThreadPool {
     
     private final boolean round;
     
+    private volatile @Nullable CodeFunction currentFunction;
+    
     /**
      * {@link #metricThreads} write directly into this. Must be same size as {@link #metrics}.
      */
@@ -111,6 +120,8 @@ class FunctionMetricsExecutionThreadPool {
      * Cache first result, to allow for cheaper creation of following {@link MultiMetricResult}s.
      */
     private MultiMetricResult firstResult;
+    
+    private Semaphore threadsDone = new Semaphore(0);
     
     
     /**
@@ -138,7 +149,9 @@ class FunctionMetricsExecutionThreadPool {
             int partitionEnd = Math.min((i + 1) * partitionSize, allMetrics.size());
             
             metricThreads[i] = new MetricThread(partitionStart, partitionEnd);
+            metricThreads[i].setDaemon(true);
             metricThreads[i].setName("MetricThread-" + (i + 1));
+            metricThreads[i].start();
         }
     }
     
@@ -148,18 +161,19 @@ class FunctionMetricsExecutionThreadPool {
      * @return The result of the metric execution.
      */
     public @NonNull MultiMetricResult compute(@NonNull CodeFunction function) {
+        currentFunction = function;
         // Start all threads on the passed function
         for (MetricThread metricThread : metricThreads) {
-            metricThread.start(function);
+            synchronized (metricThread) {
+                metricThread.notify();
+            }
         }
         
         // Wait for all threads to be finished
-        for (MetricThread metricThread : metricThreads) {
-            try {
-                metricThread.join();
-            } catch (InterruptedException e) {
-                LOGGER.logException("Could not join metric threads for joining the result", e);
-            }
+        try {
+            threadsDone.acquire(metricThreads.length);
+        } catch (InterruptedException e) {
+            LOGGER.logException("Could not join metric threads for joining the result", e);
         }
         
         MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
@@ -177,4 +191,18 @@ class FunctionMetricsExecutionThreadPool {
         
         return result;
     }
+    
+    /**
+     * Signals that this pool is done, no more calls to {@link #compute(CodeFunction)} will follow.
+     */
+    public void cleanup() {
+        currentFunction = null;
+        // notify all threads that we are done
+        for (MetricThread metricThread : metricThreads) {
+            synchronized (metricThread) {
+                metricThread.notify();
+            }
+        }
+    }
+    
 }
