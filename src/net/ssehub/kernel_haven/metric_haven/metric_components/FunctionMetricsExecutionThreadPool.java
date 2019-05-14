@@ -24,6 +24,7 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MeasuredItem;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
+import net.ssehub.kernel_haven.util.BlockingQueue;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -41,6 +42,8 @@ class FunctionMetricsExecutionThreadPool {
      */
     private class MetricThread extends Thread {
         
+        private @NonNull BlockingQueue<@NonNull CodeFunction> functions;
+        
         private int startIndex;
         
         private int endIndex;
@@ -54,34 +57,23 @@ class FunctionMetricsExecutionThreadPool {
         public MetricThread(int startIndex, int endIndex) {
             this.startIndex = startIndex;
             this.endIndex = endIndex;
+            this.functions = new BlockingQueue<>();
         }
         
         @Override
         public void run() {
-            while (true) {
-                try {
-                    synchronized (this) {
-                        wait();
+            CodeFunction function;
+            while ((function = functions.get()) != null) {
+                for (int i = startIndex; i < endIndex; i++) {
+                    Number result = notNull(metrics.get(i)).compute(function);
+                    if (result instanceof Double && round) {
+                        resultValues[i] = Math.floor(result.doubleValue() * 100) / 100;
+                    } else {
+                        resultValues[i] = (null != result) ? result.doubleValue() : null;
                     }
-                } catch (InterruptedException e) {
-                    LOGGER.logException("Can't wait", e);
                 }
                 
-                if (currentFunction == null) {
-                    break;
-                } else {
-                    for (int i = startIndex; i < endIndex; i++) {
-                        Number result = notNull(metrics.get(i)).compute(currentFunction);
-                        if (result instanceof Double && round) {
-                            resultValues[i] = Math.floor(result.doubleValue() * 100) / 100;
-                        } else {
-                            resultValues[i] = (null != result) ? result.doubleValue() : null;
-                        }
-                    }
-                    
-                    threadsDone.release();
-                }
-                
+                threadsDone.release();
             }
         }
         
@@ -109,19 +101,17 @@ class FunctionMetricsExecutionThreadPool {
     
     private final boolean round;
     
-    private volatile @Nullable CodeFunction currentFunction;
-    
     /**
      * {@link #metricThreads} write directly into this. Must be same size as {@link #metrics}.
      */
-    private final @Nullable Double @NonNull [] resultValues;
+    private volatile @Nullable Double @NonNull [] resultValues;
     
     /**
      * Cache first result, to allow for cheaper creation of following {@link MultiMetricResult}s.
      */
     private MultiMetricResult firstResult;
     
-    private Semaphore threadsDone = new Semaphore(0);
+    private final Semaphore threadsDone = new Semaphore(0);
     
     
     /**
@@ -161,19 +151,19 @@ class FunctionMetricsExecutionThreadPool {
      * @return The result of the metric execution.
      */
     public @NonNull MultiMetricResult compute(@NonNull CodeFunction function) {
-        currentFunction = function;
+        // setup: create new result array
+        this.resultValues = new @Nullable Double[this.metrics.size()];
+        
         // Start all threads on the passed function
         for (MetricThread metricThread : metricThreads) {
-            synchronized (metricThread) {
-                metricThread.notify();
-            }
+            metricThread.functions.add(function);
         }
         
         // Wait for all threads to be finished
         try {
             threadsDone.acquire(metricThreads.length);
         } catch (InterruptedException e) {
-            LOGGER.logException("Could not join metric threads for joining the result", e);
+            LOGGER.logException("Could not wait for metric threads for getting the result", e);
         }
         
         MeasuredItem funcDescription = new MeasuredItem(notNull(function.getSourceFile().getPath().getPath()),
@@ -196,12 +186,9 @@ class FunctionMetricsExecutionThreadPool {
      * Signals that this pool is done, no more calls to {@link #compute(CodeFunction)} will follow.
      */
     public void cleanup() {
-        currentFunction = null;
         // notify all threads that we are done
         for (MetricThread metricThread : metricThreads) {
-            synchronized (metricThread) {
-                metricThread.notify();
-            }
+            metricThread.functions.end();
         }
     }
     
