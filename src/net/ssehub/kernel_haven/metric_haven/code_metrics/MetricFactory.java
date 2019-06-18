@@ -354,7 +354,7 @@ public class MetricFactory {
             config.registerSetting(MetricSettings.TYPE_WEIGHTS_SETTING);
             List<@NonNull String> list = config.getValue(MetricSettings.TYPE_WEIGHTS_SETTING);
             
-            if (list != null) {
+            if (!list.isEmpty()) {
                 typeWeights.clear();
                 
                 for (String element : list) {
@@ -396,7 +396,7 @@ public class MetricFactory {
             config.registerSetting(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
             List<@NonNull String> list = config.getValue(MetricSettings.HIERARCHY_WEIGHTS_SETTING);
             
-            if (list != null) {
+            if (!list.isEmpty()) {
                 hierarchyWeights.clear();
                 
                 for (String element : list) {

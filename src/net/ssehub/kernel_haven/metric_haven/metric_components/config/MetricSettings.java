@@ -15,9 +15,8 @@
  */
 package net.ssehub.kernel_haven.metric_haven.metric_components.config;
 
-import java.util.List;
-
 import net.ssehub.kernel_haven.config.EnumSetting;
+import net.ssehub.kernel_haven.config.ListSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric.BlockMeasureType;
@@ -27,7 +26,6 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
-import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
  * Definition of metric settings.
@@ -36,12 +34,12 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
  */
 public class MetricSettings {
     
-    public static final @NonNull Setting<@Nullable List<String>> FILTER_BY_FILES = new Setting<>(
-        "metrics.filter_results_by.files", Type.STRING_LIST, false, null, "If defined, the results are filter so that "
+    public static final @NonNull ListSetting<@NonNull String> FILTER_BY_FILES = new ListSetting<>(
+        "metrics.filter_results_by.files", Type.STRING, false, "If defined, the results are filter so that "
             + "the final results will contain only results for the specified files (comma separated list)");
     
-    public static final @NonNull Setting<@Nullable List<@NonNull String>> LINE_NUMBER_SETTING
-        = new Setting<>("analysis.code_function.lines", Type.STRING_LIST, false, null,
+    public static final @NonNull ListSetting<@NonNull String> LINE_NUMBER_SETTING
+        = new ListSetting<>("analysis.code_function.lines", Type.STRING, false,
             "Specifies, the files and line numbers that the CodeFunctionByLineFilter should filter the code functions "
             + "for. Each element in the list should have a colon separated file path and line number (e.g. "
             + "kernel/kernel.c:51 for line 51 in the file kernel/kernel.c). File paths are relative to the source "
@@ -105,9 +103,9 @@ public class MetricSettings {
     /**
      * Configuration of variability weight (for features): Definitions of weights for {@link #TYPE_MEASURING_SETTING}.
      */
-    public static final @NonNull Setting<@Nullable List<@NonNull String>> TYPE_WEIGHTS_SETTING
-        = new Setting<>("metrics.function_measures.type_weight_definitions", Type.STRING_LIST,
-            false, null, "Defines the weights to be used if " + TYPE_MEASURING_SETTING.getKey() + " is set to "
+    public static final @NonNull ListSetting<@NonNull String> TYPE_WEIGHTS_SETTING
+        = new ListSetting<>("metrics.function_measures.type_weight_definitions", Type.STRING,
+            false, "Defines the weights to be used if " + TYPE_MEASURING_SETTING.getKey() + " is set to "
                 + VariabilityTypeMeasureType.TYPE_WEIGHTS_BY_FILE.name() + "\n"
                 + "Define the weights in form of (separated by a comma): type:weight");
     
@@ -128,9 +126,9 @@ public class MetricSettings {
      * Configuration of variability weight (for features): Definitions of weights for
      * {@link #HIERARCHY_TYPE_MEASURING_SETTING}.
      */
-    public static final @NonNull Setting<@Nullable List<@NonNull String>> HIERARCHY_WEIGHTS_SETTING
-        = new Setting<>("metrics.function_measures.hierarchy_weight_definitions", Type.STRING_LIST,
-            false, null, "Defines the weights to be used if " + HIERARCHY_TYPE_MEASURING_SETTING.getKey()
+    public static final @NonNull ListSetting<@NonNull String> HIERARCHY_WEIGHTS_SETTING
+        = new ListSetting<>("metrics.function_measures.hierarchy_weight_definitions", Type.STRING,
+            false, "Defines the weights to be used if " + HIERARCHY_TYPE_MEASURING_SETTING.getKey()
                 + " is set to " + HierarchyType.HIERARCHY_WEIGHTS_BY_FILE.name() + "\n"
                 + "Define the weights in form of (separated by a comma): hierarchy:weight");
     

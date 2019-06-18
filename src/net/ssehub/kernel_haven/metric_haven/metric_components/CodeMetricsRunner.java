@@ -23,6 +23,7 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.ListSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.AbstractFunctionMetric;
@@ -67,8 +68,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         Type.BOOLEAN, true, "false", "If turned on, results will be limited to 2 digits after the comma (0.005 will be "
             + "rounded up). This is maybe neccessary to limit the disk usage.");
     
-    public static final @NonNull Setting<@Nullable List<@NonNull String>> METRICS_SETTING = new Setting<>(
-            "metrics.code_metrics", Type.STRING_LIST, false, null,
+    public static final @NonNull ListSetting<@NonNull String> METRICS_SETTING = new ListSetting<>(
+            "metrics.code_metrics", Type.STRING, false,
             "Defines a list of fully qualified class names of metrics that the "
             + CodeMetricsRunner.class.getName() + " component should execute.");
     
@@ -211,13 +212,10 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         config.registerSetting(METRICS_SETTING);
         List<@NonNull String> metricClassNames = config.getValue(METRICS_SETTING);
-        if (metricClassNames != null) {
+        if (!metricClassNames.isEmpty()) {
             if (metricClassNames.size() > 1) {
                 throw new SetUpException("Specifying more than one metric in " + METRICS_SETTING.getKey() + " is "
                         + "currently unsupported; either specify one or none (i.e. run all metrics)");
-            }
-            if (metricClassNames.isEmpty()) {
-                throw new SetUpException(METRICS_SETTING.getKey() + " contains no metrics");
             }
             
             try {

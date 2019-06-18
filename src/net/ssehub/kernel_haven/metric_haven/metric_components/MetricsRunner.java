@@ -15,6 +15,8 @@
  */
 package net.ssehub.kernel_haven.metric_haven.metric_components;
 
+import java.util.List;
+
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.analysis.PipelineAnalysis;
@@ -64,8 +66,8 @@ public class MetricsRunner extends PipelineAnalysis {
         
         lineFilter = false;
         config.registerSetting(MetricSettings.LINE_NUMBER_SETTING);
-        Object value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
-        if (null != value) {
+        List<String> value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
+        if (!value.isEmpty()) {
             lineFilter = true;
         }
     }
