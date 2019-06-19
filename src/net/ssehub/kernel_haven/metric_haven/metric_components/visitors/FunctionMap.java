@@ -90,6 +90,15 @@ public class FunctionMap {
             return presenceCondition;
         }
         
+        /**
+         * Returns whether this function is a function stub that does not contain a body implementation.
+         * @return <tt>true</tt> if this function location points to a function stub, <tt>false</tt> this function has
+         *     a body.
+         */
+        public boolean isStub() {
+            return isStub;
+        }
+        
         @Override
         public String toString() {
             return name;

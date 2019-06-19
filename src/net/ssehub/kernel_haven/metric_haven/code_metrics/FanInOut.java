@@ -245,9 +245,21 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     break;
                 case DEGREE_CENTRALITY_OUT_GLOBALLY:
                     // falls through
+                case DEGREE_CENTRALITY_OUT_NO_STUB_GLOBALLY:
+                    // falls through
+                case DEGREE_CENTRALITY_OUT_NO_STUB_LOCALLY:
+                    // falls through
+                case DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_GLOBALLY:
+                    // falls through
+                case DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_LOCALLY:
+                    // falls through
+                case DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_GLOBALLY:
+                    // falls through
+                case DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_LOCALLY:
+                    // falls through
                 case DEGREE_CENTRALITY_OUT_LOCALLY:
                     // Measures (locally/globally) the number of CALLED functions for a specified function
-                    if (isDesiredFunction(source, func)) {
+                    if (isDesiredFunction(source, func) && (!type.ignoreStubs || !target.isStub())) {
                         result += complexityOfCall(call.getCallCondition(), source.getFile(),
                             target.getPresenceCondition(), target.getFile());
                     }
@@ -342,14 +354,14 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         @Nullable Formula targetCondition, @Nullable File targetFile) {
 
         
-        long result = 0;
+        long result = 1;
         
         Set<Variable> processedVariables = new HashSet<>();
 
         File usageFile = callingFile;
         varFinder.clear();
         callingCondition.accept(varFinder);
-        boolean containsFeature = false;
+//        boolean containsFeature = false;
         for (Variable variable : varFinder.getVariables()) {
             String varName = variable.getName();
             /* By default weight will count unknown elements with 1, but this is already counted by 
@@ -362,13 +374,13 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     result += weight.getWeight(variable.getName());
                 }
                 processedVariables.add(variable);
-                containsFeature = true;
+//                containsFeature = true;
             }
         }
         
         // Process presence condition (location = callParticipant, some variables may be processed)        
         varFinder.clear();
-        if (null != targetCondition) {
+        if (null != targetCondition && !type.ignoreExternalVPs) {
             targetCondition.accept(varFinder);
             usageFile = targetFile;
             for (Variable variable : varFinder.getVariables()) {
@@ -382,15 +394,15 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
                     } else {
                         result += weight.getWeight(variable.getName());
                     }
-                    containsFeature = true;
+//                    containsFeature = true;
                 }
             }
         }
         
-        if (containsFeature) {
-            // Count also each connection embedded in a variation point
-            result += 1;
-        }
+//        if (containsFeature) {
+//            // Count also each connection embedded in a variation point
+//            result += 1;
+//        }
         
         return result;
     }
@@ -441,6 +453,15 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         
         resultName.append("(");
         resultName.append((type.isLocal) ? "local" : "global");
+        
+        if (type.ignoreStubs) {
+            resultName.append(" x No Stubs");
+        }
+        
+        if (type.ignoreExternalVPs) {
+            resultName.append(" x No ext. VPs");
+        }
+        
         resultName.append(")");
         
         return NullHelpers.notNull(resultName.toString());

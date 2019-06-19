@@ -25,6 +25,7 @@ import java.util.Map;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.ast.Code;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
@@ -137,7 +138,13 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
         String name = function.getName();
         File funcLocation = function.getSourceFile().getPath();
         Formula pc = function.getFunction().getPresenceCondition();
-        boolean isStub = function.getFunction().getNestedElementCount() > 0;
+        // Check if the function is a function stub / dummy function without implementation
+        boolean isStub = function.getFunction().getNestedElementCount() == 0;
+        if (!isStub) {
+            // Usually there should be an (empty) compound statement, even for empty functions
+            ISyntaxElement body = function.getFunction().getNestedElement(0);
+            isStub = body.getNestedElementCount() == 0;
+        }
         FunctionLocation funcImpl = new FunctionLocation(name, funcLocation, pc, isStub);
         
         return funcImpl;
