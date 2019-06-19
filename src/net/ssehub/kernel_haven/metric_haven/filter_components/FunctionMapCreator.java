@@ -17,6 +17,7 @@ package net.ssehub.kernel_haven.metric_haven.filter_components;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionM
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionCall;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionLocation;
 import net.ssehub.kernel_haven.util.ProgressLogger;
+import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
@@ -37,6 +39,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  * a complete code model for the whole source tree).
  * 
  * @author Adam
+ * @author El-Sharkawy
  */
 public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
 
@@ -58,22 +61,21 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
     
     @Override
     protected void execute() {
-        List<CodeFunction> allFunctions = new ArrayList<>();
+        List<@NonNull CodeFunction> allFunctions = new ArrayList<>();
         Map<String, List<FunctionLocation>> functionLocations = new HashMap<>();
         
         /*
          * Step one: Collect FunctionLocations for all functions
          * (also store allFunctions since we need to iterate over it again)
          */
-        
         CodeFunction function;
         while ((function = cmProvider.getNextResult()) != null)  {
             allFunctions.add(function);
             
             String name = function.getName();
-            functionLocations.putIfAbsent(name, new ArrayList<>());
-            functionLocations.get(name).add(new FunctionLocation(name, function.getSourceFile().getPath(),
-                    function.getFunction().getPresenceCondition()));
+            functionLocations.putIfAbsent(function.getName(), new ArrayList<>());
+            FunctionLocation funcImpl = determineFunctionLocation(function);
+            functionLocations.get(name).add(funcImpl);
         }
         
         ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()), allFunctions.size());
@@ -83,9 +85,8 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
          */
         FunctionMap result = new FunctionMap();
         
-        for (CodeFunction func : allFunctions) {
-            FunctionLocation source = new FunctionLocation(func.getName(), func.getSourceFile().getPath(),
-                    func.getFunction().getPresenceCondition());
+        for (@NonNull CodeFunction func : allFunctions) {
+            FunctionLocation source = determineFunctionLocation(func);
             
             for (int i = 0; i < func.getFunction().getNestedElementCount(); i++) {
                 func.getFunction().getNestedElement(i).accept(new ISyntaxElementVisitor() {
@@ -125,6 +126,21 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
         addResult(result);
         
         progress.close();
+    }
+
+    /**
+     * Converts a {@link CodeFunction} into a {@link FunctionLocation} by extracting required information.
+     * @param function The function to be converted.
+     * @return The location information for the specified function.
+     */
+    private @NonNull FunctionLocation determineFunctionLocation(@NonNull CodeFunction function) {
+        String name = function.getName();
+        File funcLocation = function.getSourceFile().getPath();
+        Formula pc = function.getFunction().getPresenceCondition();
+        boolean isStub = function.getFunction().getNestedElementCount() > 0;
+        FunctionLocation funcImpl = new FunctionLocation(name, funcLocation, pc, isStub);
+        
+        return funcImpl;
     }
 
     @Override

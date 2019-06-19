@@ -42,18 +42,25 @@ public class FunctionMap {
         private @NonNull File file;
         
         private @NonNull Formula presenceCondition;
+        
+        private boolean isStub;
 
         /**
          * Creates a new {@link FunctionLocation}.
          * 
          * @param name The name of the function.
          * @param file The source file of the function.
-         * @param presenceCondition The presence condition of the functino.
+         * @param presenceCondition The presence condition of the function.
+         * @param isStub <tt>true</tt> if this function is a function stub (function without a body), <tt>false</tt> if
+         *     the function has a body implementation.
          */
-        public FunctionLocation(@NonNull String name, @NonNull File file, @NonNull Formula presenceCondition) {
+        public FunctionLocation(@NonNull String name, @NonNull File file, @NonNull Formula presenceCondition,
+            boolean isStub) {
+            
             this.name = name;
             this.file = file;
             this.presenceCondition = presenceCondition;
+            this.isStub = isStub;
         }
 
         /**
