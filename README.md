@@ -91,7 +91,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- FanInOutMetric -->
   <tr>
     <td><code>FanInOutMetric</code></td>
-    <td>5.192</td>
+    <td>12.968</td>
     <td>Measures the number of incoming/outgoing function calls per function</td>
     <td>
       <code>metrics.fan_in_out.type</code>:
@@ -108,6 +108,8 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
         <li><code>DEGREE_CENTRALITY_IN_LOCALLY</code>: Measures <code>No. of features + 1</code> when function is called from the same file.</li>
         <li><code>DEGREE_CENTRALITY_OUT_GLOBALLY</code>: Measures <code>No. of features + 1</code> for function calls to other functions to anywhere in code.</li>
         <li><code>DEGREE_CENTRALITY_OUT_LOCALLY</code>: Measures <code>No. of features + 1</code> for function calls to other functions in the same file.</li>
+        <li><code>DEGREE_CENTRALITY_OUT_NO_STUB_*</code>: Degree centrality variations that do not count calls to empty function stubs (functions with an empty body).</li>
+        <li><code>DEGREE_CENTRALITY_OUT_*_NO_EXTERNAL_VPS_*</code>: Degree centrality variations that do not count features that are surrounded around called functions (external &#35;ifdefs).</li>
       </ul>
       <code>DEGREE_CENTRALITY_*</code> variations may be combined with any of the variability weights from below.
     </td>
@@ -137,7 +139,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <tr>
     <th>Total</th>
-    <td>23.342</td>
+    <td>31.118</td>
     <td></td>
     <td></td>
   </tr>
