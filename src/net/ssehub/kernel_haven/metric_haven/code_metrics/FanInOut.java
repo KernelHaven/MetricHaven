@@ -66,19 +66,68 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         
         // Classical + feature code: DegreeCentrality Metric
         DEGREE_CENTRALITY_IN_GLOBALLY(false, true), DEGREE_CENTRALITY_IN_LOCALLY(true, true),
-        DEGREE_CENTRALITY_OUT_GLOBALLY(false, true), DEGREE_CENTRALITY_OUT_LOCALLY(true, true);
+        DEGREE_CENTRALITY_OUT_GLOBALLY(false, true), DEGREE_CENTRALITY_OUT_LOCALLY(true, true),
+        DEGREE_CENTRALITY_OUT_NO_STUB_GLOBALLY(false, true, true, false),
+        DEGREE_CENTRALITY_OUT_NO_STUB_LOCALLY(true, true, true, false),
+        DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_GLOBALLY(false, true, false, true),
+        DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_LOCALLY(true, true, false, true),
+        DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_GLOBALLY(false, true, true, true),
+        DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_LOCALLY(true, true, true, true);
         
+        /**
+         * If <tt>true</tt> measure only Fan-In/Out of functions written in the same file.
+         */
         private boolean isLocal;
+        
+        /**
+         * If <tt>true</tt> weight Fan-In/Out by the number of involved variables + 1.
+         */
         private boolean isDegreeCentrality;
         
         /**
-         * Sole constructor.
+         * If <tt>true</tt> ignores functions that do not specify a function body.<p>
+         * The prerequisites are:
+         * <ul>
+         *   <li>Only useful for Fan-out</li>
+         *   <li>Only useful for variability versions {@link #isDegreeCentrality()}</li>   
+         * </ul>
+         */
+        private boolean ignoreStubs;
+
+        /**
+         * If <tt>true</tt> ignores &#35;ifdefs around function definitions.<p>
+         * The prerequisites are:
+         * <ul>
+         *   <li>Only useful for Fan-out</li>
+         *   <li>Only useful for variability versions {@link #isDegreeCentrality()}</li>   
+         * </ul>
+         */
+        private boolean ignoreExternalVPs;
+        
+        /**
+         * Symmetric constructor to set values for all non-optional parameters.
          * @param isLocal <tt>true</tt> if the metric measures fan-in/out only on the same file.
          * @param isDegreeCentrality <tt>true</tt> if this metric measures degree centrality.
          */
         private FanType(boolean isLocal, boolean isDegreeCentrality) {
             this.isLocal = isLocal;
             this.isDegreeCentrality = isDegreeCentrality;
+            ignoreStubs = false;
+            ignoreExternalVPs = false;
+        }
+        
+        /**
+         * Constructor to define all parameters (independently if they are optional or not).
+         * @param isLocal <tt>true</tt> if the metric measures fan-in/out only on the same file.
+         * @param isDegreeCentrality <tt>true</tt> if this metric measures degree centrality.
+         * @param ignoreStubs <tt>true</tt> this metric ignores method stubs while measuring DC-Out.
+         * @param ignoreExternalVPs <tt>true</tt> if this metric ignores external &#35;ifdefs while measuring DC-Out.
+         */
+        private FanType(boolean isLocal, boolean isDegreeCentrality, boolean ignoreStubs, boolean ignoreExternalVPs) {
+            this.isLocal = isLocal;
+            this.isDegreeCentrality = isDegreeCentrality;
+            this.ignoreStubs = ignoreStubs;
+            this.ignoreExternalVPs = ignoreExternalVPs;
         }
         
         /**
@@ -95,6 +144,22 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
          */
         public boolean isLocal() {
             return isDegreeCentrality;
+        }
+        
+        /**
+         * Returns whether the metric ignores functions that do not specify a function body. 
+         * @return <tt>true</tt> if only functions are measured, that have a non-empty body.
+         */
+        public boolean ignoreStubs() {
+            return ignoreStubs;
+        }
+        
+        /**
+         * Returns whether the metric ignores &#35;ifdefs around function definitions. 
+         * @return <tt>true</tt> if &#35;ifdefs around function definitions shall be ignored.
+         */
+        public boolean ignoreExternalVPs() {
+            return ignoreExternalVPs;
         }
     }
     
