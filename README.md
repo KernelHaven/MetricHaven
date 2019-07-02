@@ -1,4 +1,8 @@
-# MetricHaven
+<table style="width:100%">
+  <td><img src="Logo.png" width="160"/></td>
+  <td><h1>MetricHaven</h1></td>
+</table>
+
 
 ![Build Status](https://jenkins-2.sse.uni-hildesheim.de/buildStatus/icon?job=KH_MetricHaven)
 
