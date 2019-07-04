@@ -464,12 +464,14 @@ public class MetricFactory {
         tmpList.add(BlocksPerFunctionMetric.class);
         tmpList.add(TanglingDegree.class);
         tmpList.add(FanInOut.class);
+        tmpList.add(EigenVectorCentrality.class);
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);
         
         Map<@NonNull Class<? extends AbstractFunctionMetric<?>>, Setting<?>> settings = new HashMap<>();
         settings.put(BlocksPerFunctionMetric.class, MetricSettings.BLOCK_TYPE_SETTING);
         settings.put(CyclomaticComplexity.class, MetricSettings.CC_VARIABLE_TYPE_SETTING);
         settings.put(DLoC.class, MetricSettings.LOC_TYPE_SETTING);
+        settings.put(EigenVectorCentrality.class, MetricSettings.FAN_TYPE_SETTING);
         settings.put(FanInOut.class, MetricSettings.FAN_TYPE_SETTING);
         settings.put(NestingDepth.class, MetricSettings.ND_TYPE_SETTING);
         // Tangling degree does not specify metric-specific settings
