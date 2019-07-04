@@ -297,7 +297,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * 
      * @throws SetUpException If creating metrics fails.
      */
-    protected @NonNull List<@NonNull AbstractFunctionMetric<?>> instantiateMetircs(
+    protected @NonNull List<@NonNull AbstractFunctionMetric<?>> instantiateMetrics(
             @NonNull MetricCreationParameters params) throws SetUpException {
         
         List<@NonNull AbstractFunctionMetric<?>> result;
@@ -338,7 +338,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         
         List<@NonNull AbstractFunctionMetric<?>> allMetrics;
         try {
-            allMetrics = instantiateMetircs(params);
+            allMetrics = instantiateMetrics(params);
         } catch (SetUpException e) {
             LOGGER.logException("Could not create metric instances", e);
             return;

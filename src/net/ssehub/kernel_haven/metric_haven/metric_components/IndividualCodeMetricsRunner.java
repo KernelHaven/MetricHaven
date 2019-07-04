@@ -30,6 +30,7 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric
 import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity.CCType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.EigenVectorCentrality;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut.FanType;
@@ -411,8 +412,10 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
      * Creates a list of all (variability) metrics.
      * @return Variability metrics
      */
+    //CHECKSTYLE:OFF // Hard coded list of metrics requires more than 70 lines
     private static MetricSelection[] allAtomicMetrics() {
         MetricSelection[] selectedMetrics = {
+    //CHECKSTYLE:ON
             // VariablesPerFunction metric
             new MetricSelection(VariablesPerFunction.class, VarType.INTERNAL, true),
             new MetricSelection(VariablesPerFunction.class, VarType.EXTERNAL, true),
@@ -430,11 +433,30 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             new MetricSelection(NestingDepth.class, NDType.COMBINED_ND_MAX, true),
             new MetricSelection(NestingDepth.class, NDType.COMBINED_ND_AVG, true),
             
+            // EigenVectorCentrality
+            new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_IN_GLOBALLY, true),
+            new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_IN_LOCALLY, true),
+            new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_OUT_GLOBALLY, true),
+            new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_OUT_LOCALLY, true),
+            new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_OUT_NO_STUB_GLOBALLY, true),
+            new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_OUT_NO_STUB_LOCALLY, true),
+            new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_GLOBALLY,
+                true),
+            new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_LOCALLY,
+                true),
+            new MetricSelection(EigenVectorCentrality.class,
+                FanType.DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_LOCALLY, true),
+            
             // Fan-In/Out
             new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_IN_GLOBALLY, true),
             new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_IN_LOCALLY, true),
             new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_GLOBALLY, true),
             new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_LOCALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_STUB_GLOBALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_STUB_LOCALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_GLOBALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_LOCALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_LOCALLY, true),
             
             // Tangling Degree
             new MetricSelection(TanglingDegree.class, null, true),
@@ -450,6 +472,14 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             new MetricSelection(DLoC.class, LoFType.PLOF, false),
             new MetricSelection(NestingDepth.class, NDType.CLASSIC_ND_MAX, false),
             new MetricSelection(NestingDepth.class, NDType.CLASSIC_ND_AVG, false),
+            new MetricSelection(EigenVectorCentrality.class, FanType.CLASSICAL_FAN_IN_GLOBALLY, false),
+            new MetricSelection(EigenVectorCentrality.class, FanType.CLASSICAL_FAN_IN_LOCALLY, false),
+            new MetricSelection(EigenVectorCentrality.class, FanType.CLASSICAL_FAN_OUT_GLOBALLY, false),
+            new MetricSelection(EigenVectorCentrality.class, FanType.CLASSICAL_FAN_OUT_LOCALLY, false),
+            new MetricSelection(EigenVectorCentrality.class, FanType.VP_FAN_IN_GLOBALLY, false),
+            new MetricSelection(EigenVectorCentrality.class, FanType.VP_FAN_IN_LOCALLY, false),
+            new MetricSelection(EigenVectorCentrality.class, FanType.VP_FAN_OUT_GLOBALLY, false),
+            new MetricSelection(EigenVectorCentrality.class, FanType.VP_FAN_OUT_LOCALLY, false),
             new MetricSelection(FanInOut.class, FanType.CLASSICAL_FAN_IN_GLOBALLY, false),
             new MetricSelection(FanInOut.class, FanType.CLASSICAL_FAN_IN_LOCALLY, false),
             new MetricSelection(FanInOut.class, FanType.CLASSICAL_FAN_OUT_GLOBALLY, false),
@@ -536,10 +566,8 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
     }
     
     @Override
-    //CHECKSTYLE:OFF // TODO: checkstyle complains about wrong indentation here?
-    protected @NonNull List<@NonNull AbstractFunctionMetric<?>> instantiateMetircs(
-    //CHECKSTYLE:ON
-            @NonNull MetricCreationParameters params) throws SetUpException {
+    protected @NonNull List<@NonNull AbstractFunctionMetric<?>> instantiateMetrics(
+        @NonNull MetricCreationParameters params) throws SetUpException {
         
         List<@NonNull AbstractFunctionMetric<?>> result = createAllAtomicVariations(params);
 
