@@ -270,9 +270,3 @@ The follwoing classes execute all currently available metrics in one step, witho
 ## License
 
 This plugin is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
-
-## Used Libraries
-
-| Library | Version | License |
-|---------|---------|---------|
-| [Apache Commons Math](http://commons.apache.org/proper/commons-math/) | [3.6.1](http://mirror.funkfreundelandshut.de/apache//commons/math/binaries/commons-math3-3.6.1-bin.zip) |[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) |

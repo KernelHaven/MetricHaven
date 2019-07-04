@@ -17,12 +17,15 @@ package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 
 /**
@@ -168,14 +171,22 @@ public class FunctionMap {
     }
 
     private @NonNull Map<String, List<@NonNull FunctionCall>> functionCalls;
+    private @NonNull Map<String, List<FunctionLocation>> allFunctionLocations;
+    private @NonNull List<@NonNull CodeFunction> allFunctions;
     
     /**
      * Creates an empty {@link FunctionMap}.
+     * @param allFunctionLocations A map containing all {@link FunctionLocation}s of the analyzed program.
+     * @param allFunctions All code functions, including their ASTs.
      */
-    public FunctionMap() {
+    public FunctionMap(@NonNull Map<String, List<FunctionLocation>> allFunctionLocations,
+        @NonNull List<@NonNull CodeFunction> allFunctions) {
+        
         this.functionCalls = new HashMap<>();
+        this.allFunctionLocations = allFunctionLocations;
+        this.allFunctions = allFunctions;
     }
-    
+
     /**
      * Adds a {@link FunctionCall} to this map.
      * 
@@ -198,6 +209,23 @@ public class FunctionMap {
      */
     public @Nullable List<@NonNull FunctionCall> getFunctionCalls(@NonNull String functionName) {
         return this.functionCalls.get(functionName);
+    }
+    
+
+    /**
+     * Returns all {@link FunctionLocation}s of the analyzed program.
+     * @return All {@link FunctionLocation}s of the analyzed program.
+     */
+    public Map<String, List<FunctionLocation>> getAllFunctionLocations() {
+        return Collections.unmodifiableMap(allFunctionLocations);
+    }
+    
+    /**
+     * Returns all {@link CodeFunction}s including their ASTs of the analyzed program.
+     * @return All {@link CodeFunction}s of the analyzed program.
+     */
+    public @NonNull List<@NonNull CodeFunction> getAllFunctions() {
+        return NullHelpers.notNull(Collections.unmodifiableList(allFunctions));
     }
     
 }

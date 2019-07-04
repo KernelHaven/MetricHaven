@@ -187,7 +187,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         if (fMap == null) {
             throw new SetUpException("FanInOutMetric needs function FunctionMap, but was null");
         }
-        this.functions = fMap;
+        functions = fMap;
         
         if (!type.isDegreeCentrality && params.getWeight() != NoWeight.INSTANCE) {
             throw new UnsupportedMetricVariationException(getClass(), params.getWeight());
@@ -213,7 +213,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
     @Override
     protected Number computeResult(@NonNull FanInOutVisitor functionVisitor, CodeFunction func) {
     // CHECKSTYLE:ON
-        List</*@NonNull*/ FunctionCall> functionCalls = functions.getFunctionCalls(func.getName());
+        List</*@NonNull*/ FunctionCall> functionCalls = getFunctions().getFunctionCalls(func.getName());
         // TODO: @NonNull is commented out, because jacoco fails (probably https://github.com/jacoco/jacoco/issues/585)
         
         // Compute desired values
@@ -478,6 +478,14 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
          * - Global FanIn metric, they need to gather all function calls in other functions
          */
         return type.isLocal() || type.name().contains("_OUT_");
+    }
+
+    /**
+     * Returns the FunctionMap.
+     * @return The FunctionMap.
+     */
+    public @NonNull FunctionMap getFunctions() {
+        return functions;
     }
 
 }

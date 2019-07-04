@@ -84,7 +84,7 @@ public class FunctionMapCreator extends AnalysisComponent<FunctionMap> {
         /*
          * Step two: visit all functions to find function calls
          */
-        FunctionMap result = new FunctionMap();
+        FunctionMap result = new FunctionMap(functionLocations, allFunctions);
         
         for (@NonNull CodeFunction func : allFunctions) {
             FunctionLocation source = determineFunctionLocation(func);

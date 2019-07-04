@@ -20,8 +20,11 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -37,9 +40,11 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.Featu
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.FunctionMap.FunctionLocation;
 import net.ssehub.kernel_haven.metric_haven.multi_results.MultiMetricResult;
 import net.ssehub.kernel_haven.test_utils.AnalysisComponentExecuter;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attribute;
 
@@ -72,7 +77,9 @@ public class CodeMetricsRunnerTest {
         BuildModel bm = new BuildModel();
         ScatteringDegreeContainer sdc = new ScatteringDegreeContainer(new HashSet<>());
         FeatureSizeContainer fsContainer = new FeatureSizeContainer(varModel);
-        FunctionMap emptyMap = new FunctionMap();
+        @NonNull Map<String, List<FunctionLocation>> allFunctionLocations = new HashMap<>();
+        @NonNull List<@NonNull CodeFunction> allFunctions = new ArrayList<>();
+        FunctionMap emptyMap = new FunctionMap(allFunctionLocations, allFunctions);
         
         List<MultiMetricResult> result = AnalysisComponentExecuter.executeComponent(CodeMetricsRunner.class,
                 new TestConfiguration(new Properties()),
@@ -123,7 +130,9 @@ public class CodeMetricsRunnerTest {
         BuildModel bm = new BuildModel();
         ScatteringDegreeContainer sdc = new ScatteringDegreeContainer(new HashSet<>());
         FeatureSizeContainer fsContainer = new FeatureSizeContainer(varModel);
-        FunctionMap emptyMap = new FunctionMap();
+        @NonNull Map<String, List<FunctionLocation>> allFunctionLocations = new HashMap<>();
+        @NonNull List<@NonNull CodeFunction> allFunctions = new ArrayList<>();
+        FunctionMap emptyMap = new FunctionMap(allFunctionLocations, allFunctions);
         
         TestConfiguration config = new TestConfiguration(new Properties());
         config.registerSetting(CodeMetricsRunner.MAX_THREADS);
