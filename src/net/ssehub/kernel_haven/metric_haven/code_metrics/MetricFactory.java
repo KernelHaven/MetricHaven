@@ -27,6 +27,7 @@ import java.util.Map;
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
@@ -480,23 +481,6 @@ public class MetricFactory {
     }
     
     /**
-     * Detects enumerations declared in the specified metric class, these are used to create individual settings.
-     * @param metricClass The metric to instantiate by the factory.
-     * @return A list of all individual setting enumerations, probably 1, never <tt>null</tt>.
-     */
-    private static List<Class<?>> getSettings(@NonNull Class<? extends AbstractFunctionMetric<?>> metricClass) {
-        List<Class<?>> enumSettings = new ArrayList<>();
-        
-        for (Class<?> cls : metricClass.getDeclaredClasses()) {
-            if (Enum.class.isAssignableFrom(cls)) {
-                enumSettings.add(cls);
-            }
-        }
-        
-        return enumSettings;
-    }
-    
-    /**
      * Creates a single metric instance. Illegal combinations will silently be dropped (method returns <tt>null</tt>).
      * @param constructor The constructor of the metric to use.
      * @param params The parameters for creating the class ({@link VariabilityModel}, {@link BuildModel},
@@ -551,7 +535,11 @@ public class MetricFactory {
         @NonNull Class<? extends AbstractFunctionMetric<?>> metricClass) throws SetUpException {
         
         @NonNull List<@NonNull AbstractFunctionMetric<?>> result = new LinkedList<>();
-        List<Class<?>> enumSettings = getSettings(metricClass);
+        List<Class<?>> enumSettings = new ArrayList<>();
+        Setting<?> metricSetting = METRIC_SPECIFIC_SETTINGS.get(metricClass);
+        if (null != metricSetting && metricSetting instanceof EnumSetting<?>) {
+            enumSettings.add(((EnumSetting<?>) metricSetting).getEnumClass());
+        }
         
         try {
             Constructor<?> constructor = null;

@@ -78,7 +78,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <tr>
     <td><code>NestingDepthMetric</code></td>
     <td>5.186</td>
-    <td>Measures the number of nested constroll structures.</td>
+    <td>Measures the number of nested control structures.</td>
     <td>
       <code>metrics.nesting_depth.measured_type</code>:
       <ul>
@@ -90,6 +90,16 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
         <li><code>COMBINED_ND_AVG</code>: Average depth (within a function) of non-CPP and CPP structures.</li>
       </ul>
       All variations except for <code>CLASSIC_ND_*</code> may be combined with any of the variability weights from below.
+    </td>
+  </tr>
+  <!-- EigenVectorCentrality -->
+  <tr>
+    <td><code>EigenVectorCentrality</code></td>
+    <td>12.968</td>
+    <td>Eigenvector centrality (= recusrive version of FanInOut-metric).</td>
+    <td>
+      This metric uses the FanInOut metric and re-uses its
+      <code>metrics.fan_in_out.type</code> setting. Please refer to the FanInOut-metric for a description.
     </td>
   </tr>
   <!-- FanInOutMetric -->
@@ -143,7 +153,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <tr>
     <th>Total</th>
-    <td>31.118</td>
+    <td>44.086</td>
     <td></td>
     <td></td>
   </tr>

@@ -92,8 +92,8 @@ public class CodeMetricsRunnerTest {
         
         assertThat(result.size(), is(1));
         
-        assertThat(result.get(0).getMetrics().length, is(31118));
-        assertThat(result.get(0).getValues().length, is(31118));
+        assertThat(result.get(0).getMetrics().length, is(44086));
+        assertThat(result.get(0).getValues().length, is(44086));
         
         assertThat(result.get(0).getValues()[0], is(14.0));
         assertThat(result.get(0).getValues()[1], is(0.0));
@@ -132,6 +132,7 @@ public class CodeMetricsRunnerTest {
         FeatureSizeContainer fsContainer = new FeatureSizeContainer(varModel);
         @NonNull Map<String, List<FunctionLocation>> allFunctionLocations = new HashMap<>();
         @NonNull List<@NonNull CodeFunction> allFunctions = new ArrayList<>();
+        allFunctions.add(f1);
         FunctionMap emptyMap = new FunctionMap(allFunctionLocations, allFunctions);
         
         TestConfiguration config = new TestConfiguration(new Properties());
@@ -149,8 +150,8 @@ public class CodeMetricsRunnerTest {
         
         assertThat(result.size(), is(1));
         
-        assertThat(result.get(0).getMetrics().length, is(31118));
-        assertThat(result.get(0).getValues().length, is(31118));
+        assertThat(result.get(0).getMetrics().length, is(44086));
+        assertThat(result.get(0).getValues().length, is(44086));
         
         assertThat(result.get(0).getValues()[0], is(14.0));
         assertThat(result.get(0).getValues()[1], is(0.0));
