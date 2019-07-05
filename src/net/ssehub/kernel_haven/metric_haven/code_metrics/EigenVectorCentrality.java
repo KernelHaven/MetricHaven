@@ -17,8 +17,10 @@ package net.ssehub.kernel_haven.metric_haven.code_metrics;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
@@ -170,7 +172,7 @@ public class EigenVectorCentrality extends FanInOut {
     /**
      * Computes an ID for the {@link #dcValues} map.
      * @param path The path where the function is defined in.
-     * @param funcName The pname of the function.
+     * @param funcName The name of the function.
      * @return A (unique) ID for the {@link #dcValues} map. However line numbers are ignored.
      */
     private String toPathID(File path, String funcName) {
@@ -186,15 +188,20 @@ public class EigenVectorCentrality extends FanInOut {
         List<FunctionCall> functionCalls = getFunctions().getFunctionCalls(func.getName());
         if (null != functionCalls) {
             result = 0;
+            // Avoid counting neighbors twice -> Store already counted neigbors in this set
+            Set<String> alreadyProcessed = new HashSet<>();
             for (FunctionCall functionCall : functionCalls) {
                 String sourceID = toPathID(functionCall.getSource());
                 String targetID = toPathID(functionCall.getTarget());
-                if (!funcID.equals(sourceID)) {
-                    // Source is a neighbor that calls func as target
+                //getFanType().isOutMetric() && 
+                if (!funcID.equals(sourceID) && !alreadyProcessed.contains(sourceID)) {
+                    // Source is a neighbor that calls func as target -> Count value of source
                     result += dcValues.get(sourceID);
-                } else if (!funcID.equals(sourceID)) {
-                    // Target is a neighbor that is called by func
+                    alreadyProcessed.add(sourceID);
+                } else if (!funcID.equals(targetID) && !alreadyProcessed.contains(targetID)) {
+                    // Target is a neighbor that is called by func -> Count value of target
                     result += dcValues.get(targetID);
+                    alreadyProcessed.add(targetID);
                 }
                 // Else: Do not count recursive calls
             }

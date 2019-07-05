@@ -75,6 +75,11 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_LOCALLY(true, true, true, true);
         
         /**
+         * <tt>true</tt> if the measure is Fan-Out based, <tt>false</tt> if it is Fan-In based.
+         */
+        private boolean isOutMeasure;
+        
+        /**
          * If <tt>true</tt> measure only Fan-In/Out of functions written in the same file.
          */
         private boolean isLocal;
@@ -114,6 +119,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
             this.isDegreeCentrality = isDegreeCentrality;
             ignoreStubs = false;
             ignoreExternalVPs = false;
+            isOutMeasure = name().contains("_OUT_");
         }
         
         /**
@@ -124,8 +130,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
          * @param ignoreExternalVPs <tt>true</tt> if this metric ignores external &#35;ifdefs while measuring DC-Out.
          */
         private FanType(boolean isLocal, boolean isDegreeCentrality, boolean ignoreStubs, boolean ignoreExternalVPs) {
-            this.isLocal = isLocal;
-            this.isDegreeCentrality = isDegreeCentrality;
+            this(isLocal, isDegreeCentrality);
             this.ignoreStubs = ignoreStubs;
             this.ignoreExternalVPs = ignoreExternalVPs;
         }
@@ -160,6 +165,14 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
          */
         public boolean ignoreExternalVPs() {
             return ignoreExternalVPs;
+        }
+        
+        /**
+         * Specifies whether the metric measures outgoing or ingcoming connections.
+         * @return <tt>true</tt> if the measure is Fan-Out based, <tt>false</tt> if it is Fan-In based.
+         */
+        public boolean isOutMetric() {
+            return isOutMeasure;
         }
     }
     
@@ -484,8 +497,15 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
      * Returns the FunctionMap.
      * @return The FunctionMap.
      */
-    public @NonNull FunctionMap getFunctions() {
+    protected @NonNull FunctionMap getFunctions() {
         return functions;
     }
 
+    /**
+     * Returns the specified metric type.
+     * @return The selected metric type.
+     */
+    protected @NonNull FanType getFanType() {
+        return type;
+    }
 }

@@ -193,11 +193,16 @@ public class FunctionMap {
      * @param call The function call to add.
      */
     public void addFunctionCall(@NonNull FunctionCall call) {
-        this.functionCalls.putIfAbsent(call.getSource().getName(), new ArrayList<>());
-        this.functionCalls.get(call.getSource().getName()).add(call);
+        String srcName = call.getSource().getName();
+        String trgName = call.getTarget().getName();
+        this.functionCalls.putIfAbsent(srcName, new ArrayList<>());
+        this.functionCalls.get(srcName).add(call);
         
-        this.functionCalls.putIfAbsent(call.getTarget().getName(), new ArrayList<>());
-        this.functionCalls.get(call.getTarget().getName()).add(call);
+        // Avoid adding recursive calls twice
+        if (!srcName.equals(trgName)) {
+            this.functionCalls.putIfAbsent(trgName, new ArrayList<>());
+            this.functionCalls.get(trgName).add(call);
+        }
     }
     
     /**
