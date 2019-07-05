@@ -17,6 +17,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.ssehub.kernel_haven.SetUpException;
@@ -344,6 +345,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             return;
         }
         
+        prepareMetrics(allMetrics);
+        
         @NonNull String[] metrics = new @NonNull String[allMetrics.size()];
         int metricsIndex = 0;
         for (AbstractFunctionMetric<?> metric : allMetrics) {
@@ -371,6 +374,46 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             threadPool.cleanup();
         }
         progress.close();
+    }
+
+    /**
+     * Calls {@link AbstractFunctionMetric#prepare()} on all metrics that require that.
+     * @param allMetrics Already instantiated metrics, before they start their execution.
+     */
+    private void prepareMetrics(List<@NonNull AbstractFunctionMetric<?>> allMetrics) {
+        List<AbstractFunctionMetric<?>> metricsToPrepare = new ArrayList<>();
+        for (AbstractFunctionMetric<?> metric : allMetrics) {
+            if (metric.needsPreparation()) {
+                metricsToPrepare.add(metric);
+            }
+        }
+        
+        if (nThreads == 1) {
+            for (AbstractFunctionMetric<?> metric : metricsToPrepare) {
+                metric.prepare();
+            }
+        } else {
+            int partitionSize = (int) Math.ceil((double) metricsToPrepare.size() / nThreads);
+            List<Thread> threads = new ArrayList<>();
+            for (int i = 0; i < metricsToPrepare.size(); i += partitionSize) {
+                final int offSet = i;
+                final int end = Math.min(offSet + partitionSize, metricsToPrepare.size());
+                Thread th = new Thread(() -> {
+                    for (int j = offSet; j < end; j++) {
+                        metricsToPrepare.get(j).prepare();
+                    }                  
+                });
+                threads.add(th);
+                th.start();
+            }
+            for (Thread thread : threads) {
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    LOGGER.logException("Could not join prepration threds.", e);
+                }
+            }
+        }
     }
     
     /**

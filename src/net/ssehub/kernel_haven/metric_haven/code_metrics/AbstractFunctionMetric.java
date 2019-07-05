@@ -73,6 +73,21 @@ public abstract class AbstractFunctionMetric<V extends AbstractFunctionVisitor> 
     }
     
     /**
+     * Allows optional (threaded) computations after initialization and before function-wise metric execution.
+     */
+    public void prepare() {}
+    
+    /**
+     * Specifies whether a metric need a call of {@link #prepare()}.
+     * This is done for optimization purpose to avoid that many metrics that need that method are called in same thread
+     * and others that do not need that method are moved to other threads.
+     * @return <tt>true</tt>{@link #prepare()} needs to be called before execution.
+     */
+    public boolean needsPreparation() {
+        return false;
+    }
+    
+    /**
      * Atomic measurement of a code function (public interface). 
      * @param func The code function to measure.
      * 

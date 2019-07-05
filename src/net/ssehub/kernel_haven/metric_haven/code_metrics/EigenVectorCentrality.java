@@ -123,7 +123,16 @@ public class EigenVectorCentrality extends FanInOut {
         
         super(params);
         init();
-        computeDCValues();
+    }
+    
+    @Override
+    public void prepare() {
+        computeDCValues();        
+    }
+    
+    @Override
+    public boolean needsPreparation() {
+        return true;
     }
     
     /**

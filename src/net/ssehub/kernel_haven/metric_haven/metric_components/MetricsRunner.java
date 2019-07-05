@@ -22,6 +22,8 @@ import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.analysis.PipelineAnalysis;
 import net.ssehub.kernel_haven.analysis.SplitComponent;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.FunctionMapCreator;
@@ -42,11 +44,16 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class MetricsRunner extends PipelineAnalysis {
     
+    public static final @NonNull Setting<@NonNull Boolean> RUN_ATOMIC_METRICS = new Setting<>("metrics.run.atomic_set",
+        Type.BOOLEAN, true, "false", "If turned on, only the atomic set of metrics is executed. We treat all"
+                + "metric variations as atomic set that either are the metric without any weight or with at"
+                + "most one weight to avoid all combinations of weights.");
+    
     /**
      * Switch to disable default behavior to ignore configuration and run coded selection of metrics.
      * By default this should be set to <tt>false</tt> to process the configuration. 
      */
-    private static final boolean RUN_METRICS_SELECTED_BY_CODE = false;
+    private boolean runAtomicSet;
     
     /**
      * Whether a line filter has been configured. If this is <code>true</code>, a {@link CodeFunctionByLineFilter}
@@ -69,6 +76,13 @@ public class MetricsRunner extends PipelineAnalysis {
         List<String> value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
         if (!value.isEmpty()) {
             lineFilter = true;
+        }
+        
+        try {
+            config.registerSetting(RUN_ATOMIC_METRICS);
+            runAtomicSet = config.getValue(RUN_ATOMIC_METRICS);
+        } catch (SetUpException exc) {
+            throw new SetUpException("Could not load configuration setting " + RUN_ATOMIC_METRICS.getKey());
         }
     }
 
@@ -129,13 +143,12 @@ public class MetricsRunner extends PipelineAnalysis {
         
         AnalysisComponent<?> metricAnalysis;
         
-        if (!RUN_METRICS_SELECTED_BY_CODE) {
+        if (!runAtomicSet) {
             // Default case
             metricAnalysis = new CodeMetricsRunner(config, functionInput, getVmComponent(),
                 getBmComponent(), variabilityCounter, functionMapCreator, featureSizeCreator);
         } else {
-            LOGGER.logWarning2("MetricHaven was compiled to ignore the configuration and to run specific metrics. ",
-                "Please check the code of the MetricsRunner whether this behaviour is as expected.");
+            LOGGER.logWarning2("MetricHaven executes atomic set and ignores furtehr configuration of metrics.");
             metricAnalysis = new IndividualCodeMetricsRunner(config, functionInput, getVmComponent(),
                 getBmComponent(), variabilityCounter, functionMapCreator, featureSizeCreator);
         }
