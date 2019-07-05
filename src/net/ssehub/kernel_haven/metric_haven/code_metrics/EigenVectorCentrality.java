@@ -106,7 +106,7 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class EigenVectorCentrality extends FanInOut {
 
-    private Map<String, Double> dcValues = new HashMap<>();
+    private Map<String, Double> dcValues;
 
     /**
      * Creates a new {@link EigenVectorCentrality}-metric instance.
@@ -129,8 +129,11 @@ public class EigenVectorCentrality extends FanInOut {
     /**
      * Computes the degree centrality values by means of {@link FanInOut}. Need to be executed by before this
      * metric starts.
+     * TODO SE: This is a memory and more important an performance problem. Here we have massive computation task
+     * during the initialization while no threads are created. This needs to be fixed.
      */
     private void computeDCValues() {
+        dcValues = new HashMap<>(getFunctions().getAllFunctions().size());
         for (CodeFunction function : getFunctions().getAllFunctions()) {
             Number dcValue = super.computeResult(null, function);
             String id = toPathID(function);

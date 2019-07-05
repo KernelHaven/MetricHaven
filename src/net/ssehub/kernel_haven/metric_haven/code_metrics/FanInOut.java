@@ -454,6 +454,18 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
         case DEGREE_CENTRALITY_IN_LOCALLY:
             resultName.append("DC Fan-In");
             break;
+        case DEGREE_CENTRALITY_OUT_NO_STUB_GLOBALLY:
+            // falls through
+        case DEGREE_CENTRALITY_OUT_NO_STUB_LOCALLY:
+            // falls through
+        case DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_GLOBALLY:
+            // falls through
+        case DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_LOCALLY:
+            // falls through
+        case DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_GLOBALLY:
+            // falls through
+        case DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_LOCALLY:
+            // falls through
         case DEGREE_CENTRALITY_OUT_GLOBALLY:
             // falls through
         case DEGREE_CENTRALITY_OUT_LOCALLY:
