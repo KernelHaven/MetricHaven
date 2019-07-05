@@ -133,7 +133,9 @@ public class EigenVectorCentrality extends FanInOut {
      * during the initialization while no threads are created. This needs to be fixed.
      */
     private void computeDCValues() {
-        dcValues = new HashMap<>(getFunctions().getAllFunctions().size());
+        // Default load factor is 0.75 -> if initial capacity is filled to 75% the map rehashes 
+        int exptectedCapacity = (int) Math.ceil(1.34 * getFunctions().getAllFunctions().size());
+        dcValues = new HashMap<>(exptectedCapacity);
         for (CodeFunction function : getFunctions().getAllFunctions()) {
             Number dcValue = super.computeResult(null, function);
             String id = toPathID(function);
