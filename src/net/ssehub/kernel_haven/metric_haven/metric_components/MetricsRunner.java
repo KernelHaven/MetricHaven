@@ -148,7 +148,8 @@ public class MetricsRunner extends PipelineAnalysis {
             metricAnalysis = new CodeMetricsRunner(config, functionInput, getVmComponent(),
                 getBmComponent(), variabilityCounter, functionMapCreator, featureSizeCreator);
         } else {
-            LOGGER.logWarning2("MetricHaven executes atomic set and ignores furtehr configuration of metrics.");
+            LOGGER.logInfo2("MetricHaven executes atomic set and ignores further metric-specific configuration "
+                + "settings.");
             metricAnalysis = new IndividualCodeMetricsRunner(config, functionInput, getVmComponent(),
                 getBmComponent(), variabilityCounter, functionMapCreator, featureSizeCreator);
         }
