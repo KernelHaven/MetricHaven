@@ -94,7 +94,7 @@ public class CodeFunctionByLineFilter extends AnalysisComponent<CodeFunction> {
         config.registerSetting(MetricSettings.LINE_NUMBER_SETTING);
         List<@NonNull String> list = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
         
-        if (list.isEmpty()) {
+        if (!list.isEmpty()) {
             lines = new LinkedList<>();
             for (String element : list) {
                 String[] parts = element.split(":");
@@ -111,7 +111,7 @@ public class CodeFunctionByLineFilter extends AnalysisComponent<CodeFunction> {
             }
             
         } else {
-            throw new SetUpException(MetricSettings.LINE_NUMBER_SETTING.getKey() + "missing, but required for "
+            throw new SetUpException(MetricSettings.LINE_NUMBER_SETTING.getKey() + " missing, but required for "
                 + this.getClass().getCanonicalName());
         }
         
