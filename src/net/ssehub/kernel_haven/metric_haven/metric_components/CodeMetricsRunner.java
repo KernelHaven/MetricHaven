@@ -65,6 +65,11 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     public static final @NonNull Setting<@NonNull Integer> MAX_THREADS = new Setting<>("metrics.max_parallel_threads",
         Type.INTEGER, true, "1", "Defines the number of threads to use for calculating metrics. Must be >= 1.");
     
+    public static final @NonNull Setting<@Nullable Integer> PREPARATION_THREADS
+        = new Setting<>("metrics.max_preparation_threads", Type.INTEGER, false, "1",
+        "Defines the number of preparation threads to initialize metrics. If not defined, "
+        + MAX_THREADS.getKey() + " will be used.");
+    
     public static final @NonNull Setting<@NonNull Boolean> ROUND_RESULTS = new Setting<>("metrics.round_results",
         Type.BOOLEAN, true, "false", "If turned on, results will be limited to 2 digits after the comma (0.005 will be "
             + "rounded up). This is maybe neccessary to limit the disk usage.");
@@ -97,7 +102,8 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     private boolean singleVariationSpecified;
     private Object metricSpecificValue;
     
-    private int nThreads;
+    private final int nThreads;
+    private final int prepThreads;
     
     private MultiMetricResult firstResult;
     
@@ -234,6 +240,18 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
         if (nThreads <= 0) {
             throw new SetUpException("Need at least one thread specified in " + MAX_THREADS.getKey()
                 + " (got " + nThreads + ")");
+        }
+        config.registerSetting(PREPARATION_THREADS);
+        Integer tmpValue = config.getValue(PREPARATION_THREADS);
+        if (null != tmpValue) {
+            if (tmpValue > 0) {
+                prepThreads = tmpValue;
+            } else {
+                throw new SetUpException(PREPARATION_THREADS.getKey() + " was set to " +  tmpValue + ". "
+                    + "This is an optional value, but if specified it must be greater or equal to 1.");
+            }
+        } else {
+            prepThreads = nThreads;
         }
         
         try {
@@ -388,12 +406,12 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             }
         }
         
-        if (nThreads == 1) {
+        if (prepThreads == 1) {
             for (AbstractFunctionMetric<?> metric : metricsToPrepare) {
                 metric.prepare();
             }
         } else {
-            int partitionSize = (int) Math.ceil((double) metricsToPrepare.size() / nThreads);
+            int partitionSize = (int) Math.ceil((double) metricsToPrepare.size() / prepThreads);
             List<Thread> threads = new ArrayList<>();
             for (int i = 0; i < metricsToPrepare.size(); i += partitionSize) {
                 final int offSet = i;
