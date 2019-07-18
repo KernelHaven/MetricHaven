@@ -17,6 +17,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
 import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
+import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric.BlockMeasureType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -24,7 +25,7 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
- * Determines the maximum and average nesting depth within a function.
+ * IDentifies how many variation point / conditional code blocks inside a function exist.
  * @author El-Sharkawy
  *
  */
@@ -90,4 +91,10 @@ public class BlockCounter extends AbstractFunctionVisitor {
     public double getNumberOfBlocks() {
         return nBlocks;
     }
+    
+    /**
+     * Ignore doubled code elements, since we want to count each code block only once.
+     */
+    @Override
+    public void visitReference(@NonNull ReferenceElement referenceElement) { }
 }

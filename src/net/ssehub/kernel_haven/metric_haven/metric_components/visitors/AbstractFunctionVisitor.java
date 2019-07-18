@@ -21,6 +21,7 @@ import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
+import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -137,5 +138,12 @@ public abstract class AbstractFunctionVisitor implements ISyntaxElementVisitor {
         isInCPP = false;
         isInFunction = false;
     }
-
+    
+    /**
+     * Visitation of {@link ReferenceElement}s needs to be specified by each code visitor individually.
+     * This is done since {@link ReferenceElement} double code elements and each metric needs to decide how to handle
+     * this doubled code blocks.
+     */
+    @Override
+    public abstract void visitReference(@NonNull ReferenceElement referenceElement);
 }

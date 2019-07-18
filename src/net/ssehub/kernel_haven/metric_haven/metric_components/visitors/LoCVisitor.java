@@ -21,6 +21,7 @@ import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
+import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
 import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.SwitchStatement;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
@@ -168,4 +169,14 @@ public class LoCVisitor extends AbstractFunctionVisitor {
         nDLoC = 0;
         nLoF = 0;
     }
+    
+    /**
+     * Ignore doubled code elements.
+     * We count only the referenced element, which exists outside of the variation point.
+     * Thus it is counted as LoC and not as LoF code.
+     * This is done since the code is anyway part of the product and only some control structures around the code
+     * are conditional.
+     */
+    @Override
+    public void visitReference(@NonNull ReferenceElement referenceElement) { }
 }

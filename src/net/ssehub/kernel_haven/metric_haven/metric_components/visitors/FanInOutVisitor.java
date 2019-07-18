@@ -15,6 +15,8 @@
  */
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
@@ -33,5 +35,10 @@ public class FanInOutVisitor extends AbstractFunctionVisitor {
     public FanInOutVisitor(@Nullable VariabilityModel varModel) {
         super(varModel);
     }
-    
+
+    /**
+     * This visitor does currently nothing. Thus we do not need a special action here
+     */
+    @Override
+    public void visitReference(@NonNull ReferenceElement referenceElement) { }
 }

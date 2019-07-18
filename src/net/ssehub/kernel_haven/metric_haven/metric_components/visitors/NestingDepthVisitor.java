@@ -23,6 +23,7 @@ import net.ssehub.kernel_haven.code_model.ast.BranchStatement.Type;
 import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
+import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
 import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.SwitchStatement;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
@@ -262,4 +263,14 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         
         return result;
     }
+    
+    /**
+     * Ignore doubled code elements
+     * The referenced elements are counted normally as they are on a level inside the AST, which is comparable to
+     * the level in the code file.
+     * The {@link ReferenceElement} is on a more nested level. However, this could also be used to penalize such
+     * structures.
+     */
+    @Override
+    public void visitReference(@NonNull ReferenceElement referenceElement) { }
 }

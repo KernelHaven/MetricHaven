@@ -26,6 +26,7 @@ import net.ssehub.kernel_haven.code_model.ast.CaseStatement.CaseType;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.LoopStatement;
+import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
 import net.ssehub.kernel_haven.code_model.ast.SingleStatement;
 import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
@@ -196,4 +197,11 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
         variabilityCC = 1;
         visitedStatement = false;
     }
+    
+    
+    /**
+     * Ignore doubled code elements, since we need to analyze each statement / code block only once.
+     */
+    @Override
+    public void visitReference(@NonNull ReferenceElement referenceElement) { }
 }

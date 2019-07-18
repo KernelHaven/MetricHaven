@@ -23,6 +23,7 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
@@ -104,4 +105,10 @@ public class TanglingVisitor extends AbstractFunctionVisitor {
         super.reset();
         result = 0;
     }
+    
+    /**
+     * Ignore doubled code elements, since we need to analyze each code block only once.
+     */
+    @Override
+    public void visitReference(@NonNull ReferenceElement referenceElement) { }
 }

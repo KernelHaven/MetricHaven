@@ -24,6 +24,7 @@ import java.util.Set;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -168,4 +169,10 @@ public class UsedVariabilityVarsVisitor extends AbstractFunctionVisitor {
         internalVars.clear();
         externalVars.clear();
     }
+    
+    /**
+     * Ignore doubled code elements, since we need to analyze each code block only once.
+     */
+    @Override
+    public void visitReference(@NonNull ReferenceElement referenceElement) { }
 }
