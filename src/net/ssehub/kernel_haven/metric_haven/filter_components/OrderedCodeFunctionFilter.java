@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Function;
@@ -51,9 +52,11 @@ public class OrderedCodeFunctionFilter extends AnalysisComponent<CodeFunction> i
      * 
      * @param config The pipeline configuration.
      * @param codeModelProvider The component to get the code model from.
+     * 
+     * @throws SetUpException If reading the configuration fails.
      */
     public OrderedCodeFunctionFilter(@NonNull Configuration config,
-        @NonNull AnalysisComponent<SourceFile<?>> codeModelProvider) {
+        @NonNull AnalysisComponent<SourceFile<?>> codeModelProvider) throws SetUpException {
         
         super(config);
         this.codeModelProvider = new CodeFunctionFilter(config, codeModelProvider);

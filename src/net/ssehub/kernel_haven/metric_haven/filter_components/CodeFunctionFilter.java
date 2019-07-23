@@ -17,12 +17,15 @@ package net.ssehub.kernel_haven.metric_haven.filter_components;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
+import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.Setting;
+import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
@@ -35,7 +38,16 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implements ISyntaxElementVisitor {
 
+    public static final @NonNull Setting<@NonNull Boolean> SKIP_ERROR_FUNCTIONS_SETTING
+            = new Setting<>("analysis.function_filter.skip_error_functions", Type.BOOLEAN, true, "false",
+                    "If set to true, this setting causes the " + CodeFunctionFilter.class.getSimpleName()
+                    + " to discard all functions that contain an ErrorElement.");
+    
     private @NonNull AnalysisComponent<SourceFile<?>> codeModelProvider;
+
+    private boolean skipErrorFunctions;
+    
+    private int numSkipped;
     
     private SourceFile<ISyntaxElement> currentFile;
     
@@ -44,10 +56,16 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
      * 
      * @param config The pipeline configuration.
      * @param codeModelProvider The component to get the code model from.
+     * 
+     * @throws SetUpException If reading the configuration fails.
      */
     public CodeFunctionFilter(@NonNull Configuration config,
-            @NonNull AnalysisComponent<SourceFile<?>> codeModelProvider) {
+            @NonNull AnalysisComponent<SourceFile<?>> codeModelProvider) throws SetUpException {
         super(config);
+        
+        config.registerSetting(SKIP_ERROR_FUNCTIONS_SETTING);
+        this.skipErrorFunctions = config.getValue(SKIP_ERROR_FUNCTIONS_SETTING);
+        
         this.codeModelProvider = codeModelProvider;
     }
 
@@ -65,12 +83,20 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
             progress.processedOne();
         }
         
+        if (numSkipped > 0) {
+            LOGGER.logInfo("Discarded " + numSkipped + " functions that contained an ErrorElement");
+        }
+        
         progress.close();
     }
 
     @Override
     public void visitFunction(Function function) {
-        addResult(new CodeFunction(function.getName(), function, notNull(currentFile)));
+        if (skipErrorFunctions && function.containsErrorElement()) {
+            numSkipped++;
+        } else {
+            addResult(new CodeFunction(function.getName(), function, notNull(currentFile)));
+        }
     }
 
     @Override
