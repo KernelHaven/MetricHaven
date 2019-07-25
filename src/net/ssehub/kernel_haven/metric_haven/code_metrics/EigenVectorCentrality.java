@@ -195,13 +195,16 @@ public class EigenVectorCentrality extends FanInOut {
 
     @Override
     protected Number computeResult(@NonNull FanInOutVisitor functionVisitor, CodeFunction func) {
-        double result = Double.NaN;
+        /*
+         * EV is undefined for functions that are not connected.
+         * This should be in line with the idea and avoid problems during statistical analysis.
+         */
+        double result = 0;
         
         // Get DegreeCentrality values for all neighbors and sum the up to compute value for "func"
         String funcID = toPathID(func);
         List<FunctionCall> functionCalls = getFunctions().getFunctionCalls(func.getName());
         if (null != functionCalls) {
-            result = 0;
             // Avoid counting neighbors twice -> Store already counted neigbors in this set
             Set<String> alreadyProcessed = new HashSet<>();
             for (FunctionCall functionCall : functionCalls) {
