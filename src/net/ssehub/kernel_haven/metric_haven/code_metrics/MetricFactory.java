@@ -466,6 +466,7 @@ public class MetricFactory {
         tmpList.add(TanglingDegree.class);
         tmpList.add(FanInOut.class);
         tmpList.add(EigenVectorCentrality.class);
+        tmpList.add(UndisciplinedPreprocessorUsage.class);
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);
         
         Map<@NonNull Class<? extends AbstractFunctionMetric<?>>, Setting<?>> settings = new HashMap<>();
@@ -476,6 +477,7 @@ public class MetricFactory {
         settings.put(FanInOut.class, MetricSettings.FAN_TYPE_SETTING);
         settings.put(NestingDepth.class, MetricSettings.ND_TYPE_SETTING);
         // Tangling degree does not specify metric-specific settings
+        // UndisciplinedPreprocessorUsage does not specify metric-specific settings
         settings.put(VariablesPerFunction.class, MetricSettings.VARIABLE_TYPE_SETTING);
         METRIC_SPECIFIC_SETTINGS = Collections.unmodifiableMap(settings);
     }

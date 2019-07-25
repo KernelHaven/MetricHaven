@@ -39,6 +39,7 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCre
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.TanglingDegree;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.UndisciplinedPreprocessorUsage;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction.VarType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -461,6 +462,7 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             // Tangling Degree
             new MetricSelection(TanglingDegree.class, null, true),
             
+            
             // Blocks per Function
             new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.BLOCK_AS_ONE, true),
             new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.SEPARATE_PARTIAL_BLOCKS, true),
@@ -488,6 +490,7 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             new MetricSelection(FanInOut.class, FanType.VP_FAN_IN_LOCALLY, false),
             new MetricSelection(FanInOut.class, FanType.VP_FAN_OUT_GLOBALLY, false),
             new MetricSelection(FanInOut.class, FanType.VP_FAN_OUT_LOCALLY, false),
+            new MetricSelection(UndisciplinedPreprocessorUsage.class, null, false),
         };
         return selectedMetrics;
     }
