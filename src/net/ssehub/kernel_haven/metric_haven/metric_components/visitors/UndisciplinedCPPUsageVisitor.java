@@ -15,6 +15,7 @@
  */
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import net.ssehub.kernel_haven.code_model.ast.Code;
 import net.ssehub.kernel_haven.code_model.ast.CodeList;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
@@ -74,11 +75,20 @@ public class UndisciplinedCPPUsageVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
+        // Case 1: Statement is broken into multiple party by inner #ifdefs
         if (insideStatement) {
             result++;
         }
         
-        super.visitCppBlock(block);
+        // Case 2: A dangling } is found, which indicates that somewhere a Compound statement was not closed probably...
+        if (block.getNestedElementCount() == 1 && block.getNestedElement(0) instanceof Code
+            && "}".equals(((Code) block.getNestedElement(0)).getText())) {
+            
+            result++;
+        } else {
+            super.visitCppBlock(block);            
+        }
+        
     }
     
     @Override
