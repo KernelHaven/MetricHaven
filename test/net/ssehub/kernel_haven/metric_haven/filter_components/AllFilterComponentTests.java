@@ -30,6 +30,7 @@ import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.
  */
 @RunWith(Suite.class)
 @SuiteClasses({
+    CodeFunctionFilterTest.class,
     VariabilityCounterTest.class,
     ScatteringDegreeReaderTest.class,
     ScatteringDegreeWriterTest.class,
