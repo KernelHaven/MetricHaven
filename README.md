@@ -151,6 +151,15 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
       This metric cannot be combined with the variability weights from below.
     </td>
   </tr>
+  <!-- UndisciplinedPreprocessorUsage -->
+  <tr>
+    <td><code>UndisciplinedPreprocessorUsage</code></td>
+    <td>1</td>
+    <td>Measures the numbers of C-preprocessor statements, that break statements or control structures into multiple peaces.</td>
+    <td>
+      This metric has no individual settings and may not be combined with any variability weight from below.
+    </td>
+  </tr>
   <tr>
     <th>Total</th>
     <td>41,497</td>
