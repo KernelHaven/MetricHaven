@@ -462,12 +462,10 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             // Tangling Degree
             new MetricSelection(TanglingDegree.class, null, true),
             
-            
-            // Blocks per Function
-            new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.BLOCK_AS_ONE, true),
-            new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.SEPARATE_PARTIAL_BLOCKS, true),
-            
             // Metrics which do not accept any variability metrics
+            // Blocks per Function
+            new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.BLOCK_AS_ONE, false),
+            new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.SEPARATE_PARTIAL_BLOCKS, false),
             new MetricSelection(CyclomaticComplexity.class, CCType.MCCABE, false),
             new MetricSelection(DLoC.class, LoFType.DLOC, false),
             new MetricSelection(DLoC.class, LoFType.LOF, false),

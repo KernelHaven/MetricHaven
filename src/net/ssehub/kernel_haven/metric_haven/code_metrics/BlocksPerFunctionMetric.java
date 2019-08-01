@@ -20,8 +20,10 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.BlockCounter;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
+import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
@@ -59,7 +61,10 @@ public class BlocksPerFunctionMetric extends AbstractFunctionMetric<BlockCounter
         super(params);
         this.measuredBlocks = params.getMetricSpecificSettingValue(BlockMeasureType.class);
         
-        // All weights are always supported
+        // This metric doesn't use any weights.
+        if (params.getWeight() != NoWeight.INSTANCE) {
+            throw new UnsupportedMetricVariationException(getClass(), params.getWeight());
+        }
         
         init();
     }
