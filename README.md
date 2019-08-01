@@ -28,7 +28,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- VariablesPerFunctionMetric -->
   <tr>
     <td><code>VariablesPerFunctionMetric</code></td>
-    <td>6.480</td>
+    <td>6,480</td>
     <td>Realizes the <i>Number of internal/external configuration options</i> metric from
         <a href="https://doi.org/10.1145/2934466.2934467"> Do #ifdefs influence the occurrence of vulnerabilities? an
         empirical study of the linux kernel</a> paper.
@@ -48,7 +48,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- CyclomaticComplexityMetric -->
   <tr>
     <td><code>CyclomaticComplexityMetric</code></td>
-    <td>2.593</td>
+    <td>2,593</td>
     <td>Measures the Cyclomatic Complexity of code functions.
     </td>
     <td>
@@ -77,7 +77,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- NestingDepthMetric -->
   <tr>
     <td><code>NestingDepthMetric</code></td>
-    <td>5.186</td>
+    <td>5,186</td>
     <td>Measures the number of nested control structures.</td>
     <td>
       <code>metrics.nesting_depth.measured_type</code>:
@@ -95,7 +95,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- EigenVectorCentrality -->
   <tr>
     <td><code>EigenVectorCentrality</code></td>
-    <td>12.968</td>
+    <td>12,968</td>
     <td>Eigenvector centrality (= recusrive version of FanInOut-metric).</td>
     <td>
       This metric uses the FanInOut metric and re-uses its
@@ -105,7 +105,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- FanInOutMetric -->
   <tr>
     <td><code>FanInOutMetric</code></td>
-    <td>12.968</td>
+    <td>12,968</td>
     <td>Measures the number of incoming/outgoing function calls per function</td>
     <td>
       <code>metrics.fan_in_out.type</code>:
@@ -131,7 +131,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- TanglingDegreeFunctionMetric -->
   <tr>
     <td><code>TanglingDegreeFunctionMetric</code></td>
-    <td>1.296</td>
+    <td>1,296</td>
     <td>Measures tangling degree values for each CPP block with an expression (no else statements) and sums them up for each function. </td>
     <td>This metric has no individual settings, but supports any of the variability weights from below.
     </td>
@@ -139,7 +139,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- BlocksPerFunctionMetric -->
   <tr>
     <td><code>BlocksPerFunctionMetric</code></td>
-    <td>2.592</td>
+    <td>2</td>
     <td>Measures the numbers of VP blocks in a function, independent whether they are nested or not.
     </td>
     <td>
@@ -148,12 +148,12 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
         <li><code>BLOCK_AS_ONE</code>: if, elif, else are counted as one block</li>
         <li><code>SEPARATE_PARTIAL_BLOCKS</code>: if, elif, else are treated as three independent blocks</li>
       </ul>
-      All variations may be combined with any of the variability weights from below.
+      This metric cannot be combined with the variability weights from below.
     </td>
   </tr>
   <tr>
     <th>Total</th>
-    <td>44.086</td>
+    <td>41,497</td>
     <td></td>
     <td></td>
   </tr>
