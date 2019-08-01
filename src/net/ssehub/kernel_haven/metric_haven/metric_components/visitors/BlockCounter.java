@@ -25,7 +25,7 @@ import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
- * IDentifies how many variation point / conditional code blocks inside a function exist.
+ * Identifies how many variation point / conditional code blocks inside a function exist.
  * @author El-Sharkawy
  *
  */
