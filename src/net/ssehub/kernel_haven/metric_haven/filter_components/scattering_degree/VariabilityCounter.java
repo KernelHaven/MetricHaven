@@ -17,24 +17,11 @@ package net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.code_model.SourceFile;
-import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
-import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.ProgressLogger;
-import net.ssehub.kernel_haven.util.logic.Conjunction;
-import net.ssehub.kernel_haven.util.logic.Disjunction;
-import net.ssehub.kernel_haven.util.logic.False;
-import net.ssehub.kernel_haven.util.logic.Formula;
-import net.ssehub.kernel_haven.util.logic.IVoidFormulaVisitor;
-import net.ssehub.kernel_haven.util.logic.Negation;
-import net.ssehub.kernel_haven.util.logic.True;
-import net.ssehub.kernel_haven.util.logic.Variable;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
@@ -43,9 +30,9 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  * Counts in how many &#35;ifdefs and files a {@link VariabilityVariable} is used in.
  * 
  * @author Adam
+ * @author El-Sharkawy
  */
-public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContainer> implements ISyntaxElementVisitor, 
-        IVoidFormulaVisitor {
+public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContainer> {
 
     private @NonNull AnalysisComponent<VariabilityModel> vmProvider;
     
@@ -53,9 +40,6 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
     
     private @NonNull CountedVariables countedVariables;
     
-    private @NonNull Set<@NonNull String> variablesSeenInCurrentFile;
-    
-    private @NonNull Set<@NonNull String> variablesSeenInCurrentIfdef;
     
     /**
      * Creates this component.
@@ -71,8 +55,6 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
         this.vmProvider = vmProvider;
         this.cmProvider = cmProvider;
         this.countedVariables = new CountedVariables();
-        this.variablesSeenInCurrentFile = new HashSet<>();
-        this.variablesSeenInCurrentIfdef = new HashSet<>();
     }
 
     @Override
@@ -88,13 +70,13 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
         ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
         
         SourceFile<?> file;
+        ScatteringVisitor visitor = new ScatteringVisitor(countedVariables);
         while ((file = cmProvider.getNextResult()) != null) {
             
             for (ISyntaxElement element : file.castTo(ISyntaxElement.class)) {
-                element.accept(this);
+                element.accept(visitor);
             }
-            
-            variablesSeenInCurrentFile.clear();
+            visitor.reset();
             
             progress.processedOne();
         }
@@ -108,72 +90,4 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
     public @NonNull String getResultName() {
         return "Counted Variability Variables";
     }
-    
-    /*
-     * ISyntaxElementVisitor
-     */
-    
-    @Override
-    public void visitCppBlock(@NonNull CppBlock block) {
-        Formula condition = block.getCondition();
-        if (condition != null) {
-            visit(condition);
-            variablesSeenInCurrentIfdef.clear();
-        }
-        
-        // continue into this block
-        ISyntaxElementVisitor.super.visitCppBlock(block);
-    }
-    
-    /*
-     * IVoidFormulaVisitor
-     */
-
-    @Override
-    public void visitFalse(@NonNull False falseConstant) {
-        // nothing to do
-    }
-
-    @Override
-    public void visitTrue(@NonNull True trueConstant) {
-        // nothing to do
-    }
-
-    @Override
-    public void visitVariable(@NonNull Variable variable) {
-        String varName = variable.getName();
-        ScatteringDegree countedVar = countedVariables.getScatteringVariable(varName);
-        
-        if (countedVar != null) {
-            varName = countedVar.getVariableName();
-            
-            if (!variablesSeenInCurrentIfdef.contains(varName)) {
-                countedVar.addIfdef();
-                variablesSeenInCurrentIfdef.add(varName);
-            }
-            
-            if (!variablesSeenInCurrentFile.contains(varName)) {
-                countedVar.addFile();
-                variablesSeenInCurrentFile.add(varName);
-            }
-        }
-    }
-
-    @Override
-    public void visitNegation(@NonNull Negation formula) {
-        visit(formula.getFormula());
-    }
-
-    @Override
-    public void visitDisjunction(@NonNull Disjunction formula) {
-        visit(formula.getLeft());
-        visit(formula.getRight());
-    }
-
-    @Override
-    public void visitConjunction(@NonNull Conjunction formula) {
-        visit(formula.getLeft());
-        visit(formula.getRight());        
-    }
-
 }
