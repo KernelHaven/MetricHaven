@@ -68,7 +68,7 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1));
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1), null);
         
         assertThat(result.getSDVariationPoint("CONFIG_A"), is(2));
         assertThat(result.getSDVariationPoint("CONFIG_B"), is(1));
@@ -93,7 +93,7 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1));
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1), null);
         
         assertThat(result.getSDVariationPoint("CONFIG_A"), is(1));
         assertThat(result.getSDVariationPoint("CONFIG_B"), is(1));
@@ -118,7 +118,7 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1));
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1), null);
         
         assertThat(result.getSDVariationPoint("CONFIG_A"), is(1));
         assertThat(result.getSDVariationPoint("CONFIG_B"), is(0));
@@ -146,7 +146,7 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_B", "bool"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1, file2));
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1, file2), null);
 
         assertThat(result.getSDVariationPoint("CONFIG_A"), is(2));
         assertThat(result.getSDVariationPoint("CONFIG_B"), is(1));
@@ -171,7 +171,7 @@ public class VariabilityCounterTest {
         variables.add(new VariabilityVariable("CONFIG_A", "tristate"));
         VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
         
-        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1));
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1), null);
         
         assertThat(result.getSDVariationPoint("CONFIG_A"), is(2));
         
@@ -185,14 +185,17 @@ public class VariabilityCounterTest {
      * 
      * @param varModel The variability model to run on.
      * @param sourceFiles The code model to run on.
+     * @param prop Optional configuration parameters.
      * 
      * @return The result of the component.
      */
     private ScatteringDegreeContainer runComponent(VariabilityModel varModel,
-            List<SourceFile<?>> sourceFiles) {
+            List<SourceFile<?>> sourceFiles, Properties prop) {
         ScatteringDegreeContainer result = null;
         try {
-            Properties prop = new Properties();
+            if (null == prop) {
+                prop = new Properties();
+            }
             Configuration config = new TestConfiguration(prop);
             
             AnalysisComponent<SourceFile<?>> cmComponent
