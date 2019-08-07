@@ -97,14 +97,14 @@ public class ScatteringDegree {
     /**
      * Increases the #ifdef count by one.
      */
-    public void addIfdef() {
+    public synchronized void addIfdef() {
         ifdefs++;
     }
     
     /**
      * Increases the file count by one.
      */
-    public void addFile() {
+    public synchronized void addFile() {
         files++;
     }
     
