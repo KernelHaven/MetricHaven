@@ -346,14 +346,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
     
     @Override
     protected void execute() {
-        VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
-        BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
-        ScatteringDegreeContainer sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
-        FeatureSizeContainer fsContainer = (null != fsComponent) ? fsComponent.getNextResult() : null;
-        FunctionMap functionMap = (null != fmComponent) ? fmComponent.getNextResult() : null;
-        
-        MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer, fsContainer);
-        params.setFunctionMap(functionMap);
+        MetricCreationParameters params = setUpPreprocessingPipeline();
         
         List<@NonNull AbstractFunctionMetric<?>> allMetrics;
         try {
@@ -392,6 +385,55 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
             threadPool.cleanup();
         }
         progress.close();
+    }
+
+    /**
+     * Part of the {@link #execute()} method that starts the preprocessing components, possibly in multiple threads.
+     * @return The {@link MetricCreationParameters} which are required for creating the metrics.
+     */
+    private MetricCreationParameters setUpPreprocessingPipeline() {
+        VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
+        BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
+        
+        ScatteringDegreeContainer sdContainer;
+        FeatureSizeContainer fsContainer;
+        FunctionMap functionMap;
+        
+        if (1 == nThreads) {
+            sdContainer = (null != sdComponent) ? sdComponent.getNextResult() : null;
+            fsContainer = (null != fsComponent) ? fsComponent.getNextResult() : null;
+            functionMap = (null != fmComponent) ? fmComponent.getNextResult() : null;
+        } else {
+            Object[] components = new Object[3];
+            Thread sdThread = new Thread(() -> {
+                components[0] = (null != sdComponent) ? sdComponent.getNextResult() : null;
+            });
+            Thread fsThread = new Thread(() -> {
+                components[1] = (null != fsComponent) ? fsComponent.getNextResult() : null;
+            });
+            Thread fmThread = new Thread(() -> {
+                components[2] = (null != fmComponent) ? fmComponent.getNextResult() : null;
+            });
+            sdThread.start();
+            fsThread.start();
+            fmThread.start();
+            
+            try {
+                sdThread.join();
+                fsThread.join();
+                fmThread.join();
+            } catch (InterruptedException e) {
+                LOGGER.logException("Error occured while joining preprocessing components", e);
+            }
+            
+            sdContainer = (ScatteringDegreeContainer) components[0];
+            fsContainer = (FeatureSizeContainer) components[1];
+            functionMap = (FunctionMap) components[2];
+        }
+        
+        MetricCreationParameters params = new MetricCreationParameters(varModel, bm, sdContainer, fsContainer);
+        params.setFunctionMap(functionMap);
+        return params;
     }
 
     /**
