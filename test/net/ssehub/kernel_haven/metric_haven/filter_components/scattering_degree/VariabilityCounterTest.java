@@ -207,7 +207,7 @@ public class VariabilityCounterTest {
         
         Properties prop = new Properties();
         prop.put(CodeMetricsRunner.MAX_THREADS.getKey(), "2");
-        prop = null;
+//        prop = null;
         ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1, file2, file3, file4), prop);
 
         assertThat(result.getSDVariationPoint("CONFIG_A"), is(5));

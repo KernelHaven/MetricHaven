@@ -17,6 +17,8 @@ package net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +31,7 @@ import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner;
 import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
+import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
@@ -97,22 +100,7 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
                 progress.processedOne();
             }
         } else {
-            ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(nThreads);
-            SourceFile<?> file;
-            while ((file = cmProvider.getNextResult()) != null) {
-                
-                final SourceFile<ISyntaxElement> astFile = file.castTo(ISyntaxElement.class);
-                Runnable runnable = () -> {
-                    ScatteringVisitor visitor = new ScatteringVisitor(countedVariables);
-                    for (ISyntaxElement element : astFile) {
-                        element.accept(visitor);
-                    }
-                    
-                    progress.processedOne();
-                };
-                
-                executor.execute(runnable);
-            }
+            ThreadPoolExecutor executor = executeInThreads(progress);
             executor.shutdown();
             try {
                 executor.awaitTermination(1, TimeUnit.HOURS);
@@ -126,6 +114,57 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
         addResult(new ScatteringDegreeContainer(countedVariables.getResults()));
         
         progress.close();
+    }
+
+    /**
+     * Multithreading method of {@link #execute()}.
+     * @param progress The progress logger to log the progress.
+     * @return The created thread pool to allow shutting it down in {@link #execute()}.
+     */
+    private ThreadPoolExecutor executeInThreads(ProgressLogger progress) {
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(nThreads);
+        final BlockingQueue<ScatteringVisitor> visitors = new ArrayBlockingQueue<>(nThreads);
+        for (int i = 0; i < nThreads; i++) {
+            visitors.add(new ScatteringVisitor(countedVariables));
+        }
+        
+        SourceFile<?> file;
+        while ((file = cmProvider.getNextResult()) != null) {
+            
+            final SourceFile<ISyntaxElement> astFile = file.castTo(ISyntaxElement.class);
+            Runnable runnable = () -> {
+                boolean returnVisitor = true;
+                ScatteringVisitor visitor = null;
+                try {
+                    try {
+                        visitor = NullHelpers.notNull(visitors.take());
+                    } catch (InterruptedException e) {
+                        LOGGER.logError("Interupt exception while taking visitor from BlockingQueue.");
+                        visitor = new ScatteringVisitor(countedVariables);
+                        returnVisitor = false;
+                    }
+                    for (ISyntaxElement element : astFile) {
+                        element.accept(visitor);
+                    }
+                } finally {
+                    if (null != visitor) {
+                        visitor.reset();
+                        try {
+                            if (returnVisitor) {
+                                visitors.put(visitor);
+                            }
+                        } catch (InterruptedException e) {
+                            LOGGER.logError("Interupt exception occured while returning visitor to BlockingQueue.");
+                            visitors.add(new ScatteringVisitor(countedVariables));
+                        }
+                    }
+                }
+                progress.processedOne();
+            };
+            
+            executor.execute(runnable);
+        }
+        return executor;
     }
 
     @Override
