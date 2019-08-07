@@ -17,9 +17,7 @@ package net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
@@ -46,14 +44,14 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  * 
  * @author Adam
  */
-public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContainer> implements ISyntaxElementVisitor,
+public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContainer> implements ISyntaxElementVisitor, 
         IVoidFormulaVisitor {
 
     private @NonNull AnalysisComponent<VariabilityModel> vmProvider;
     
     private @NonNull AnalysisComponent<SourceFile<?>> cmProvider;
     
-    private @NonNull Map<@NonNull String, ScatteringDegree> countedVariables;
+    private @NonNull CountedVariables countedVariables;
     
     private @NonNull Set<@NonNull String> variablesSeenInCurrentFile;
     
@@ -72,7 +70,7 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
         
         this.vmProvider = vmProvider;
         this.cmProvider = cmProvider;
-        this.countedVariables = new HashMap<>();
+        this.countedVariables = new CountedVariables();
         this.variablesSeenInCurrentFile = new HashSet<>();
         this.variablesSeenInCurrentIfdef = new HashSet<>();
     }
@@ -85,9 +83,7 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
             return;
         }
         
-        for (VariabilityVariable variable : varModel.getVariables()) {
-            countedVariables.put(variable.getName(), new ScatteringDegree(variable));
-        }
+        countedVariables.init(varModel);
         
         ProgressLogger progress = new ProgressLogger(notNull(getClass().getSimpleName()));
         
@@ -103,7 +99,7 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
             progress.processedOne();
         }
         
-        addResult(new ScatteringDegreeContainer(countedVariables.values()));
+        addResult(new ScatteringDegreeContainer(countedVariables.getResults()));
         
         progress.close();
     }
@@ -146,15 +142,10 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
     @Override
     public void visitVariable(@NonNull Variable variable) {
         String varName = variable.getName();
-        ScatteringDegree countedVar = countedVariables.get(varName);
-        
-        // heuristically handle tristate (_MODULE) variables
-        if (countedVar == null && varName.endsWith("_MODULE")) {
-            varName = notNull(varName.substring(0, varName.length() - "_MODULE".length()));
-            countedVar = countedVariables.get(varName);
-        }
+        ScatteringDegree countedVar = countedVariables.getScatteringVariable(varName);
         
         if (countedVar != null) {
+            varName = countedVar.getVariableName();
             
             if (!variablesSeenInCurrentIfdef.contains(varName)) {
                 countedVar.addIfdef();
