@@ -38,6 +38,7 @@ import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock.Type;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
 import net.ssehub.kernel_haven.util.logic.False;
@@ -181,11 +182,49 @@ public class VariabilityCounterTest {
     }
     
     /**
+     * Tests running in multiple threads.
+     */
+    @Test
+    public void testMultiThreaded() {
+        SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file1.c"));
+        file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A"), Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_B"), Type.IF));
+        
+        SourceFile<ISyntaxElement> file2 = new SourceFile<>(new File("some/other/file2.c"));
+        file2.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A"), Type.IF));
+        
+        SourceFile<ISyntaxElement> file3 = new SourceFile<>(new File("some/file3.c"));
+        file3.addElement(new CppBlock(True.INSTANCE, or("CONFIG_A", "CONFIG_A_MODULE"), Type.IF));
+        file3.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A_MODULE"), Type.IF));
+        
+        SourceFile<ISyntaxElement> file4 = new SourceFile<>(new File("some/file4.c"));
+        file4.addElement(new CppBlock(True.INSTANCE, and(or(False.INSTANCE, not("CONFIG_A")), "CONFIG_A"), Type.IF));
+        
+        Set<VariabilityVariable> variables = new HashSet<>();
+        variables.add(new VariabilityVariable("CONFIG_A", "bool"));
+        variables.add(new VariabilityVariable("CONFIG_B", "bool"));
+        VariabilityModel varModel = new VariabilityModel(new File("not_existing.vm"), variables);
+        
+        Properties prop = new Properties();
+        prop.put(CodeMetricsRunner.MAX_THREADS.getKey(), "2");
+        prop = null;
+        ScatteringDegreeContainer result = runComponent(varModel, Arrays.asList(file1, file2, file3, file4), prop);
+
+        assertThat(result.getSDVariationPoint("CONFIG_A"), is(5));
+        assertThat(result.getSDVariationPoint("CONFIG_B"), is(1));
+        
+        assertThat(result.getSDFile("CONFIG_A"), is(4));
+        assertThat(result.getSDFile("CONFIG_B"), is(1));
+        
+        assertThat(result.getSize(), is(2));
+    }
+    
+    /**
      * Runs the {@link VariabilityCounter} on the given input and returns its output as a list.
      * 
      * @param varModel The variability model to run on.
      * @param sourceFiles The code model to run on.
-     * @param prop Optional configuration parameters.
+     * @param prop Optional configuration parameters, maybe empty or <tt>null</tt>.
      * 
      * @return The result of the component.
      */
