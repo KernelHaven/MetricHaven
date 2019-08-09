@@ -175,7 +175,7 @@ public class McCabeVisitor extends AbstractFunctionVisitor {
      * @return {@link #getClassicCyclomaticComplexity()} + {@link #getVariabilityCyclomaticComplexity()}.
      */
     public long getCombinedCyclomaticComplexity() {
-        return getClassicCyclomaticComplexity() + getVariabilityCyclomaticComplexity();
+        return getClassicCyclomaticComplexity() + getVariabilityCyclomaticComplexity() - 1;
     }
     
     @Override
