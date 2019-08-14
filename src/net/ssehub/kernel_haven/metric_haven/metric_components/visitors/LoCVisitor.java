@@ -15,7 +15,6 @@
  */
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
-import net.ssehub.kernel_haven.code_model.ast.BranchStatement;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -55,19 +54,19 @@ public class LoCVisitor extends StatementCountLoCVisitor {
         int nLines = function.getLineEnd() - function.getLineStart() - nLoF;
      
         // Check that it not negative (shouldn't be possible, but this is rather critical to the complete computation).
-        if (nLines < 0) {
+        if (nLines > 0) {
             nLoC += nLines;
         }
     }
     
         
     @Override
-    public void visitBranchStatement(@NonNull BranchStatement cppStatement) {
+    public void visitCppBlock(@NonNull CppBlock cppBlock) {
         // Count the whole block including #if and #endif -> +1
-        int nLines = cppStatement.getLineEnd() - cppStatement.getLineStart() + 1;
+        int nLines = cppBlock.getLineEnd() - cppBlock.getLineStart() + 1;
         
         // Check that it not negative (shouldn't be possible, but this is rather critical to the complete computation).
-        if (nLines < 0) {
+        if (nLines > 0) {
             nLoF += nLines;
         }
         

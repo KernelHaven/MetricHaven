@@ -170,14 +170,13 @@ public class MetricSettings {
             LOC_TYPE_SETTING = new EnumSetting<>("metrics.loc.measured_type", LoCMetric.LoCType.class, true, 
             LoCMetric.LoCType.SCOC,
             "Defines which lines of code should be counted for a function:\n"
-            + " - " + LoCMetric.LoCType.SCOC.name()
-            + ": Counts all statements, i.e., all delivered Lines of Code\n"
-            + "   (dLoC).\n"
-            + " - " + LoCMetric.LoCType.SCOF.name()
-            + ": Counts all variable statements, sometimes refereed to as Lines\n"
-            + "   of Feature code (LoF).\n"
-            + " - " + LoCMetric.LoCType.PSCOF.name()
-            + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
+            + " - " + LoCMetric.LoCType.SCOC.name()  + ": Counts all statements (Stament Count Of Code).\n"
+            + " - " + LoCMetric.LoCType.SCOF.name()  + ": Counts all variable statements "
+                                                     + "(Stament Count Of Feature Code).\n"
+            + " - " + LoCMetric.LoCType.PSCOF.name() + ": SCOF / SCOC (0 if SCOF is 0).\n"
+            + " - " + LoCMetric.LoCType.LOC.name()   + ": Counts all lines (Lines Of Code).\n"
+            + " - " + LoCMetric.LoCType.LOF.name()   + ": Counts all variable lines (Lines Of Feature Code).\n"
+            + " - " + LoCMetric.LoCType.PLOF.name()  + ": LOF / LOC (0 if LOF is 0).\n");
     
     public static final @NonNull Setting<FanInOut.@NonNull FanType> FAN_TYPE_SETTING
         = new EnumSetting<>("metrics.fan_in_out.type", FanInOut.FanType.class, true, 
