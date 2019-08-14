@@ -172,6 +172,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
             currentVPDepth++;
             nestingComplexity = 1;
             if (null != varFinder && block.getCondition() != null) {
+                nestingComplexity = 0;
                 /* 
                  * If a weight is defined and if we are not in a condition-less else-part,
                  * add the complexity of the expression.
