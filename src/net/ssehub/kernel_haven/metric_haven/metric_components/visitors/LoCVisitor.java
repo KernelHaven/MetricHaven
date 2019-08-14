@@ -51,7 +51,9 @@ public class LoCVisitor extends StatementCountLoCVisitor {
     @Override
     public void visitFunction(@NonNull Function function) {       
         super.visitFunction(function);
-        int nLines = function.getLineEnd() - function.getLineStart() - nLoF;
+        
+        // Count also the function signature
+        int nLines = function.getLineEnd() - function.getLineStart() + 1;
      
         // Check that it not negative (shouldn't be possible, but this is rather critical to the complete computation).
         if (nLines > 0) {
