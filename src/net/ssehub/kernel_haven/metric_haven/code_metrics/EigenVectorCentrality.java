@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.LoCMetric.LoCType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
@@ -116,7 +116,7 @@ public class EigenVectorCentrality extends FanInOut {
      * @throws UnsupportedMetricVariationException In case that classical code should be measured but a different
      *     {@link IVariableWeight} than {@link NoWeight#INSTANCE} was specified.
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
-     *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
+     *     e.g., {@link LoCType} is used for {@link CyclomaticComplexity}.
      */
     EigenVectorCentrality(@NonNull MetricCreationParameters params)
         throws UnsupportedMetricVariationException, SetUpException {

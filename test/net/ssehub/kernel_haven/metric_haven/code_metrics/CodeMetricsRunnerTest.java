@@ -54,6 +54,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attr
  * @author Adam
  */
 public class CodeMetricsRunnerTest {
+    private static final int EXPECTED_TOTAL_METRIC_COUNT = 42796;
 
     /**
      * Tests a simple scenario.
@@ -92,8 +93,8 @@ public class CodeMetricsRunnerTest {
         
         assertThat(result.size(), is(1));
         
-        assertThat(result.get(0).getMetrics().length, is(42793));
-        assertThat(result.get(0).getValues().length, is(42793));
+        assertThat(result.get(0).getMetrics().length, is(EXPECTED_TOTAL_METRIC_COUNT));
+        assertThat(result.get(0).getValues().length, is(EXPECTED_TOTAL_METRIC_COUNT));
         
         assertThat(result.get(0).getValues()[0], is(14.0));
         assertThat(result.get(0).getValues()[1], is(0.0));
@@ -150,8 +151,8 @@ public class CodeMetricsRunnerTest {
         
         assertThat(result.size(), is(1));
         
-        assertThat(result.get(0).getMetrics().length, is(42793));
-        assertThat(result.get(0).getValues().length, is(42793));
+        assertThat(result.get(0).getMetrics().length, is(EXPECTED_TOTAL_METRIC_COUNT));
+        assertThat(result.get(0).getValues().length, is(EXPECTED_TOTAL_METRIC_COUNT));
         
         assertThat(result.get(0).getValues()[0], is(14.0));
         assertThat(result.get(0).getValues()[1], is(0.0));

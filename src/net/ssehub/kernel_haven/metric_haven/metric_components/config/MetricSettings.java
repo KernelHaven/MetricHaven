@@ -21,7 +21,7 @@ import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity.CCType;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.LoCMetric;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
@@ -166,17 +166,17 @@ public class MetricSettings {
         = new EnumSetting<>("metrics.blocks_per_function.measured_block_type", BlockMeasureType.class, true, 
         BlockMeasureType.BLOCK_AS_ONE, "Defines whether partial blocks (#elif/#else) are also counted.");
     
-    public static final @NonNull Setting<DLoC.LoFType>
-            LOC_TYPE_SETTING = new EnumSetting<>("metrics.loc.measured_type", DLoC.LoFType.class, true, 
-            DLoC.LoFType.DLOC,
+    public static final @NonNull Setting<LoCMetric.LoCType>
+            LOC_TYPE_SETTING = new EnumSetting<>("metrics.loc.measured_type", LoCMetric.LoCType.class, true, 
+            LoCMetric.LoCType.SCOC,
             "Defines which lines of code should be counted for a function:\n"
-            + " - " + DLoC.LoFType.DLOC.name()
+            + " - " + LoCMetric.LoCType.SCOC.name()
             + ": Counts all statements, i.e., all delivered Lines of Code\n"
             + "   (dLoC).\n"
-            + " - " + DLoC.LoFType.LOF.name()
+            + " - " + LoCMetric.LoCType.SCOF.name()
             + ": Counts all variable statements, sometimes refereed to as Lines\n"
             + "   of Feature code (LoF).\n"
-            + " - " + DLoC.LoFType.PLOF.name()
+            + " - " + LoCMetric.LoCType.PSCOF.name()
             + ": Computes the fraction of LoF/dLoC (0 if LoF is 0).\n");
     
     public static final @NonNull Setting<FanInOut.@NonNull FanType> FAN_TYPE_SETTING

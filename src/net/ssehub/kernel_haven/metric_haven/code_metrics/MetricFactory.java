@@ -29,7 +29,7 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.LoCMetric.LoCType;
 import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
 import net.ssehub.kernel_haven.metric_haven.filter_components.scattering_degree.ScatteringDegreeContainer;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
@@ -183,7 +183,7 @@ public class MetricFactory {
          * @param <T> The enumeration class of the setting to retrieve.
          * @return A value of the individual metric setting.
          * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
-         *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
+         *     e.g., {@link LoCType} is used for {@link CyclomaticComplexity}.
          */
         @SuppressWarnings("unchecked")
         public <T> T getMetricSpecificSettingValue(Class<T> type) throws SetUpException {
@@ -458,7 +458,7 @@ public class MetricFactory {
     
     static {
         List<@NonNull Class<? extends AbstractFunctionMetric<?>>> tmpList = new ArrayList<>();
-        tmpList.add(DLoC.class);
+        tmpList.add(LoCMetric.class);
         tmpList.add(VariablesPerFunction.class);
         tmpList.add(CyclomaticComplexity.class);
         tmpList.add(NestingDepth.class);
@@ -472,7 +472,7 @@ public class MetricFactory {
         Map<@NonNull Class<? extends AbstractFunctionMetric<?>>, Setting<?>> settings = new HashMap<>();
         settings.put(BlocksPerFunctionMetric.class, MetricSettings.BLOCK_TYPE_SETTING);
         settings.put(CyclomaticComplexity.class, MetricSettings.CC_VARIABLE_TYPE_SETTING);
-        settings.put(DLoC.class, MetricSettings.LOC_TYPE_SETTING);
+        settings.put(LoCMetric.class, MetricSettings.LOC_TYPE_SETTING);
         settings.put(EigenVectorCentrality.class, MetricSettings.FAN_TYPE_SETTING);
         settings.put(FanInOut.class, MetricSettings.FAN_TYPE_SETTING);
         settings.put(NestingDepth.class, MetricSettings.ND_TYPE_SETTING);
@@ -530,7 +530,7 @@ public class MetricFactory {
      *
      * @return A list of all valid  metric combinations.
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
-     *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
+     *     e.g., {@link LoCType} is used for {@link CyclomaticComplexity}.
      */
     private static @NonNull List<@NonNull AbstractFunctionMetric<?>>
         createAllVariations(@NonNull MetricCreationParameters params,
@@ -590,7 +590,7 @@ public class MetricFactory {
      *
      * @return The configured single metric instance or <tt>null</tt> in case invalid combinations have been selected.
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
-     *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
+     *     e.g., {@link LoCType} is used for {@link CyclomaticComplexity}.
      */
     private static @Nullable AbstractFunctionMetric<?> createMetric(@NonNull MetricCreationParameters params,
         @NonNull Class<? extends AbstractFunctionMetric<?>> metricClass)

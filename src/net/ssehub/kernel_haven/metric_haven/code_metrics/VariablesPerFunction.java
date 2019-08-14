@@ -19,7 +19,7 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.LoCMetric.LoCType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.UsedVariabilityVarsVisitor;
@@ -55,7 +55,7 @@ public class VariablesPerFunction extends AbstractFunctionMetric<UsedVariability
      * 
      * @param params The parameters for creating this metric.
      * @throws SetUpException In case the metric specific setting does not match the expected metric setting type,
-     *     e.g., {@link LoFType} is used for {@link CyclomaticComplexity}.
+     *     e.g., {@link LoCType} is used for {@link CyclomaticComplexity}.
      */
     VariablesPerFunction(@NonNull MetricCreationParameters params) throws SetUpException {
         

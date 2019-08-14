@@ -29,9 +29,9 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric
 import net.ssehub.kernel_haven.metric_haven.code_metrics.BlocksPerFunctionMetric.BlockMeasureType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.CyclomaticComplexity.CCType;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.LoCMetric;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.EigenVectorCentrality;
-import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC.LoFType;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.LoCMetric.LoCType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut.FanType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory;
@@ -469,9 +469,9 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.BLOCK_AS_ONE, false),
             new MetricSelection(BlocksPerFunctionMetric.class, BlockMeasureType.SEPARATE_PARTIAL_BLOCKS, false),
             new MetricSelection(CyclomaticComplexity.class, CCType.MCCABE, false),
-            new MetricSelection(DLoC.class, LoFType.DLOC, false),
-            new MetricSelection(DLoC.class, LoFType.LOF, false),
-            new MetricSelection(DLoC.class, LoFType.PLOF, false),
+            new MetricSelection(LoCMetric.class, LoCType.SCOC, false),
+            new MetricSelection(LoCMetric.class, LoCType.SCOF, false),
+            new MetricSelection(LoCMetric.class, LoCType.PSCOF, false),
             new MetricSelection(NestingDepth.class, NDType.CLASSIC_ND_MAX, false),
             new MetricSelection(NestingDepth.class, NDType.CLASSIC_ND_AVG, false),
             new MetricSelection(EigenVectorCentrality.class, FanType.CLASSICAL_FAN_IN_GLOBALLY, false),
