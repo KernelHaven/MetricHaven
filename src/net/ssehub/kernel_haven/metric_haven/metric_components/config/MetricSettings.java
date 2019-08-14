@@ -25,6 +25,7 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.DLoC;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.FanInOut;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.NestingDepth.NDType;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.TanglingDegree.TDType;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
@@ -202,6 +203,14 @@ public class MetricSettings {
                 + NestingDepth.NDType.VP_ND_MAX.name() + "\n"
             + " - " + NDType.COMBINED_ND_AVG.name() + ": " + NDType.CLASSIC_ND_AVG.name() + " + "
             + NDType.VP_ND_AVG.name());
+    
+    public static final @NonNull Setting<@NonNull TDType> TD_TYPE_SETTING
+        = new EnumSetting<>("metrics.tangling_degree.measured_type", TDType.class, true, 
+            TDType.TD_ALL, "Defines what should be considered when computing nesting degree:\n"
+                + " - " + TDType.TD_ALL.name() + ": Considers all variation points also those with invisible "
+                + "expressions, i.e., else-blocks (default).\n"
+                + " - " + TDType.TD_NO_ELSE.name() + ": Considers only visible variation points, i.e., "
+                + "no else-blocks");
     
     public static final @NonNull Setting<
         net.ssehub.kernel_haven.metric_haven.code_metrics.VariablesPerFunction.VarType> VARIABLE_TYPE_SETTING

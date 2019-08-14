@@ -476,7 +476,7 @@ public class MetricFactory {
         settings.put(EigenVectorCentrality.class, MetricSettings.FAN_TYPE_SETTING);
         settings.put(FanInOut.class, MetricSettings.FAN_TYPE_SETTING);
         settings.put(NestingDepth.class, MetricSettings.ND_TYPE_SETTING);
-        // Tangling degree does not specify metric-specific settings
+        settings.put(TanglingDegree.class, MetricSettings.TD_TYPE_SETTING);
         // UndisciplinedPreprocessorUsage does not specify metric-specific settings
         settings.put(VariablesPerFunction.class, MetricSettings.VARIABLE_TYPE_SETTING);
         METRIC_SPECIFIC_SETTINGS = Collections.unmodifiableMap(settings);

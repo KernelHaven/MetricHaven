@@ -131,9 +131,15 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- TanglingDegreeFunctionMetric -->
   <tr>
     <td><code>TanglingDegreeFunctionMetric</code></td>
-    <td>1,296</td>
+    <td>2,592</td>
     <td>Measures tangling degree values for each CPP block with an expression (no else statements) and sums them up for each function. </td>
-    <td>This metric has no individual settings, but supports any of the variability weights from below.
+    <td>
+      <code>metrics.tangling_degree.measured_type</code>:
+      <ul>
+        <li><code>TD_ALL</code>: Considers all variation points also those with invisible expressions, i.e., else-blocks (default)</li>
+        <li><code>TD_NO_ELSE</code>: Considers only visible variation points, i.e., no else-blocks</li>
+      </ul>
+     Both variations support any of the variability weights from below.
     </td>
   </tr>
   <!-- BlocksPerFunctionMetric -->
@@ -162,7 +168,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <tr>
     <th>Total</th>
-    <td>41,497</td>
+    <td>42,793</td>
     <td></td>
     <td></td>
   </tr>

@@ -19,6 +19,7 @@ import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
+import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.TanglingVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -33,6 +34,25 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
 
     /**
+     * Specification which kind of TD-metric shall be measured.
+     * @author El-Sharkawy
+     *
+     */
+    public static enum TDType {
+        /**
+         * Considers all variations points, also else parts without a visible expression.
+         */
+        TD_ALL,
+        
+        /**
+         * Considers only variation points with visible conditions.
+         */
+        TD_NO_ELSE;
+    }
+    
+    private @NonNull TDType type;
+    
+    /**
      * Creates a new TanglingDegree metric.
      * @param params The parameters for creating this metric.
      * 
@@ -40,6 +60,8 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
      */
     TanglingDegree(@NonNull MetricCreationParameters params) throws SetUpException {
         super(params);
+        
+        this.type = params.getMetricSpecificSettingValue(TDType.class);  
         
         // All weights are always supported
         
@@ -52,7 +74,7 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
         @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
     // CHECKSTYLE:ON
         
-        return new TanglingVisitor(varModel, weight);
+        return new TanglingVisitor(varModel, weight, type);
     }
 
     @Override
@@ -62,7 +84,22 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
 
     @Override
     public @NonNull String getMetricName() {
-        return "TD";
+        String resultName;
+        switch(type) {
+        case TD_ALL:
+            resultName = "Full-TD";
+            break;
+        case TD_NO_ELSE:
+            resultName = "Visible-TD";
+            break;
+        default:
+            resultName = "Unsupported metric specified";
+            LOGGER.logError("Unsupported value setting for ", getClass().getName(), "-analysis: ",
+                MetricSettings.LOC_TYPE_SETTING.getKey(), "=", type.name());
+            break;
+        }
+        
+        return resultName;
     }
 
 }

@@ -24,6 +24,7 @@ import java.util.Set;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
 import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
+import net.ssehub.kernel_haven.metric_haven.code_metrics.TanglingDegree.TDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.VariableFinder;
@@ -42,6 +43,8 @@ public class TanglingVisitor extends AbstractFunctionVisitor {
     private @NonNull IVariableWeight weight;
     private @Nullable File codeFile;
 
+    private @NonNull TDType type;
+    
     private long result = 0;
     
     /**
@@ -51,11 +54,13 @@ public class TanglingVisitor extends AbstractFunctionVisitor {
      *     whether it is defined in the variability model.
      * @param weight How to weight all identified features, maybe
      *     {@link net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight} if no weight should be used.
+     * @param type Specifies whether to count also else blocks or not.
      */
-    public TanglingVisitor(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight) {
+    public TanglingVisitor(@Nullable VariabilityModel varModel, @NonNull IVariableWeight weight, @NonNull TDType type) {
         super(varModel);
         varModelVars = (null != varModel) ? Collections.unmodifiableSet(varModel.getVariableMap().keySet()) : null;
         this.weight = weight;
+        this.type = type;
     }
     
     @Override
@@ -66,15 +71,18 @@ public class TanglingVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
-        Formula condition = block.getCondition();
-        
-        if (null != condition) {
-            VariableFinder varFinder = new VariableFinder();
-            varFinder.visit(condition);
-            for (String symbolName : varFinder.getVariableNames()) {
-                symbolName = notNull(symbolName);
-                if (isVarModelVariable(symbolName)) {
-                    result += weight.getWeight(symbolName, codeFile);
+        // Ignore else blocks if TDType = visible only
+        if (block.getType() != CppBlock.Type.ELSE || type == TDType.TD_ALL) {
+            Formula condition = block.getCondition();
+            
+            if (null != condition) {
+                VariableFinder varFinder = new VariableFinder();
+                varFinder.visit(condition);
+                for (String symbolName : varFinder.getVariableNames()) {
+                    symbolName = notNull(symbolName);
+                    if (isVarModelVariable(symbolName)) {
+                        result += weight.getWeight(symbolName, codeFile);
+                    }
                 }
             }
         }
