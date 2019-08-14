@@ -41,6 +41,9 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  *
  */
 public class NestingDepthVisitor extends AbstractFunctionVisitor {
+    private static final int CODE_BASE_LEVEL = 1;
+    private static final int VP_BASE_LEVEL = 0;
+    
     private int nStatements;
     
     // Classical code parameters
@@ -210,13 +213,13 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         nStatements = 0;
 
         // Classical code
-        currentNestingDepth = 1;
+        currentNestingDepth = CODE_BASE_LEVEL;
         maxDepth = currentNestingDepth;
         allDepth = 0;
         
         // Variation Points
-        currentVPDepth = 0;         // Consider code not be dependent of variability
-        currentVPComplexity = 0;    // Consider code not be dependent of variability
+        currentVPDepth      = VP_BASE_LEVEL; // Consider code not be dependent of variability
+        currentVPComplexity = VP_BASE_LEVEL; // Consider code not be dependent of variability
         maxVPDepth = currentVPComplexity;
         allVPDepth = 0;
     }
@@ -251,7 +254,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         if (max) {
             result = maxDepth;
         } else {
-            result = (0 != nStatements) ? (double) allDepth / nStatements : 0;
+            result = (0 != nStatements) ? (double) allDepth / nStatements : CODE_BASE_LEVEL;
         }
         
         return result;
@@ -268,7 +271,7 @@ public class NestingDepthVisitor extends AbstractFunctionVisitor {
         if (max) {
             result = maxVPDepth;
         } else {
-            result = (0 != nStatements) ? (double) allVPDepth / nStatements : 0;
+            result = (0 != nStatements) ? (double) allVPDepth / nStatements : VP_BASE_LEVEL;
         }
         
         return result;
