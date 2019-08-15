@@ -140,7 +140,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
       <code>metrics.tangling_degree.measured_type</code>:
       <ul>
         <li><code>TD_ALL</code>: Considers all variation points also those with invisible expressions, i.e., else-blocks (default)</li>
-        <li><code>TD_NO_ELSE</code>: Considers only visible variation points, i.e., no else-blocks</li>
+        <li><code>TD_VISIBLE</code>: Considers only visible variation points (i.e., no else-blocks) and expressions of previous siblings (i.e., negated conditions of previous conditions for elifs) </li>
       </ul>
      Both variations support any of the variability weights from below.
     </td>

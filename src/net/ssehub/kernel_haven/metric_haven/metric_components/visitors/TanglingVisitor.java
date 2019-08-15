@@ -71,18 +71,15 @@ public class TanglingVisitor extends AbstractFunctionVisitor {
     
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
-        // Ignore else blocks if TDType = visible only
-        if (block.getType() != CppBlock.Type.ELSE || type == TDType.TD_ALL) {
-            Formula condition = block.getCondition();
-            
-            if (null != condition) {
-                VariableFinder varFinder = new VariableFinder();
-                varFinder.visit(condition);
-                for (String symbolName : varFinder.getVariableNames()) {
-                    symbolName = notNull(symbolName);
-                    if (isVarModelVariable(symbolName)) {
-                        result += weight.getWeight(symbolName, codeFile);
-                    }
+        Formula condition = type == TDType.TD_ALL ? block.getCondition() : block.getCurrentCondition();
+        
+        if (null != condition) {
+            VariableFinder varFinder = new VariableFinder();
+            varFinder.visit(condition);
+            for (String symbolName : varFinder.getVariableNames()) {
+                symbolName = notNull(symbolName);
+                if (isVarModelVariable(symbolName)) {
+                    result += weight.getWeight(symbolName, codeFile);
                 }
             }
         }
