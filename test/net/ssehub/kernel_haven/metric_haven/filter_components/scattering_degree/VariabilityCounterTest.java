@@ -42,6 +42,7 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.CodeMetricsRunner;
 import net.ssehub.kernel_haven.test_utils.TestAnalysisComponentProvider;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
 import net.ssehub.kernel_haven.util.logic.False;
+import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.True;
 import net.ssehub.kernel_haven.util.logic.Variable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -61,8 +62,10 @@ public class VariabilityCounterTest {
     public void testNonVariabilityVariable() {
         SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         
-        file1.addElement(new CppBlock(True.INSTANCE, and("CONFIG_A", "CONFIG_B"), Type.IF));
-        file1.addElement(new CppBlock(True.INSTANCE, and("NOT_A_CONFIG", "CONFIG_A"), Type.IF));
+        Formula cond1 = and("CONFIG_A", "CONFIG_B");
+        Formula cond2 = and("NOT_A_CONFIG", "CONFIG_A");
+        file1.addElement(new CppBlock(True.INSTANCE, cond1, cond1, Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, cond2, cond2, Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "bool"));
@@ -87,7 +90,8 @@ public class VariabilityCounterTest {
     public void testComplexCondition() {
         SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         
-        file1.addElement(new CppBlock(True.INSTANCE, and(or(True.INSTANCE, not("CONFIG_A")), "CONFIG_B"), Type.IF));
+        Formula cond = and(or(True.INSTANCE, not("CONFIG_A")), "CONFIG_B");
+        file1.addElement(new CppBlock(True.INSTANCE, cond, cond, Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "bool"));
@@ -112,7 +116,8 @@ public class VariabilityCounterTest {
     public void testMultipleTimesInSameCondition() {
         SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         
-        file1.addElement(new CppBlock(True.INSTANCE, and(or(False.INSTANCE, not("CONFIG_A")), "CONFIG_A"), Type.IF));
+        Formula cond = and(or(False.INSTANCE, not("CONFIG_A")), "CONFIG_A");
+        file1.addElement(new CppBlock(True.INSTANCE, cond, cond, Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "bool"));
@@ -136,11 +141,13 @@ public class VariabilityCounterTest {
     @Test
     public void testMultipleFiles() {
         SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
-        file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A"), Type.IF));
-        file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_B"), Type.IF));
+        Formula cond1 = new Variable("CONFIG_A");
+        Formula cond2 = new Variable("CONFIG_B");
+        file1.addElement(new CppBlock(True.INSTANCE, cond1, cond1, Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, cond2, cond2, Type.IF));
         
         SourceFile<ISyntaxElement> file2 = new SourceFile<>(new File("some/other/file.c"));
-        file2.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A"), Type.IF));
+        file2.addElement(new CppBlock(True.INSTANCE, cond1, cond1, Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "bool"));
@@ -165,8 +172,10 @@ public class VariabilityCounterTest {
     public void testModuleVariables() {
         SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file.c"));
         
-        file1.addElement(new CppBlock(True.INSTANCE, or("CONFIG_A", "CONFIG_A_MODULE"), Type.IF));
-        file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A_MODULE"), Type.IF));
+        Formula cond1 = or("CONFIG_A", "CONFIG_A_MODULE");
+        Formula cond2 = new Variable("CONFIG_A_MODULE");
+        file1.addElement(new CppBlock(True.INSTANCE, cond1, cond1, Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, cond2, cond2, Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "tristate"));
@@ -187,18 +196,22 @@ public class VariabilityCounterTest {
     @Test
     public void testMultiThreaded() {
         SourceFile<ISyntaxElement> file1 = new SourceFile<>(new File("some/file1.c"));
-        file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A"), Type.IF));
-        file1.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_B"), Type.IF));
+        Formula varA = new Variable("CONFIG_A");
+        Formula varAm = new Variable("CONFIG_A_MODULE");
+        Formula varB = new Variable("CONFIG_B");
+        file1.addElement(new CppBlock(True.INSTANCE, varA, varA, Type.IF));
+        file1.addElement(new CppBlock(True.INSTANCE, varB, varB, Type.IF));
         
         SourceFile<ISyntaxElement> file2 = new SourceFile<>(new File("some/other/file2.c"));
-        file2.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A"), Type.IF));
+        file2.addElement(new CppBlock(True.INSTANCE, varA, varA, Type.IF));
         
         SourceFile<ISyntaxElement> file3 = new SourceFile<>(new File("some/file3.c"));
-        file3.addElement(new CppBlock(True.INSTANCE, or("CONFIG_A", "CONFIG_A_MODULE"), Type.IF));
-        file3.addElement(new CppBlock(True.INSTANCE, new Variable("CONFIG_A_MODULE"), Type.IF));
+        file3.addElement(new CppBlock(True.INSTANCE, or(varA, varAm), or(varA, varAm), Type.IF));
+        file3.addElement(new CppBlock(True.INSTANCE, varAm, varAm, Type.IF));
         
         SourceFile<ISyntaxElement> file4 = new SourceFile<>(new File("some/file4.c"));
-        file4.addElement(new CppBlock(True.INSTANCE, and(or(False.INSTANCE, not("CONFIG_A")), "CONFIG_A"), Type.IF));
+        file4.addElement(new CppBlock(True.INSTANCE, and(or(False.INSTANCE, not(varA)), varA),
+            and(or(False.INSTANCE, not(varA)), varA), Type.IF));
         
         Set<VariabilityVariable> variables = new HashSet<>();
         variables.add(new VariabilityVariable("CONFIG_A", "bool"));

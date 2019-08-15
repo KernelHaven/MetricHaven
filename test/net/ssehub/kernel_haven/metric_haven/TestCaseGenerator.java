@@ -131,7 +131,7 @@ public class TestCaseGenerator {
         Function func = new Function(varA, "func", header);
         BranchStatement ifStatement = new BranchStatement(varA, Type.IF, new Code(varA, "if(a)"));
         BranchStatement elseStatement = new BranchStatement(varA, Type.ELSE_IF, new Code(varA, "else"));
-        CppBlock ifDef = new CppBlock(aANDb, varB, CppBlock.Type.IFDEF);
+        CppBlock ifDef = new CppBlock(aANDb, varB, varB, CppBlock.Type.IFDEF);
         LoopStatement whileStatement = new LoopStatement(aANDb, new Code(varA, "while(true)"), LoopType.WHILE);
         ifDef.addNestedElement(whileStatement);
         

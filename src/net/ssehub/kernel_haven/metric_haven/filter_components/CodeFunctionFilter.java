@@ -271,7 +271,8 @@ public class CodeFunctionFilter extends AnalysisComponent<CodeFunction> implemen
         
         @Override
         public void visitCppBlock(@NonNull CppBlock old) {
-            CppBlock newElement = new CppBlock(old.getPresenceCondition(), old.getCondition(), old.getType());
+            CppBlock newElement = new CppBlock(old.getPresenceCondition(), old.getCondition(),
+                old.getCurrentCondition(), old.getType());
             // TODO: siblings?
             for (int i = 0; i < old.getSiblingCount(); i++) {
                 newElement.addSibling(old.getSibling(i));
