@@ -47,7 +47,7 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
         /**
          * Considers only variation points with visible conditions.
          */
-        TD_NO_ELSE;
+        TD_VISIBLE;
     }
     
     private @NonNull TDType type;
@@ -89,7 +89,7 @@ public class TanglingDegree extends AbstractFunctionMetric<TanglingVisitor> {
         case TD_ALL:
             resultName = "Full-TD";
             break;
-        case TD_NO_ELSE:
+        case TD_VISIBLE:
             resultName = "Visible-TD";
             break;
         default:

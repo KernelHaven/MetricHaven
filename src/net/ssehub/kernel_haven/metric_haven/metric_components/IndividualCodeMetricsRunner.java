@@ -462,7 +462,7 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             
             // Tangling Degree
             new MetricSelection(TanglingDegree.class, TDType.TD_ALL, true),
-            new MetricSelection(TanglingDegree.class, TDType.TD_NO_ELSE, true),
+            new MetricSelection(TanglingDegree.class, TDType.TD_VISIBLE, true),
             
             // Metrics which do not accept any variability metrics
             // Blocks per Function

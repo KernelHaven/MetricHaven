@@ -208,7 +208,7 @@ public class MetricSettings {
             TDType.TD_ALL, "Defines what should be considered when computing nesting degree:\n"
                 + " - " + TDType.TD_ALL.name() + ": Considers all variation points also those with invisible "
                 + "expressions, i.e., else-blocks (default).\n"
-                + " - " + TDType.TD_NO_ELSE.name() + ": Considers only visible variation points, i.e., "
+                + " - " + TDType.TD_VISIBLE.name() + ": Considers only visible variation points, i.e., "
                 + "no else-blocks");
     
     public static final @NonNull Setting<
