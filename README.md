@@ -295,6 +295,11 @@ The follwoing classes execute all currently available metrics in one step, witho
   </tr>
 </table>
 
+## Video Tutorials
+
+#### Introduction and Experiments
+[![MetricHaven – More than 23,000 Metrics for Measuring Quality Attributes of SPLs](https://i.ytimg.com/vi/vPEmD5Sr6gM/hqdefault.jpg "MetricHaven – More than 23,000 Metrics for Measuring Quality Attributes of SPLs")](https://youtu.be/vPEmD5Sr6gM)
+
 ## License
 
 This plugin is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
