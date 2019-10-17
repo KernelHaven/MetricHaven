@@ -35,9 +35,12 @@ import net.ssehub.kernel_haven.util.null_checks.NonNull;
  */
 public class MetricSettings {
     
-    public static final @NonNull ListSetting<@NonNull String> FILTER_BY_FILES = new ListSetting<>(
-        "metrics.filter_results_by.files", Type.STRING, false, "If defined, the results are filter so that "
-            + "the final results will contain only results for the specified files (comma separated list)");
+    public static final @NonNull ListSetting<@NonNull String> FILTER_BY_FUNCTIONS = new ListSetting<>(
+        "metrics.filter_results_by.functions", Type.STRING, false,
+            "Specifies, the files and function names that the CodeFunctionByPathAndNameFilter should filter the code "
+                + "functions for. Each element in the list should have a colon separated file path and function name "
+                + "(e.g. kernel/kernel.c:init for all occurrences of a function with the name init in the file "
+                + "kernel/kernel.c). File paths are relative to the source tree.");
     
     public static final @NonNull ListSetting<@NonNull String> LINE_NUMBER_SETTING
         = new ListSetting<>("analysis.code_function.lines", Type.STRING, false,

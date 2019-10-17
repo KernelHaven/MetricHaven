@@ -26,6 +26,7 @@ import net.ssehub.kernel_haven.config.Setting;
 import net.ssehub.kernel_haven.config.Setting.Type;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByLineFilter;
+import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunctionByPathAndNameFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.FunctionMapCreator;
 import net.ssehub.kernel_haven.metric_haven.filter_components.OrderedCodeFunctionFilter;
 import net.ssehub.kernel_haven.metric_haven.filter_components.feature_size.FeatureSizeContainer;
@@ -62,6 +63,13 @@ public class MetricsRunner extends PipelineAnalysis {
     private boolean lineFilter;
     
     /**
+     * Specifies whether a function name filter should be used (only checked and used if not already a line filter was
+     * specified before). If this is <code>true</code>, a {@link CodeFunctionByPathAndNameFilter} should be added in 
+     * the pipeline.
+     */
+    private boolean nameFilter;
+    
+    /**
      * Single constructor to instantiate and execute all variations of a single metric-analysis class.
      * 
      * @param config The global configuration.
@@ -72,10 +80,17 @@ public class MetricsRunner extends PipelineAnalysis {
         super(config);
         
         lineFilter = false;
+        nameFilter = false;
         config.registerSetting(MetricSettings.LINE_NUMBER_SETTING);
         List<String> value = config.getValue(MetricSettings.LINE_NUMBER_SETTING);
         if (!value.isEmpty()) {
             lineFilter = true;
+        } else {
+            config.registerSetting(MetricSettings.FILTER_BY_FUNCTIONS);
+            value = config.getValue(MetricSettings.FILTER_BY_FUNCTIONS);
+            if (!value.isEmpty()) {
+                nameFilter = true;
+            }
         }
         
         try {
@@ -139,10 +154,11 @@ public class MetricsRunner extends PipelineAnalysis {
         @NonNull AnalysisComponent<CodeFunction> functionInput = split.createOutputComponent();
         if (lineFilter) {
             functionInput = new CodeFunctionByLineFilter(config, functionInput);
+        } else if (nameFilter) {
+            functionInput = new CodeFunctionByPathAndNameFilter(config, functionInput);
         }
         
-        AnalysisComponent<?> metricAnalysis;
-        
+        AnalysisComponent<?> metricAnalysis;  
         if (!runAtomicSet) {
             // Default case
             metricAnalysis = new CodeMetricsRunner(config, functionInput, getVmComponent(),
