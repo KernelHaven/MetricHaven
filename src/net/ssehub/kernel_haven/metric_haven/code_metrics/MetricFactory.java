@@ -465,7 +465,7 @@ public class MetricFactory {
         tmpList.add(BlocksPerFunctionMetric.class);
         tmpList.add(TanglingDegree.class);
         tmpList.add(FanInOut.class);
-//        tmpList.add(EigenVectorCentrality.class);
+        tmpList.add(EigenVectorCentrality.class);
         tmpList.add(UndisciplinedPreprocessorUsage.class);
         SUPPORTED_METRICS = Collections.unmodifiableList(tmpList);
         
