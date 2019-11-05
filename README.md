@@ -178,6 +178,8 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
 </table>
 
 ## Supported Variability Weights
+For the sake of simplicity we omit the full qualified names of the weights in the following table. All names start with the
+prefix `metrics.function_measures.`.
 <table style="width:100%">
   <tr>
     <th>Weight (Setting)</th>
@@ -186,7 +188,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <!-- Scattering Degree -->
   <tr>
-    <td><code>metrics.function_measures.consider_scattering_degree</code></td>
+    <td><code>consider_scattering_degree</code></td>
     <td>Weights features used in code blocks based on their scattering degree (how often they are used in code).</td>
     <td>
       <ul>
@@ -198,7 +200,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <!-- Cross-Tree Constraint Ratios -->
   <tr>
-    <td><code>metrics.function_measures.consider_ctcr</code></td>
+    <td><code>consider_ctcr</code></td>
     <td>Weights features based on their usage in cross-tree constraints of the variability model.</td>
     <td>
       <ul>
@@ -211,7 +213,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <!-- Feature Distances -->
   <tr>
-    <td><code>metrics.function_measures.consider_feature_definition_distance</code></td>
+    <td><code>consider_feature_definition_distance</code></td>
     <td>Weights features based on the distance where they are defined (location of the variability model) and their usage (location of the measured code artifact). Requires an extracted variability model, which provides information where in the file system a feature was defined.</td>
     <td>
       <ul>
@@ -222,7 +224,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <!-- Feature Types -->
   <tr>
-    <td><code>metrics.function_measures.consider_feature_types</code></td>
+    <td><code>consider_feature_types</code></td>
     <td>Weights features based on their data type. Requires an extracted variability model.</td>
     <td>
       <ul>
@@ -233,7 +235,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <!-- Hierarchy Types -->
   <tr>
-    <td><code>metrics.function_measures.consider_feature_hierarchies</code></td>
+    <td><code>consider_feature_hierarchies</code></td>
     <td>Weights features based on their hierarchy level as models in the variability model. Requires an extracted variability model, which provides information of the hierarchy.</td>
     <td>
       <ul>
@@ -245,7 +247,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <!-- Structures / CoC -->
   <tr>
-    <td><code>metrics.function_measures.consider_varmodel_structures</code></td>
+    <td><code>consider_varmodel_structures</code></td>
     <td>Weights features based on the number of childred / parents they have.</td>
     <td>
       <ul>
@@ -257,7 +259,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <!-- Feature Sizes -->
   <tr>
-    <td><code>metrics.function_measures.feature_sizes</code></td>
+    <td><code>feature_sizes</code></td>
     <td>Computes the Lines of Code controlled by a feature, i.e., the feature size.</td>
     <td>
       <ul>
