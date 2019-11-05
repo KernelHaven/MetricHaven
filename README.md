@@ -218,7 +218,7 @@ prefix `metrics.function_measures.`.
     <td>
       <ul>
         <li><code>NO_DISTANCE</code>: Won't consider feature distances</li>
-        <li><code>SHORTEST_DISTANCE</code>: Computes the shortest way to traverse from the folder of the currently measured code artifact to the folder containing the definition of the feature in the variability model. If mutliple definition exist (e.g., supported by Kconfig), the shortes path is used.</li>
+        <li><code>SHORTEST_DISTANCE</code>: Computes the shortest way to traverse from the folder of the currently measured code artifact to the folder containing the definition of the feature in the variability model. If multiple definitions exist (e.g., supported by Kconfig), the shortest path is used. If variables is defined in same folder (but different file) as the code file, the value is 0. Consequently, such features won't be considered when computing a code metric from above.</li>
     </ul>
     </td>
   </tr>

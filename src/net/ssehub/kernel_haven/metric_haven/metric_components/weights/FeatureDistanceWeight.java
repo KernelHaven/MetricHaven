@@ -17,6 +17,7 @@ package net.ssehub.kernel_haven.metric_haven.metric_components.weights;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,9 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  */
 public class FeatureDistanceWeight implements IVariableWeight {
 
+//    private static final @NonNull Path EMPTY_PATH = NullHelpers.notNull(new File("/").toPath());
+    private static final @NonNull Path EMPTY_PATH = NullHelpers.notNull(Paths.get("."));
+    
     private @NonNull Map<@NonNull String, VariabilityVariable> varMap;
     
     /**
@@ -109,7 +113,11 @@ public class FeatureDistanceWeight implements IVariableWeight {
     private @NonNull Path determineFolder(@NonNull File file) {
         Path folder = folderCache.get(file);
         if (null == folder) {
-            folder = NullHelpers.notNull(file.getAbsoluteFile().getParentFile().toPath());
+            if (null == file.getParentFile()) {
+                folder = EMPTY_PATH;
+            } else {
+                folder = NullHelpers.notNull(Paths.get("./" + file.getParent()));
+            }
             folderCache.put(file, folder);
         }
         
