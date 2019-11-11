@@ -62,7 +62,7 @@ public class CtcrWeight implements IVariableWeight {
 
     @Override
     public synchronized long getWeight(String variable) {
-        long weight = 1;
+        long weight = 0;
         
         Long value = varWeights.get(variable);
         if (null != value) {
@@ -77,7 +77,7 @@ public class CtcrWeight implements IVariableWeight {
                 if (null != var) {
                     Set<VariabilityVariable> otherVars = var.getUsedInConstraintsOfOtherVariables();
                     if (null != otherVars) {
-                        weight = otherVars.size() + 1;
+                        weight = otherVars.size();
                     }
                 } else {
                     LOGGER.logWarning2("Could not compute incoming constraint relations in ", getClass().getName(),
@@ -88,7 +88,7 @@ public class CtcrWeight implements IVariableWeight {
                 if (null != var) {
                     Set<VariabilityVariable> otherVars = var.getVariablesUsedInConstraints();
                     if (null != otherVars) {
-                        weight = otherVars.size() + 1;
+                        weight = otherVars.size();
                     }
                 } else {
                     LOGGER.logWarning2("Could not compute outgoing constraint relations in ", getClass().getName(),
@@ -107,7 +107,7 @@ public class CtcrWeight implements IVariableWeight {
                     if (null != outVars) {
                         union.addAll(outVars);
                     }
-                    weight = union.size() + 1;
+                    weight = union.size();
                 } else {
                     LOGGER.logWarning2("Could not compute full ctcr in ", getClass().getName(),
                         ", because " , variable , " was not found in variability model.");

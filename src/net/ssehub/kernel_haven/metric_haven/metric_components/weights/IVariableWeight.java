@@ -63,7 +63,8 @@ public interface IVariableWeight {
     /**
      * Returns the weight for the specified variable.
      * @param variable An existing variable of the variability model, for which the weight shall be returned for.
-     * @return A positive weight (&ge; 1), 1 denotes a neutral value.
+     * @return A positive weight (&ge; 0), 0 will eliminate the value from the computation of the code metric,
+     * 1 denotes a neutral value.
      */
     public long getWeight(String variable);
     
@@ -71,7 +72,8 @@ public interface IVariableWeight {
      * Returns the weight for the specified variable and the currently measured code artifact.
      * @param variable An existing variable of the variability model, for which the weight shall be returned for.
      * @param codefile The currently measured code artifact (only required for some weights).
-     * @return A positive weight (&ge; 1), 1 denotes a neutral value.
+     * @return A positive weight (&ge; 0), 0 will eliminate the value from the computation of the code metric,
+     * 1 denotes a neutral value.
      */
     public default long getWeight(String variable, File codefile) {
         return getWeight(variable);

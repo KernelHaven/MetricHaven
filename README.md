@@ -201,7 +201,7 @@ prefix `metrics.function_measures.`.
   <!-- Cross-Tree Constraint Ratios -->
   <tr>
     <td><code>consider_ctcr</code></td>
-    <td>Weights features based on their usage in cross-tree constraints of the variability model.</td>
+    <td>Weights features based on their usage in cross-tree constraints of the variability model. If a feature is not involved in any constraints, the result is 0 indicating that selecting the feature has no impact on other features.</td>
     <td>
       <ul>
         <li><code>NO_CTCR</code>: Won't consider constraints of the variability model</li>
@@ -214,7 +214,7 @@ prefix `metrics.function_measures.`.
   <!-- Feature Distances -->
   <tr>
     <td><code>consider_feature_definition_distance</code></td>
-    <td>Weights features based on the distance where they are defined (location of the variability model) and their usage (location of the measured code artifact). Requires an extracted variability model, which provides information where in the file system a feature was defined.</td>
+    <td>Weights features based on the distance where they are defined (location of the variability model) and their usage (location of the measured code artifact). Requires an extracted variability model, which provides information where in the file system a feature was defined. If code file and variability model are placed in same folder, the result is 0 indicating a perfect cohesion of variability.</td>
     <td>
       <ul>
         <li><code>NO_DISTANCE</code>: Won't consider feature distances</li>
