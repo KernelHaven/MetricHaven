@@ -27,7 +27,7 @@ import net.ssehub.kernel_haven.code_model.ast.ReferenceElement;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.TanglingDegree.TDType;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.util.logic.Formula;
-import net.ssehub.kernel_haven.util.logic.VariableFinder;
+import net.ssehub.kernel_haven.cpp_utils.non_boolean.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;

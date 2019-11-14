@@ -24,6 +24,7 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.cpp_utils.non_boolean.VariableFinder;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.LoCMetric.LoCType;
 import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCreationParameters;
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
@@ -36,7 +37,6 @@ import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableW
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.Variable;
-import net.ssehub.kernel_haven.util.logic.VariableFinder;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.NullHelpers;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
