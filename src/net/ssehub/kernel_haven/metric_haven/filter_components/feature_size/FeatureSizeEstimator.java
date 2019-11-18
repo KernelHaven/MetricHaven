@@ -17,6 +17,9 @@ package net.ssehub.kernel_haven.metric_haven.filter_components.feature_size;
 
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.ssehub.kernel_haven.analysis.AnalysisComponent;
 import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.code_model.SourceFile;
@@ -34,10 +37,7 @@ import net.ssehub.kernel_haven.code_model.ast.TypeDefinition;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.ProgressLogger;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
-import net.ssehub.kernel_haven.util.logic.Disjunction;
-import net.ssehub.kernel_haven.util.logic.False;
 import net.ssehub.kernel_haven.util.logic.Formula;
-import net.ssehub.kernel_haven.util.logic.IVoidFormulaVisitor;
 import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.True;
 import net.ssehub.kernel_haven.util.logic.Variable;
@@ -52,8 +52,41 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  * 
  * @author El-Sharkawy
  */
-public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer> implements ISyntaxElementVisitor,
-    IVoidFormulaVisitor {
+public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer> implements ISyntaxElementVisitor {
+    
+    /**
+     * Custom Variable finder that supports separation of positive/negative variable usage and supports non-Boolean
+     * conditions.
+     * @author El-Sharkawy
+     */
+    private static class VariableFinder extends net.ssehub.kernel_haven.cpp_utils.non_boolean.VariableFinder {
+        private boolean positive = true;
+        private Set<Variable> positiveVariables = new HashSet<>();
+        
+        @Override
+        public void clear() {
+            super.clear();
+            positiveVariables.clear();
+            positive = true;
+        }
+        
+        @Override
+        public Set<Variable> visitNegation(@NonNull Negation formula) {
+            positive = !positive;
+            visit(formula.getFormula());
+            positive = !positive;
+            
+            return getVariables();
+        }
+        
+        @Override
+        public @NonNull Set<Variable> visitVariable(@NonNull Variable variable) {
+            if (positive) {
+                positiveVariables.add(variable);
+            }
+            return super.visitVariable(variable);
+        }
+    }
 
     private @NonNull AnalysisComponent<VariabilityModel> vmProvider;
     
@@ -67,7 +100,9 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
      */
     private @NonNull Formula filePC;
     private int loc;
-    private boolean positive;
+    
+    private @NonNull Set<Variable> ignores = new HashSet<>();
+    private @NonNull VariableFinder varFinder = new VariableFinder();
     
     /**
      * Creates this component.
@@ -114,8 +149,8 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
                 element.accept(this);
             }
             
-            positive = true;
-            filePC.accept(this);
+            varFinder.clear();
+            filePC.accept(varFinder);
             
             progress.processedOne();
         }
@@ -152,18 +187,57 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
     
     @Override
     public void visitCppBlock(@NonNull CppBlock block) {
-        int oldLoc = loc;
-        loc = 0;
-        
-        // continue into this block
-        ISyntaxElementVisitor.super.visitCppBlock(block);
-        
+        // Determine for which variables we count statements in the block
         Formula newCondition = block.getPresenceCondition();
         newCondition = getPresenceCondition(newCondition);
-        positive = true;
-        newCondition.accept(this);
+        varFinder.clear();
+        Set<Variable> variables = new HashSet<>(newCondition.accept(varFinder));
+        Set<Variable> positiveVariables = new HashSet<>(varFinder.positiveVariables);
+
+        // continue into this block
+        Set<Variable> previousIgnores = ignores;
+        ignores = new HashSet<>();
+        ignores.addAll(previousIgnores);
+        ignores.addAll(variables);
+        int oldLoc = loc;
+        loc = 0;
+        ISyntaxElementVisitor.super.visitCppBlock(block);
+        ignores = previousIgnores;
         
-        loc = oldLoc;
+        // Count for all NEWLY collected variables the number of statements, which are controlled by them
+        for (Variable variable : variables) {
+            boolean totalAndPositives = positiveVariables.contains(variable); 
+            countLoCForVariable(variable, totalAndPositives);
+        }
+        loc += oldLoc;
+    }
+
+    /**
+     * Adds the counted number of statements to the identified variable as long it wasn't already collected in a
+     * previous block (to avoid counting them twice).
+     * @param variable A variable, which was identified in the current block.
+     * @param totalAndPositives <tt>true</tt> if positives and total shall be counted,
+     *     <tt>false</tt> if only total shall be counted.
+     * @throws AssertionError Must not happen, FeatureSizeContainer won't be <tt>null</tt> after execution has stated.
+     */
+    private void countLoCForVariable(Variable variable, boolean totalAndPositives) throws AssertionError {
+        if (!ignores.contains(variable)) {
+            String varName = variable.getName();
+            FeatureSize countedVar = NullHelpers.notNull(featureSizes).getFeatureSize(varName);
+            
+            // heuristically handle tristate (_MODULE) variables
+            if (countedVar == null && varName.endsWith("_MODULE")) {
+                varName = notNull(varName.substring(0, varName.length() - "_MODULE".length()));
+                countedVar = NullHelpers.notNull(featureSizes).getFeatureSize(varName);
+            }
+            
+            if (countedVar != null) {
+                countedVar.incTotalSize(loc);
+                if (totalAndPositives) {
+                    countedVar.incPositiveSize(loc);
+                }
+            }
+        }
     }
     
     @Override
@@ -184,7 +258,7 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
     }
 
     // C Control structures
-    
+  
     @Override
     public void visitBranchStatement(@NonNull BranchStatement elseStatement) {
         count();
@@ -236,57 +310,4 @@ public class FeatureSizeEstimator extends AnalysisComponent<FeatureSizeContainer
     private void count() {
         loc++;
     }
-    
-    /*
-     * IVoidFormulaVisitor
-     */
-
-    @Override
-    public void visitFalse(@NonNull False falseConstant) {
-        // nothing to do
-    }
-
-    @Override
-    public void visitTrue(@NonNull True trueConstant) {
-        // nothing to do
-    }
-
-    @Override
-    public void visitVariable(@NonNull Variable variable) {
-        String varName = variable.getName();
-        FeatureSize countedVar = NullHelpers.notNull(featureSizes).getFeatureSize(varName);
-        
-        // heuristically handle tristate (_MODULE) variables
-        if (countedVar == null && varName.endsWith("_MODULE")) {
-            varName = notNull(varName.substring(0, varName.length() - "_MODULE".length()));
-            countedVar = NullHelpers.notNull(featureSizes).getFeatureSize(varName);
-        }
-        
-        if (countedVar != null) {
-            if (positive) {
-                countedVar.incPositiveSize(loc);
-            }
-            countedVar.incTotalSize(loc);
-        }
-    }
-
-    @Override
-    public void visitNegation(@NonNull Negation formula) {
-        positive = !positive;
-        visit(formula.getFormula());
-        positive = !positive;
-    }
-
-    @Override
-    public void visitDisjunction(@NonNull Disjunction formula) {
-        visit(formula.getLeft());
-        visit(formula.getRight());
-    }
-
-    @Override
-    public void visitConjunction(@NonNull Conjunction formula) {
-        visit(formula.getLeft());
-        visit(formula.getRight());        
-    }
-
 }
