@@ -391,7 +391,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * Part of the {@link #execute()} method that starts the preprocessing components, possibly in multiple threads.
      * @return The {@link MetricCreationParameters} which are required for creating the metrics.
      */
-    private MetricCreationParameters setUpPreprocessingPipeline() {
+    private @NonNull MetricCreationParameters setUpPreprocessingPipeline() {
         VariabilityModel varModel = (null != varModelComponent) ? varModelComponent.getNextResult() : null;
         BuildModel bm = (null != bmComponent) ? bmComponent.getNextResult() : null;
         
