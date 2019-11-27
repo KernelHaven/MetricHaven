@@ -97,7 +97,9 @@ public class LoCMetric extends AbstractFunctionMetric<StatementCountLoCVisitor> 
     }
 
     @Override
+    // CHECKSTYLE:OFF checkstyle thinks this line indentation is wrong...
     protected @NonNull StatementCountLoCVisitor createVisitor(@Nullable VariabilityModel varModel,
+    // CHECKSTYLE:ON
         @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
 
         StatementCountLoCVisitor visitor;
