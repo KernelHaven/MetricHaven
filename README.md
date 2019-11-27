@@ -279,6 +279,7 @@ In addition to KernelHaven, this plugin has the following dependencies:
   * Cross-tree constraint ratios for <code>CTCR</code> options.
   * Location of feature definitions for <code>feature_definition_distance</code> options.
 * A build model extractor, for some of the options (see description from above).
+* [CppUtils](https://github.com/KernelHaven/CppUtils)
 
 ## Guidance
 The follwoing classes execute all currently available metrics in one step, without requiring a detailed configuration:
