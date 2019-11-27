@@ -21,7 +21,7 @@
 
 	<target name="dependencies.download">
 		<get src="${infrastructure.fortesting.url}" dest="${dependencies.dir}" />
-    <get src="${plugins.CppUtils.url}" dest="${dependencies.dir}" />
+		<get src="${plugins.CppUtils.url}" dest="${dependencies.dir}" />
 	</target>
 
 </project>
