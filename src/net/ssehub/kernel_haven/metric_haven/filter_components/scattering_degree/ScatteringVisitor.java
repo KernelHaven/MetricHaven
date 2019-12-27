@@ -20,11 +20,14 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.ISyntaxElementVisitor;
+import net.ssehub.kernel_haven.cpp_utils.non_boolean.INonBooleanFormulaVisitor;
+import net.ssehub.kernel_haven.cpp_utils.non_boolean.Literal;
+import net.ssehub.kernel_haven.cpp_utils.non_boolean.Macro;
+import net.ssehub.kernel_haven.cpp_utils.non_boolean.NonBooleanOperator;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Disjunction;
 import net.ssehub.kernel_haven.util.logic.False;
 import net.ssehub.kernel_haven.util.logic.Formula;
-import net.ssehub.kernel_haven.util.logic.IVoidFormulaVisitor;
 import net.ssehub.kernel_haven.util.logic.Negation;
 import net.ssehub.kernel_haven.util.logic.True;
 import net.ssehub.kernel_haven.util.logic.Variable;
@@ -38,7 +41,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
  * @author El-Sharkawy
  * @author Adam
  */
-class ScatteringVisitor implements ISyntaxElementVisitor, IVoidFormulaVisitor {
+class ScatteringVisitor implements ISyntaxElementVisitor, INonBooleanFormulaVisitor<Void> {
     
     private @NonNull Set<@NonNull String> variablesSeenInCurrentFile;   
     private @NonNull Set<@NonNull String> variablesSeenInCurrentIfdef;
@@ -82,17 +85,19 @@ class ScatteringVisitor implements ISyntaxElementVisitor, IVoidFormulaVisitor {
      */
 
     @Override
-    public void visitFalse(@NonNull False falseConstant) {
-        // nothing to do
+    public Void visitFalse(@NonNull False falseConstant) {
+        /* No action needed */
+        return null;
     }
 
     @Override
-    public void visitTrue(@NonNull True trueConstant) {
-        // nothing to do
+    public Void visitTrue(@NonNull True trueConstant) {
+        /* No action needed */
+        return null;
     }
 
     @Override
-    public void visitVariable(@NonNull Variable variable) {
+    public Void visitVariable(@NonNull Variable variable) {
         String varName = variable.getName();
         ScatteringDegree countedVar = countedVariables.getScatteringVariable(varName);
         
@@ -109,22 +114,52 @@ class ScatteringVisitor implements ISyntaxElementVisitor, IVoidFormulaVisitor {
                 variablesSeenInCurrentFile.add(varName);
             }
         }
+        
+        return null;
     }
 
     @Override
-    public void visitNegation(@NonNull Negation formula) {
+    public Void visitNegation(@NonNull Negation formula) {
         visit(formula.getFormula());
+        
+        return null;
     }
 
     @Override
-    public void visitDisjunction(@NonNull Disjunction formula) {
+    public Void visitDisjunction(@NonNull Disjunction formula) {
         visit(formula.getLeft());
         visit(formula.getRight());
+        
+        return null;
     }
 
     @Override
-    public void visitConjunction(@NonNull Conjunction formula) {
+    public Void visitConjunction(@NonNull Conjunction formula) {
         visit(formula.getLeft());
-        visit(formula.getRight());        
+        visit(formula.getRight());
+        
+        return null;
+    }
+
+    @Override
+    public Void visitNonBooleanOperator(NonBooleanOperator operator) {
+        operator.getLeft().accept(this);
+        operator.getRight().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitLiteral(Literal literal) {
+        /* No action needed */
+        return null;
+    }
+
+    @Override
+    public Void visitMacro(Macro macro) {
+        Formula argument = macro.getArgument();
+        if (null != argument) {
+            argument.accept(this);
+        }
+        return null;
     }
 }
