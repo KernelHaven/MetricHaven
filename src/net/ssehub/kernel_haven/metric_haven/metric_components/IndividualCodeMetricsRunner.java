@@ -447,6 +447,8 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             new MetricSelection(EigenVectorCentrality.class, FanType.DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_LOCALLY,
                 true),
             new MetricSelection(EigenVectorCentrality.class,
+                    FanType.DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_GLOBALLY, true),
+            new MetricSelection(EigenVectorCentrality.class,
                 FanType.DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_LOCALLY, true),
             
             // Fan-In/Out
@@ -458,6 +460,7 @@ public class IndividualCodeMetricsRunner extends CodeMetricsRunner {
             new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_STUB_LOCALLY, true),
             new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_GLOBALLY, true),
             new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_EXTERNAL_VPS_LOCALLY, true),
+            new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_GLOBALLY, true),
             new MetricSelection(FanInOut.class, FanType.DEGREE_CENTRALITY_OUT_NO_STUB_NO_EXTERNAL_VPS_LOCALLY, true),
             
             // Tangling Degree

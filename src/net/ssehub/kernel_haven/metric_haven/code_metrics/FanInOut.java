@@ -148,7 +148,7 @@ public class FanInOut extends AbstractFunctionMetric<FanInOutVisitor> {
          * @return <tt>true</tt> if only local calls within a files are measured.
          */
         public boolean isLocal() {
-            return isDegreeCentrality;
+            return isLocal;
         }
         
         /**
