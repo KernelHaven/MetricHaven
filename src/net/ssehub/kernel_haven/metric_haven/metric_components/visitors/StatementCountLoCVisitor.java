@@ -85,7 +85,18 @@ public class StatementCountLoCVisitor extends AbstractLoCVisitor {
         return nLoF;
     }
     
-
+    @Override
+    public double getLoCCommentRatio() {
+        double basis = getLoC() + getLoCComments();
+        return (basis != 0) ? getLoCComments() / basis : 0.0d;
+    }
+    
+    @Override
+    public double getLoFCommentRatio() {
+        double basis = getLoF() + getLoFComments();
+        return (basis != 0) ? getLoFComments() / basis : 0.0d;
+    }
+    
     @Override
     public void reset() {
         super.reset();

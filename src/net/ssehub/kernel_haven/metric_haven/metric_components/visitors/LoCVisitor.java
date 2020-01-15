@@ -115,6 +115,18 @@ public class LoCVisitor extends AbstractLoCVisitor {
     }
     
     @Override
+    public double getLoCCommentRatio() {
+        double basis = getLoC();
+        return (basis != 0) ? getLoCComments() / basis : 0.0d;
+    }
+    
+    @Override
+    public double getLoFCommentRatio() {
+        double basis = getLoF();
+        return (basis != 0) ? getLoFComments() / basis : 0.0d;
+    }
+    
+    @Override
     public void reset() {
         super.reset();
         nLoC = 0;

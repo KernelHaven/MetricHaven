@@ -84,19 +84,13 @@ public abstract class AbstractLoCVisitor extends AbstractFunctionVisitor {
      * Returns the percentage of comments with respect to all statements / lines in scope.
      * @return The relative amount of comments (&ge; 0).
      */
-    public double getLoCCommentRatio() {
-        double basis = getLoC() + getLoCComments();
-        return (basis != 0) ? getLoCComments() / basis : 0.0d;
-    }
+    public abstract double getLoCCommentRatio();
     
     /**
      * Returns the percentage of comments with respect to feature statements / lines in scope.
      * @return The relative amount of comments (&ge; 0).
      */
-    public double getLoFCommentRatio() {
-        double basis = getLoF() + getLoFComments();
-        return (basis != 0) ? getLoFComments() / basis : 0.0d;
-    }
+    public abstract double getLoFCommentRatio();
     
     /**
      * Ignore doubled code elements.
