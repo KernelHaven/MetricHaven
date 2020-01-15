@@ -21,8 +21,9 @@ import net.ssehub.kernel_haven.metric_haven.code_metrics.MetricFactory.MetricCre
 import net.ssehub.kernel_haven.metric_haven.filter_components.CodeFunction;
 import net.ssehub.kernel_haven.metric_haven.metric_components.UnsupportedMetricVariationException;
 import net.ssehub.kernel_haven.metric_haven.metric_components.config.MetricSettings;
-import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.StatementCountLoCVisitor;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.AbstractLoCVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.LoCVisitor;
+import net.ssehub.kernel_haven.metric_haven.metric_components.visitors.StatementCountLoCVisitor;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.IVariableWeight;
 import net.ssehub.kernel_haven.metric_haven.metric_components.weights.NoWeight;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -35,7 +36,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-public class LoCMetric extends AbstractFunctionMetric<StatementCountLoCVisitor> {
+public class LoCMetric extends AbstractFunctionMetric<AbstractLoCVisitor> {
 
     /**
      * Specification which kind of LoC-metric shall be measured.
@@ -45,31 +46,47 @@ public class LoCMetric extends AbstractFunctionMetric<StatementCountLoCVisitor> 
     public static enum LoCType {
         // Statement-based
         /**
-          * Statement Count Of Code: Lines of Code based on Statements.
+          * Statement Count Of Code.
           */
         SCOC,
         /**
-          * Statement Count Of Feature code: Lines of Feature Code based on Statements.
+          * Statement Count Of Feature code.
           */
         SCOF,
         /**
          * Percentage of Statement Count Of Feature code: SCOC / SCOF.
          */     
-        PSCOF,
+        PSCOF,       
+        /**
+         * Percentage of comments in Statement Count Of Code.
+         */
+        SCOC_COMMENT_RATIO,
+        /**
+         * Percentage of comments in Statement Count Of Feature code.
+         */
+        SCOF_COMMENT_RATIO,
         
         // Lines-based
         /**
-          * Statement Count Of Code: Lines of Code based on Statements.
+          * Lines of Code based.
           */
         LOC,
         /**
-          * Statement Count Of Feature code: Lines of Feature Code based on Statements.
+          * Lines of Feature code.
           */
         LOF,
         /**
          * Percentage of Statement Count Of Feature code: SCOC / SCOF.
          */     
-        PLOF;
+        PLOF,
+        /**
+         * Percentage of comments in Lines of Code.
+         */
+        LOC_COMMENT_RATIO,
+        /**
+         * Percentage of comments in Lines of Feature code.
+         */
+        LOF_COMMENT_RATIO;
     }
 
     private @NonNull LoCType type;
@@ -98,23 +115,31 @@ public class LoCMetric extends AbstractFunctionMetric<StatementCountLoCVisitor> 
 
     @Override
     // CHECKSTYLE:OFF checkstyle thinks this line indentation is wrong...
-    protected @NonNull StatementCountLoCVisitor createVisitor(@Nullable VariabilityModel varModel,
+    protected @NonNull AbstractLoCVisitor createVisitor(@Nullable VariabilityModel varModel,
     // CHECKSTYLE:ON
         @Nullable BuildModel buildModel, @NonNull IVariableWeight weight) {
 
-        StatementCountLoCVisitor visitor;
+        AbstractLoCVisitor visitor;
         
         switch(type) {
         case SCOC:
-         // falls through
+            // falls through
         case SCOF:
-         // falls through
+            // falls through
+        case SCOC_COMMENT_RATIO:
+            // falls through
+        case SCOF_COMMENT_RATIO:
+            // falls through
         case PSCOF:
             visitor = new StatementCountLoCVisitor(varModel);
             break;
         case LOF:
             // falls through
         case LOC:
+            // falls through
+        case LOC_COMMENT_RATIO:
+            // falls through
+        case LOF_COMMENT_RATIO:
             // falls through
         case PLOF:
             visitor = new LoCVisitor(varModel);
@@ -131,19 +156,38 @@ public class LoCMetric extends AbstractFunctionMetric<StatementCountLoCVisitor> 
     }
 
     @Override
-    protected Number computeResult(@NonNull StatementCountLoCVisitor functionVisitor, CodeFunction func) {
+    protected Number computeResult(@NonNull AbstractLoCVisitor functionVisitor, CodeFunction func) {
         Number result;
         switch(type) {
+        // All Lines / Statements count
         case LOC:
             // falls through
         case SCOC:
-            result = functionVisitor.getDLoC();
+            result = functionVisitor.getLoC();
             break;
+        
+        // All Lines / Statements comment ratio
+        case SCOC_COMMENT_RATIO:
+             // falls through
+        case LOC_COMMENT_RATIO:
+            result = functionVisitor.getLoCCommentRatio();
+            break;
+        
+        // Feature Lines / Statements count
         case LOF:
             // falls through
         case SCOF:
             result = functionVisitor.getLoF();
             break;
+        
+        // Feature Lines / Statements comment ratio
+        case SCOF_COMMENT_RATIO:
+             // falls through
+        case LOF_COMMENT_RATIO:
+            result = functionVisitor.getLoFCommentRatio();
+            break;  
+        
+        // PErcentage of feature code
         case PLOF:
             // falls through
         case PSCOF:
@@ -166,8 +210,14 @@ public class LoCMetric extends AbstractFunctionMetric<StatementCountLoCVisitor> 
         case SCOC:
             resultName = "SCoC";
             break;
+        case SCOC_COMMENT_RATIO:
+            resultName = "SCoC Comment Ratio";
+            break;
         case SCOF:
             resultName = "SCoF";
+            break;
+        case SCOF_COMMENT_RATIO:
+            resultName = "SCoF Comment Ratio";
             break;
         case PSCOF:
             resultName = "PSCoF";
@@ -177,6 +227,12 @@ public class LoCMetric extends AbstractFunctionMetric<StatementCountLoCVisitor> 
             break;
         case LOF:
             resultName = "LoF";
+            break;
+        case LOC_COMMENT_RATIO:
+            resultName = "LoC Comment Ratio";
+            break;
+        case LOF_COMMENT_RATIO:
+            resultName = "LoF Comment Ratio";
             break;
         case PLOF:
             resultName = "PLoF";

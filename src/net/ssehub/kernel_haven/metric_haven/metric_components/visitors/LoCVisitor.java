@@ -15,8 +15,11 @@
  */
 package net.ssehub.kernel_haven.metric_haven.metric_components.visitors;
 
+import net.ssehub.kernel_haven.code_model.AbstractCodeElement;
+import net.ssehub.kernel_haven.code_model.ast.Comment;
 import net.ssehub.kernel_haven.code_model.ast.CppBlock;
 import net.ssehub.kernel_haven.code_model.ast.Function;
+import net.ssehub.kernel_haven.code_model.ast.ISyntaxElement;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import net.ssehub.kernel_haven.util.null_checks.Nullable;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
@@ -32,10 +35,13 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModel;
  * @author El-Sharkawy
  *
  */
-public class LoCVisitor extends StatementCountLoCVisitor {
+public class LoCVisitor extends AbstractLoCVisitor {
     
     private int nLoC = 0;
     private int nLoF = 0;
+    private int nLoCComments = 0;
+    private int nLoFComments = 0;
+    private boolean inBlock;
        
     /**
      * Constructor to optionally specify a variability model. If a variability model is passed, only {@link CppBlock}s
@@ -53,33 +59,53 @@ public class LoCVisitor extends StatementCountLoCVisitor {
         super.visitFunction(function);
         
         // Count also the function signature
-        int nLines = function.getLineEnd() - function.getLineStart() + 1;
+        int nLines = getLines(function);
      
         // Check that it not negative (shouldn't be possible, but this is rather critical to the complete computation).
         if (nLines > 0) {
             nLoC += nLines;
         }
     }
-    
         
     @Override
     public void visitCppBlock(@NonNull CppBlock cppBlock) {
-        // Count the whole block including #if and #endif -> +1
-        int nLines = cppBlock.getLineEnd() - cppBlock.getLineStart() + 1;
-        
-        // Check that it not negative (shouldn't be possible, but this is rather critical to the complete computation).
-        if (nLines > 0) {
-            nLoF += nLines;
+        // Don't count nested blocks to avoid counting lines twice
+        if (!inBlock) {
+            // Count the whole block including #if and #endif -> +1
+            int nLines = getLines(cppBlock);
+            
+            /*
+             *  Check that it not negative (shouldn't be possible,
+             *  but this is rather critical to the complete computation).
+             */
+            if (nLines > 0) {
+                nLoF += nLines;
+            }
         }
         
-        // Do not visit nested elements!
+        boolean oldValue = inBlock;
+        inBlock = true;
+        super.visitCppBlock(cppBlock);
+        inBlock = oldValue;
+    }
+    
+    /**
+     * Computes the Lines of Code spanned by the element.
+     * @param element The element to count
+     * @return <tt>begin - end + 1</tt>
+     */
+    private int getLines(AbstractCodeElement<ISyntaxElement> element) {
+        return element.getLineEnd() - element.getLineStart() + 1;
     }
 
     @Override
-    protected void count() { }
+    protected void countStatement() { }
     
     @Override
-    public int getDLoC() {
+    protected void countComment() { }
+    
+    @Override
+    public int getLoC() {
         return nLoC;
     }
     
@@ -93,5 +119,32 @@ public class LoCVisitor extends StatementCountLoCVisitor {
         super.reset();
         nLoC = 0;
         nLoF = 0;
+        nLoCComments = 0;
+        nLoFComments = 0;
+        inBlock = false;
+    }
+
+    @Override
+    public int getLoCComments() {
+        return nLoCComments;
+    }
+
+    @Override
+    public int getLoFComments() {
+        return nLoFComments;
+    }
+    
+    @Override
+    public void visitComment(@NonNull Comment comment) {
+        int nLines = getLines(comment);
+        
+        // Check that it not negative (shouldn't be possible, but this is rather critical to the complete computation).
+        if (nLines > 0) {
+            nLoCComments += nLines;
+            
+            if (isInConditionalCode()) {
+                nLoFComments += nLines;
+            }
+        }
     }
 }

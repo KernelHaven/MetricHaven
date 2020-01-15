@@ -63,16 +63,20 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   <!-- LoC -->
   <tr>
     <td><code>LoCMetric</code></td>
-    <td>6</td>
+    <td>10</td>
     <td>Measures the number of lines or statements (single line statement, loop, ..) per function.</td>
     <td>
       <code>metrics.loc.measured_type</code>:
       <ul>
         <li><code>SCOC</code>: Measures the non-CPP statements (also if they are surrounded by an CPP-block).</li>
         <li><code>SCOF</code>: Measures the lines of feature code (only statements surrounded by CPP-blocks, if a variability model is passed, it checks if at least one variable of the variability model is used in the CPP-block)</li>
+        <li><code>SCOC_COMMENT_RATIO</code>: Measures the ratio of comments in SCOC.</li>
+        <li><code>SCOF_COMMENT_RATIO</code>: Measures the ratio of comments in SCOF.</li>
         <li><code>PSCOF</code>: <code>SCOF / SCOC</code></li>
         <li><code>LOC</code>: Measures the non-CPP lines of code (also of they are surrounded by an CPP-block).</li>
         <li><code>LOF</code>: Measures the lines of feature code (only lines surrounded by CPP-blocks (including if, else, endif), if a variability model is passed, it checks if at least one variable of the variability model is used in the CPP-block)</li>
+        <li><code>LOC_COMMENT_RATIO</code>: Measures the ratio of comments in LOC.</li>
+        <li><code>LOF_COMMENT_RATIO</code>: Measures the ratio of comments in LOF</li>
         <li><code>PLOF</code>: <code>LOF / LOC</code></li>
       </ul>
     </td>
@@ -171,7 +175,7 @@ prefix `net.ssehub.kernel_haven.metric_haven.code_metrics`. Most of the metrics 
   </tr>
   <tr>
     <th>Total</th>
-    <td>42,796</td>
+    <td>42,800</td>
     <td></td>
     <td></td>
   </tr>

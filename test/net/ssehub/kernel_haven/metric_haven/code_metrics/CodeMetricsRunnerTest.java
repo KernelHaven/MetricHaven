@@ -54,7 +54,7 @@ import net.ssehub.kernel_haven.variability_model.VariabilityModelDescriptor.Attr
  * @author Adam
  */
 public class CodeMetricsRunnerTest {
-    private static final int EXPECTED_TOTAL_METRIC_COUNT = 42796;
+    private static final int EXPECTED_TOTAL_METRIC_COUNT = 42800;
 
     /**
      * Tests a simple scenario.
