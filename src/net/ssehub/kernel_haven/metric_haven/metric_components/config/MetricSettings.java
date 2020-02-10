@@ -176,9 +176,14 @@ public class MetricSettings {
             + " - " + LoCMetric.LoCType.SCOC.name()  + ": Counts all statements (Stament Count Of Code).\n"
             + " - " + LoCMetric.LoCType.SCOF.name()  + ": Counts all variable statements "
                                                      + "(Stament Count Of Feature Code).\n"
+            + " - " + LoCMetric.LoCType.SCOC_COMMENT_RATIO.name() + ": Comment elements / (Comment elements) + SCOC.\n"
+            + " - " + LoCMetric.LoCType.SCOF_COMMENT_RATIO.name() + ": Variable comment elements / "
+                                                                  + "(Variable comment elements) + SCOF.\n"
             + " - " + LoCMetric.LoCType.PSCOF.name() + ": SCOF / SCOC (0 if SCOF is 0).\n"
             + " - " + LoCMetric.LoCType.LOC.name()   + ": Counts all lines (Lines Of Code).\n"
             + " - " + LoCMetric.LoCType.LOF.name()   + ": Counts all variable lines (Lines Of Feature Code).\n"
+            + " - " + LoCMetric.LoCType.LOC_COMMENT_RATIO.name() + ": Comment lines / LOC.\n"
+            + " - " + LoCMetric.LoCType.LOF_COMMENT_RATIO.name() + ": Variable comment lines / LOF.\n"
             + " - " + LoCMetric.LoCType.PLOF.name()  + ": LOF / LOC (0 if LOF is 0).\n");
     
     public static final @NonNull Setting<FanInOut.@NonNull FanType> FAN_TYPE_SETTING
