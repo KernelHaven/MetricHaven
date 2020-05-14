@@ -80,7 +80,9 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
         VariabilityModel varModel = vmProvider.getNextResult();
         if (varModel == null) {
             LOGGER.logError("Did not get a variability model", "Can't create any results");
+            // CHECKSTYLE:OFF : Aborts computation
             return;
+            // CHECKSTYLE:ON
         }
 
         countedVariables.init(varModel);
@@ -107,7 +109,9 @@ public class VariabilityCounter extends AnalysisComponent<ScatteringDegreeContai
             } catch (InterruptedException e) {
                 LOGGER.logError("Threads did not finish in time, could not compute Scattering Degree values.");
                 progress.close();
+                // CHECKSTYLE:OFF : Aborts computation
                 return;
+                // CHECKSTYLE:ON
             }
         }
         

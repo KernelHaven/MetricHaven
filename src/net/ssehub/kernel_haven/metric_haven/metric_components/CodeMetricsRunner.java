@@ -170,7 +170,7 @@ public class CodeMetricsRunner extends AnalysisComponent<MultiMetricResult> {
      * 
      * @throws SetUpException If creating the metric instances fails.
      */
-    //CHECKSTYLE:OFF // More than 5 parameters
+    // CHECKSTYLE:OFF : More than 5 parameters
     public CodeMetricsRunner(@NonNull Configuration config,
     //CHECKSTYLE:ON
         @NonNull AnalysisComponent<CodeFunction> codeFunctionComponent,
